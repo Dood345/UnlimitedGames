@@ -2,7 +2,6 @@ package com.appsters.unlimitedgames;
 
 import android.os.Bundle;
 import android.view.View;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
@@ -84,7 +83,7 @@ public class MainActivity extends AppCompatActivity {
 
             case AUTHENTICATED:
                 // User is logged in - show main app
-                if (navController.getGraph().getId() != R.navigation.nav_main) {
+                if (navController.getGraph().getId() != R.id.nav_main) {
                     navController.setGraph(R.navigation.nav_main);
                 }
                 binding.bottomNav.setVisibility(View.VISIBLE);
@@ -93,7 +92,7 @@ public class MainActivity extends AppCompatActivity {
 
             case UNAUTHENTICATED:
                 // User is not logged in - show auth flow
-                if (navController.getGraph().getId() != R.navigation.nav_auth) {
+                if (navController.getGraph().getId() != R.id.nav_auth) {
                     navController.setGraph(R.navigation.nav_auth);
                 }
                 binding.bottomNav.setVisibility(View.GONE);
@@ -101,10 +100,10 @@ public class MainActivity extends AppCompatActivity {
 
             case ERROR:
                 // Show error message but stay on current screen
-                String errorMsg = authViewModel.getErrorMessage();
-                if (errorMsg != null) {
-                    Toast.makeText(this, errorMsg, Toast.LENGTH_LONG).show();
-                }
+//                String errorMsg = authViewModel.getErrorMessage();
+//                if (errorMsg != null) {
+//                    Toast.makeText(this, errorMsg, Toast.LENGTH_LONG).show();
+//                }
                 // After showing error, revert to unauthenticated state
                 // The auth fragments will handle showing the error to the user
                 break;

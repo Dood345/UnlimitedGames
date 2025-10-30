@@ -1,5 +1,12 @@
 package com.appsters.unlimitedgames.ui.profile;
 
+import android.Manifest;
+import android.app.Activity;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -8,8 +15,11 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
@@ -24,7 +34,29 @@ public class ProfileFragment extends Fragment {
     private FragmentProfileBinding binding;
     private ProfileViewModel viewModel;
     private AuthViewModel authViewModel;
-    private boolean isInitialLoad = true; // Prevent privacy update on initial load
+
+    private boolean isInitialLoad = true;
+
+    private final ActivityResultLauncher<String> requestPermissionLauncher = registerForActivityResult(
+            new ActivityResultContracts.RequestPermission(),
+            isGranted -> {
+                if (isGranted) {
+                    openImagePicker();
+                } else {
+                    Toast.makeText(requireContext(), "Permission denied to read storage", Toast.LENGTH_SHORT).show();
+                }
+            });
+
+    // Image picker launcher
+    private final ActivityResultLauncher<Intent> imagePickerLauncher =
+            registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
+                if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
+                    Uri imageUri = result.getData().getData();
+                    if (imageUri != null) {
+                        handleImageSelection(imageUri);
+                    }
+                }
+            });
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
@@ -58,7 +90,6 @@ public class ProfileFragment extends Fragment {
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         binding.spinnerPrivacy.setAdapter(adapter);
 
-        // Handle privacy changes
         binding.spinnerPrivacy.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
@@ -70,7 +101,6 @@ public class ProfileFragment extends Fragment {
 
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
-                // Do nothing
             }
         });
     }
@@ -81,14 +111,10 @@ public class ProfileFragment extends Fragment {
                 binding.tvUsername.setText(user.getUsername());
                 binding.tvEmail.setText(user.getEmail());
 
-                // Set privacy spinner
                 binding.spinnerPrivacy.setSelection(user.getPrivacy().ordinal());
-                isInitialLoad = false; // Allow privacy updates after initial load
+                isInitialLoad = false;
 
-                // Load profile image
                 loadProfileImage(user);
-
-                // TODO: Load high scores into RecyclerView
             }
         });
 
@@ -101,41 +127,111 @@ public class ProfileFragment extends Fragment {
                 Toast.makeText(requireContext(), errorMessage, Toast.LENGTH_SHORT).show();
             }
         });
+
+        viewModel.getLogoutComplete().observe(getViewLifecycleOwner(), logoutComplete -> {
+            if (logoutComplete) {
+                Toast.makeText(requireContext(), "Logged out successfully", Toast.LENGTH_SHORT).show();
+                authViewModel.signOut();
+            }
+        });
+
+        viewModel.getImageUploadSuccess().observe(getViewLifecycleOwner(), success -> {
+            if (success != null && success) {
+                Toast.makeText(requireContext(), "Profile picture updated!", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     private void setupClickListeners() {
         binding.btnEditProfile.setOnClickListener(v -> {
-            // TODO: Navigate to edit profile
-            // Navigation.findNavController(v).navigate(R.id.action_profile_to_editProfile);
             Toast.makeText(requireContext(), "Edit Profile - Coming Soon", Toast.LENGTH_SHORT).show();
         });
 
         binding.btnEditProfilePicture.setOnClickListener(v -> {
-            // TODO: Open image picker
-            Toast.makeText(requireContext(), "Upload Picture - Coming Soon", Toast.LENGTH_SHORT).show();
+            requestStoragePermission();
         });
 
         binding.btnLogout.setOnClickListener(v -> {
-            authViewModel.signOut();
-            Toast.makeText(requireContext(), "Logged out successfully", Toast.LENGTH_SHORT).show();
+            viewModel.logout();
         });
+    }
+
+    private void requestStoragePermission() {
+        String permission;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            permission = Manifest.permission.READ_MEDIA_IMAGES;
+        } else {
+            permission = Manifest.permission.READ_EXTERNAL_STORAGE;
+        }
+
+        if (ContextCompat.checkSelfPermission(requireContext(), permission) == PackageManager.PERMISSION_GRANTED) {
+            openImagePicker();
+        } else {
+            requestPermissionLauncher.launch(permission);
+        }
+    }
+
+    private void openImagePicker() {
+        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+        intent.setType("image/*");
+        imagePickerLauncher.launch(intent);
+    }
+
+    private void handleImageSelection(Uri imageUri) {
+        // Show loading
+        binding.progressBar.setVisibility(View.VISIBLE);
+
+        // Compress image in background thread
+        new Thread(() -> {
+            String base64Image = ImageHelper.compressImageToBase64(requireContext(), imageUri);
+
+            // Update UI on main thread
+            requireActivity().runOnUiThread(() -> {
+                binding.progressBar.setVisibility(View.GONE);
+
+                if (base64Image != null) {
+                    long imageSize = ImageHelper.getBase64ImageSize(base64Image);
+                    if (imageSize < 5 * 1024 * 1024) { // Check if under 5MB
+                        viewModel.updateProfilePicture(base64Image);
+                    } else {
+                        Toast.makeText(requireContext(),
+                                "Image is too large. Please choose a smaller image.",
+                                Toast.LENGTH_LONG).show();
+                    }
+                } else {
+                    Toast.makeText(requireContext(),
+                            "Failed to process image. Please try another image.",
+                            Toast.LENGTH_SHORT).show();
+                }
+            });
+        }).start();
     }
 
     private void loadProfileImage(com.appsters.unlimitedgames.data.model.User user) {
         if (user.getProfileImageUrl() != null && !user.getProfileImageUrl().isEmpty()) {
-            // TODO: Load image from URL using Glide or Picasso
-            // For now, show placeholder
-            binding.profileImage.setImageResource(R.drawable.ic_profile);
+            // Load Base64 image
+            Bitmap bitmap = ImageHelper.decodeBase64ToBitmap(user.getProfileImageUrl());
+            if (bitmap != null) {
+                binding.profileImage.setImageBitmap(bitmap);
+            } else {
+                // Fallback to initials if decode fails
+                showInitialsAvatar(user);
+            }
         } else {
-            // Generate initials avatar
-            String initials = ImageHelper.getInitials(user.getUsername());
-            String color = user.getProfileColor() != null ? user.getProfileColor() : "#4ECDC4";
-
-            int size = (int) (120 * getResources().getDisplayMetrics().density);
-            binding.profileImage.setImageBitmap(
-                    ImageHelper.createInitialsAvatar(initials, color, size)
-            );
+            // Show initials avatar
+            showInitialsAvatar(user);
         }
+    }
+
+    private void showInitialsAvatar(com.appsters.unlimitedgames.data.model.User user) {
+        String initials = ImageHelper.getInitials(user.getUsername());
+        String color = user.getProfileColor() != null ? user.getProfileColor() : "#4ECDC4";
+
+        int size = (int) (120 * getResources().getDisplayMetrics().density);
+        binding.profileImage.setImageBitmap(
+                ImageHelper.createInitialsAvatar(initials, color, size)
+        );
     }
 
     @Override

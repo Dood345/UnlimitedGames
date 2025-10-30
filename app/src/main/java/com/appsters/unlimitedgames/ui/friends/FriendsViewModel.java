@@ -5,7 +5,7 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 import android.util.Log;
 
-import com.appsters.unlimitedgames.model.User;
+import com.appsters.unlimitedgames.data.model.User;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
@@ -123,10 +123,10 @@ public class FriendsViewModel extends ViewModel {
 
         String currentUserId = currentUser.getUid();
         DocumentReference currentUserDoc = db.collection("users").document(currentUserId);
-        DocumentReference friendUserDoc = db.collection("users").document(user.getUid());
+        DocumentReference friendUserDoc = db.collection("users").document(user.getUserId());
 
-        currentUserDoc.update("friends", FieldValue.arrayUnion(user.getUid()));
-        currentUserDoc.update("friendRequestsReceived", FieldValue.arrayRemove(user.getUid()));
+        currentUserDoc.update("friends", FieldValue.arrayUnion(user.getUserId()));
+        currentUserDoc.update("friendRequestsReceived", FieldValue.arrayRemove(user.getUserId()));
 
         friendUserDoc.update("friends", FieldValue.arrayUnion(currentUserId));
         friendUserDoc.update("friendRequestsSent", FieldValue.arrayRemove(currentUserId));
@@ -141,9 +141,9 @@ public class FriendsViewModel extends ViewModel {
 
         String currentUserId = currentUser.getUid();
         DocumentReference currentUserDoc = db.collection("users").document(currentUserId);
-        DocumentReference friendUserDoc = db.collection("users").document(user.getUid());
+        DocumentReference friendUserDoc = db.collection("users").document(user.getUserId());
 
-        currentUserDoc.update("friendRequestsReceived", FieldValue.arrayRemove(user.getUid()));
+        currentUserDoc.update("friendRequestsReceived", FieldValue.arrayRemove(user.getUserId()));
         friendUserDoc.update("friendRequestsSent", FieldValue.arrayRemove(currentUserId));
 
         fetchFriendRequests();
@@ -166,7 +166,7 @@ public class FriendsViewModel extends ViewModel {
                 .addOnSuccessListener(queryDocumentSnapshots -> {
                     List<User> users = queryDocumentSnapshots.toObjects(User.class);
                     String currentUserId = auth.getCurrentUser().getUid();
-                    users.removeIf(u -> u.getUid().equals(currentUserId));
+                    users.removeIf(u -> u.getUserId().equals(currentUserId));
                     searchResults.setValue(users);
                     loading.setValue(false);
                 }).addOnFailureListener(e -> {
@@ -182,9 +182,9 @@ public class FriendsViewModel extends ViewModel {
         
         String currentUserId = currentUser.getUid();
         DocumentReference currentUserDoc = db.collection("users").document(currentUserId);
-        DocumentReference targetUserDoc = db.collection("users").document(targetUser.getUid());
+        DocumentReference targetUserDoc = db.collection("users").document(targetUser.getUserId());
 
-        currentUserDoc.update("friendRequestsSent", FieldValue.arrayUnion(targetUser.getUid()));
+        currentUserDoc.update("friendRequestsSent", FieldValue.arrayUnion(targetUser.getUserId()));
 
         targetUserDoc.update("friendRequestsReceived", FieldValue.arrayUnion(currentUserId));
     }

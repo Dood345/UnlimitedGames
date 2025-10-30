@@ -8,14 +8,16 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.navigation.fragment.NavHostFragment;
 import androidx.recyclerview.widget.GridLayoutManager;
 
+import com.appsters.unlimitedgames.R;
 import com.appsters.unlimitedgames.databinding.FragmentHomeBinding;
 import com.appsters.unlimitedgames.util.GameType;
 
 import java.util.Arrays;
 
-public class HomeFragment extends Fragment {
+public class HomeFragment extends Fragment implements GameAdapter.OnItemClickListener {
 
     private FragmentHomeBinding binding;
 
@@ -31,6 +33,7 @@ public class HomeFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         GameAdapter adapter = new GameAdapter(Arrays.asList(GameType.values()));
+        adapter.setOnItemClickListener(this);
         binding.gamesRecyclerView.setAdapter(adapter);
         binding.gamesRecyclerView.setLayoutManager(new GridLayoutManager(getContext(), 2));
     }
@@ -39,5 +42,10 @@ public class HomeFragment extends Fragment {
     public void onDestroyView() {
         super.onDestroyView();
         binding = null;
+    }
+
+    @Override
+    public void onItemClick(GameType gameType) {
+        NavHostFragment.findNavController(this).navigate(gameType.getActionId());
     }
 }

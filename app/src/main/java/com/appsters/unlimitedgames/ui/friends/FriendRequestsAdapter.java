@@ -9,7 +9,7 @@ import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.appsters.unlimitedgames.databinding.ItemFriendRequestBinding;
-import com.appsters.unlimitedgames.model.User;
+import com.appsters.unlimitedgames.data.model.User;
 
 public class FriendRequestsAdapter extends ListAdapter<User, FriendRequestsAdapter.FriendRequestViewHolder> {
 
@@ -19,7 +19,7 @@ public class FriendRequestsAdapter extends ListAdapter<User, FriendRequestsAdapt
         super(new DiffUtil.ItemCallback<User>() {
             @Override
             public boolean areItemsTheSame(@NonNull User oldItem, @NonNull User newItem) {
-                return oldItem.getUid().equals(newItem.getUid());
+                return oldItem.getUserId().equals(newItem.getUserId());
             }
 
             @Override

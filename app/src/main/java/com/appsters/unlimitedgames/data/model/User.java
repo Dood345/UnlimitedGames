@@ -1,11 +1,15 @@
 package com.appsters.unlimitedgames.data.model;
 
 import com.appsters.unlimitedgames.util.Privacy;
+import com.google.firebase.firestore.PropertyName;
 
 import java.util.HashMap;
 import java.util.Map;
 
+import com.google.firebase.firestore.PropertyName;
+
 public class User {
+    @PropertyName("uid")
     private String userId;
     private String username;
     private String email;

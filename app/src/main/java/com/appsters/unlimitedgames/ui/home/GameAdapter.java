@@ -17,6 +17,7 @@ import java.util.List;
 public class GameAdapter extends RecyclerView.Adapter<GameAdapter.GameViewHolder> {
 
     private final List<GameType> games;
+    private OnItemClickListener listener;
 
     /**
      * Constructs a new GameAdapter.
@@ -68,10 +69,18 @@ public class GameAdapter extends RecyclerView.Adapter<GameAdapter.GameViewHolder
         return games.size();
     }
 
+    public void setOnItemClickListener(OnItemClickListener listener) {
+        this.listener = listener;
+    }
+
+    public interface OnItemClickListener {
+        void onItemClick(GameType gameType);
+    }
+
     /**
      * A ViewHolder that describes an item view and metadata about its place within the RecyclerView.
      */
-    public static class GameViewHolder extends RecyclerView.ViewHolder {
+    public class GameViewHolder extends RecyclerView.ViewHolder {
 
         private final ItemGameBinding binding;
 
@@ -83,6 +92,13 @@ public class GameAdapter extends RecyclerView.Adapter<GameAdapter.GameViewHolder
         public GameViewHolder(ItemGameBinding binding) {
             super(binding.getRoot());
             this.binding = binding;
+
+            itemView.setOnClickListener(v -> {
+                int position = getAdapterPosition();
+                if (listener != null && position != RecyclerView.NO_POSITION) {
+                    listener.onItemClick(games.get(position));
+                }
+            });
         }
 
         /**

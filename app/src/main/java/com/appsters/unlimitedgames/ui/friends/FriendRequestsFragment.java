@@ -12,7 +12,7 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.appsters.unlimitedgames.databinding.FragmentFriendRequestsBinding;
-import com.appsters.unlimitedgames.model.User;
+import com.appsters.unlimitedgames.data.model.User;
 
 public class FriendRequestsFragment extends Fragment implements FriendRequestsAdapter.OnFriendRequestInteractionListener {
 

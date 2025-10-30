@@ -2,8 +2,13 @@ package com.appsters.unlimitedgames;
 
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowCompat;
+import androidx.core.view.WindowInsetsCompat;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
@@ -11,6 +16,8 @@ import androidx.navigation.ui.NavigationUI;
 
 import com.appsters.unlimitedgames.databinding.ActivityMainBinding;
 import com.appsters.unlimitedgames.ui.auth.AuthViewModel;
+import com.appsters.unlimitedgames.ui.auth.AuthState;
+
 
 /**
  * The main activity of the application.
@@ -35,26 +42,78 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        WindowCompat.setDecorFitsSystemWindows(getWindow(), false);
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
         authViewModel = new ViewModelProvider(this).get(AuthViewModel.class);
 
-        NavHostFragment navHostFragment = (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment);
-        navController = navHostFragment.getNavController();
+        NavHostFragment navHostFragment = (NavHostFragment) getSupportFragmentManager()
+                .findFragmentById(R.id.nav_host_fragment);
 
-        authViewModel.getAuthState().observe(this, authState -> {
-            switch (authState) {
-                case AUTHENTICATED:
-                    navController.setGraph(R.navigation.nav_main);
-                    binding.bottomNav.setVisibility(View.VISIBLE);
-                    NavigationUI.setupWithNavController(binding.bottomNav, navController);
-                    break;
-                case UNAUTHENTICATED:
-                    navController.setGraph(R.navigation.nav_auth);
-                    binding.bottomNav.setVisibility(View.GONE);
-                    break;
-            }
+        if (navHostFragment != null) {
+            navController = navHostFragment.getNavController();
+
+            authViewModel.getAuthState().observe(this, authState -> {
+                if (authState != null) {
+                    handleAuthState(authState);
+                }
+            });
+        }
+
+        ViewCompat.setOnApplyWindowInsetsListener(binding.mainContainer, (v, windowInsets) -> {
+            Insets insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars());
+            v.setPadding(insets.left, insets.top, insets.right, insets.bottom);
+            return windowInsets;
         });
+    }
+
+    /**
+     * Handles changes in authentication state.
+     * Updates the navigation graph and UI visibility based on the current auth state.
+     *
+     * @param authState The current authentication state
+     */
+    private void handleAuthState(AuthState authState) {
+        switch (authState) {
+            case LOADING:
+                // Show loading indicator, hide bottom nav
+                binding.bottomNav.setVisibility(View.GONE);
+                // You could add a loading overlay here if desired
+                break;
+
+            case AUTHENTICATED:
+                // User is logged in - show main app
+                if (navController.getGraph().getId() != R.navigation.nav_main) {
+                    navController.setGraph(R.navigation.nav_main);
+                }
+                binding.bottomNav.setVisibility(View.VISIBLE);
+                NavigationUI.setupWithNavController(binding.bottomNav, navController);
+                break;
+
+            case UNAUTHENTICATED:
+                // User is not logged in - show auth flow
+                if (navController.getGraph().getId() != R.navigation.nav_auth) {
+                    navController.setGraph(R.navigation.nav_auth);
+                }
+                binding.bottomNav.setVisibility(View.GONE);
+                break;
+
+            case ERROR:
+                // Show error message but stay on current screen
+                String errorMsg = authViewModel.getErrorMessage();
+                if (errorMsg != null) {
+                    Toast.makeText(this, errorMsg, Toast.LENGTH_LONG).show();
+                }
+                // After showing error, revert to unauthenticated state
+                // The auth fragments will handle showing the error to the user
+                break;
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        binding = null;
     }
 }

@@ -5,6 +5,7 @@ import com.google.firebase.firestore.PropertyName;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 import com.google.firebase.firestore.PropertyName;
 
@@ -89,5 +90,14 @@ public class User {
 
     public void setHighScores(Map<String, Integer> highScores) {
         this.highScores = highScores;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        User user = (User) o;
+        return Objects.equals(userId, user.userId) &&
+                Objects.equals(email, user.email);
     }
 }

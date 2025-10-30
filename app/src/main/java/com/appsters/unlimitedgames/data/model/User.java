@@ -15,6 +15,7 @@ public class User {
     private String username;
     private String email;
     private String profileImageUrl;
+    private String profileColor; // Add this field
     private Privacy privacy;
     private long createdAt;
     private Map<String, Integer> highScores;
@@ -23,6 +24,7 @@ public class User {
         this.privacy = Privacy.PUBLIC;
         this.createdAt = System.currentTimeMillis();
         this.highScores = new HashMap<>();
+        this.profileColor = "#4ECDC4"; // Default color
     }
 
     public User(String userId, String username, String email, String profileImageUrl) {
@@ -33,6 +35,7 @@ public class User {
         this.privacy = Privacy.PUBLIC;
         this.createdAt = System.currentTimeMillis();
         this.highScores = new HashMap<>();
+        this.profileColor = generateColorForUser(userId); // Generate based on userId
     }
 
     // Getters and setters
@@ -90,6 +93,24 @@ public class User {
 
     public void setHighScores(Map<String, Integer> highScores) {
         this.highScores = highScores;
+    }
+
+    // Add getter and setter for profileColor
+    public String getProfileColor() {
+        return profileColor;
+    }
+
+    public void setProfileColor(String profileColor) {
+        this.profileColor = profileColor;
+    }
+
+    private String generateColorForUser(String userId) {
+        String[] colors = {
+                "#FF6B6B", "#4ECDC4", "#45B7D1", "#FFA07A",
+                "#98D8C8", "#F7DC6F", "#BB8FCE", "#85C1E2"
+        };
+        int index = Math.abs(userId.hashCode()) % colors.length;
+        return colors[index];
     }
 
     @Override

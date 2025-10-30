@@ -1,5 +1,21 @@
 package com.appsters.unlimitedgames.util;
 
+import androidx.annotation.NonNull;
+
 public enum Privacy {
-    PUBLIC, PRIVATE, FRIENDS_ONLY
+    PUBLIC("Public"),
+    PRIVATE("Private"),
+    FRIENDS_ONLY("Friends Only");
+
+    private final String displayName;
+
+    Privacy(String displayName) {
+        this.displayName = displayName;
+    }
+
+    @NonNull
+    @Override
+    public String toString() {
+        return displayName;
+    }
 }

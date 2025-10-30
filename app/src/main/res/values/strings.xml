@@ -1,7 +1,24 @@
 <resources>
     <string name="app_name">Unlimited Games</string>
+
+    <!-- Bottom Navigation -->
     <string name="home">Home</string>
     <string name="profile">Profile</string>
     <string name="friends">Friends</string>
     <string name="leaderboard">Leaderboard</string>
+
+    <!-- Login -->
+    <string name="email">Email</string>
+    <string name="password">Password</string>
+    <string name="login">Login</string>
+    <string name="sign_up_prompt">Don\'t have an account? Sign Up</string>
+
+    <!-- Profile -->
+    <string name="profile_picture">Profile Picture</string>
+    <string name="edit_profile_picture">Edit Profile Picture</string>
+    <string name="edit_profile">Edit Profile</string>
+    <string name="high_scores">High Scores</string>
+    <string name="privacy">Privacy Setting</string>
+    <string name="logout">Logout</string>
+    <string name="no_high_scores">No high scores yet. Start playing!</string>
 </resources>

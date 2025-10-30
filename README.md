@@ -35,5 +35,9 @@ Android flash-game exploration
 - Firebase Console: [your-firebase-console-url]
 - Ask [Team Lead] to add you as a team member in Firebase Console
 
-## Git Workflow
-See CONTRIBUTING.md for branching strategy and collaboration guidelines
+## This repo's Build Status
+
+[![Actions Status][gh-actions-badge]][gh-actions]
+
+[gh-actions]: https://github.com/Dood345/UnlimitedGames/actions
+[gh-actions-badge]: https://github.com/Dood345/UnlimitedGames/workflows/Android%20CI/badge.svg

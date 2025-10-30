@@ -7,7 +7,7 @@
 
     <fragment
         android:id="@+id/homeFragment"
-        android:name="com.appsters.unlimitedgames.ui.home.HomeFragment"
+        android:name="com.appsters.unlimitedgames.app.ui.home.HomeFragment"
         android:label="fragment_home"
         tools:layout="@layout/fragment_home" >
         <action
@@ -38,49 +38,49 @@
 
     <fragment
         android:id="@+id/profileFragment"
-        android:name="com.appsters.unlimitedgames.ui.profile.ProfileFragment"
+        android:name="com.appsters.unlimitedgames.app.ui.profile.ProfileFragment"
         android:label="fragment_profile"
         tools:layout="@layout/fragment_profile" />
 
     <fragment
         android:id="@+id/friendsFragment"
-        android:name="com.appsters.unlimitedgames.ui.friends.FriendsFragment"
+        android:name="com.appsters.unlimitedgames.app.ui.friends.FriendsFragment"
         android:label="fragment_friends"
         tools:layout="@layout/fragment_friends" />
 
     <fragment
         android:id="@+id/leaderboardFragment"
-        android:name="com.appsters.unlimitedgames.ui.leaderboard.LeaderboardFragment"
+        android:name="com.appsters.unlimitedgames.app.ui.leaderboard.LeaderboardFragment"
         android:label="fragment_leaderboard"
         tools:layout="@layout/fragment_leaderboard" />
 
     <fragment
         android:id="@+id/game2048Fragment"
-        android:name="com.appsters.unlimitedgames.ui.games.game2048.Game2048Fragment"
+        android:name="com.appsters.unlimitedgames.games.game2048.Game2048Fragment"
         android:label="fragment_game2048"
         tools:layout="@layout/fragment_game_2048" />
 
     <fragment
         android:id="@+id/pokerFragment"
-        android:name="com.appsters.unlimitedgames.ui.games.poker.PokerFragment"
+        android:name="com.appsters.unlimitedgames.games.poker.PokerFragment"
         android:label="fragment_poker"
         tools:layout="@layout/fragment_poker" />
 
     <fragment
         android:id="@+id/sudokuFragment"
-        android:name="com.appsters.unlimitedgames.ui.games.sudoku.SudokuFragment"
+        android:name="com.appsters.unlimitedgames.games.sudoku.SudokuFragment"
         android:label="fragment_sudoku"
         tools:layout="@layout/fragment_sudoku" />
 
     <fragment
         android:id="@+id/NFLQuizFragment"
-        android:name="com.appsters.unlimitedgames.ui.games.nflquiz.NFLQuizFragment"
+        android:name="com.appsters.unlimitedgames.games.nflquiz.NFLQuizFragment"
         android:label="fragment_nfl_quiz"
         tools:layout="@layout/fragment_nfl_quiz" />
 
     <fragment
         android:id="@+id/whackAMoleFragment"
-        android:name="com.appsters.unlimitedgames.ui.games.whackamole.WhackAMoleFragment"
+        android:name="com.appsters.unlimitedgames.games.whackamole.WhackAMoleFragment"
         android:label="fragment_whack_a_mole"
         tools:layout="@layout/fragment_whack_a_mole" />
 

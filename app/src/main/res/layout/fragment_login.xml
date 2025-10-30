@@ -6,14 +6,14 @@
     <data>
         <variable
             name="viewModel"
-            type="com.appsters.unlimitedgames.ui.auth.AuthViewModel" />
+            type="com.appsters.unlimitedgames.app.ui.auth.AuthViewModel" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:padding="24dp"
-        tools:context=".ui.auth.LoginFragment">
+        tools:context=".app.ui.auth.LoginFragment">
 
         <!-- App Logo or Title -->
         <TextView

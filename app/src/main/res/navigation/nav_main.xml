@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_main"
+    app:startDestination="@id/homeFragment">
+
+    <fragment
+        android:id="@+id/homeFragment"
+        android:name="com.appsters.unlimitedgames.ui.home.HomeFragment"
+        android:label="fragment_home"
+        tools:layout="@layout/fragment_home" >
+        <action
+            android:id="@+id/action_homeFragment_to_profileFragment"
+            app:destination="@id/profileFragment" />
+        <action
+            android:id="@+id/action_homeFragment_to_friendsFragment"
+            app:destination="@id/friendsFragment" />
+        <action
+            android:id="@+id/action_homeFragment_to_leaderboardFragment"
+            app:destination="@id/leaderboardFragment" />
+        <action
+            android:id="@+id/action_homeFragment_to_game2048Fragment"
+            app:destination="@id/game2048Fragment" />
+        <action
+            android:id="@+id/action_homeFragment_to_pokerFragment"
+            app:destination="@id/pokerFragment" />
+        <action
+            android:id="@+id/action_homeFragment_to_sudokuFragment"
+            app:destination="@id/sudokuFragment" />
+        <action
+            android:id="@+id/action_homeFragment_to_NFLQuizFragment"
+            app:destination="@id/NFLQuizFragment" />
+        <action
+            android:id="@+id/action_homeFragment_to_whackAMoleFragment"
+            app:destination="@id/whackAMoleFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/profileFragment"
+        android:name="com.appsters.unlimitedgames.ui.profile.ProfileFragment"
+        android:label="fragment_profile"
+        tools:layout="@layout/fragment_profile" />
+
+    <fragment
+        android:id="@+id/friendsFragment"
+        android:name="com.appsters.unlimitedgames.ui.friends.FriendsFragment"
+        android:label="fragment_friends"
+        tools:layout="@layout/fragment_friends" />
+
+    <fragment
+        android:id="@+id/leaderboardFragment"
+        android:name="com.appsters.unlimitedgames.ui.leaderboard.LeaderboardFragment"
+        android:label="fragment_leaderboard"
+        tools:layout="@layout/fragment_leaderboard" />
+
+    <fragment
+        android:id="@+id/game2048Fragment"
+        android:name="com.appsters.unlimitedgames.ui.games.game2048.Game2048Fragment"
+        android:label="fragment_game2048"
+        tools:layout="@layout/fragment_game_2048" />
+
+    <fragment
+        android:id="@+id/pokerFragment"
+        android:name="com.appsters.unlimitedgames.ui.games.poker.PokerFragment"
+        android:label="fragment_poker"
+        tools:layout="@layout/fragment_poker" />
+
+    <fragment
+        android:id="@+id/sudokuFragment"
+        android:name="com.appsters.unlimitedgames.ui.games.sudoku.SudokuFragment"
+        android:label="fragment_sudoku"
+        tools:layout="@layout/fragment_sudoku" />
+
+    <fragment
+        android:id="@+id/NFLQuizFragment"
+        android:name="com.appsters.unlimitedgames.ui.games.nflquiz.NFLQuizFragment"
+        android:label="fragment_nfl_quiz"
+        tools:layout="@layout/fragment_nfl_quiz" />
+
+    <fragment
+        android:id="@+id/whackAMoleFragment"
+        android:name="com.appsters.unlimitedgames.ui.games.whackamole.WhackAMoleFragment"
+        android:label="fragment_whack_a_mole"
+        tools:layout="@layout/fragment_whack_a_mole" />
+
+</navigation>

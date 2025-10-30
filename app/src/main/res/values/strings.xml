@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">Unlimited Games</string>
+    <string name="home">Home</string>
+    <string name="profile">Profile</string>
+    <string name="friends">Friends</string>
+    <string name="leaderboard">Leaderboard</string>
+</resources>

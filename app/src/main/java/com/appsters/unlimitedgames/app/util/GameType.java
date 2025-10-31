@@ -12,7 +12,7 @@ public enum GameType {
     POKER("Poker", R.id.action_homeFragment_to_pokerFragment),
     SUDOKU("Sudoku", R.id.action_homeFragment_to_sudokuFragment),
     NFL_QUIZ("NFL Quiz", R.id.action_homeFragment_to_NFLQuizFragment),
-    WHACK_A_MOLE("Whack-a-Mole", R.id.action_homeFragment_to_whackAMoleFragment);
+    WHACK_A_MOLE("Whack-a-Mole", 0);
 
     private final String displayName;
     private final int actionId;

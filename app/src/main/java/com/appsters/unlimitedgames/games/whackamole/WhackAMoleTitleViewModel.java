@@ -3,6 +3,8 @@ package com.appsters.unlimitedgames.games.whackamole;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.ViewModel;
 
+import com.appsters.unlimitedgames.games.whackamole.repository.GameRepository;
+
 public class WhackAMoleTitleViewModel extends ViewModel {
     private final GameRepository gameRepository;
     private final LiveData<Integer> highScore;

@@ -10,6 +10,7 @@ public final class GameConfig {
     private final long initialInterval;
     private final long minInterval;
     private final long intervalDecrement;
+    private final long gameDurationMillis;
 
     /**
      * Default game configuration, providing a standard set of rules for a balanced game.
@@ -19,6 +20,7 @@ public final class GameConfig {
      *   <li>initialInterval: 2000ms</li>
      *   <li>minInterval: 500ms</li>
      *   <li>intervalDecrement: 100ms</li>
+     *   <li>gameDurationMillis: 30000ms</li>
      * </ul>
      */
     public static final GameConfig DEFAULT = new GameConfig(
@@ -26,7 +28,8 @@ public final class GameConfig {
             9,     // numMoles
             2000,  // initialInterval in ms
             500,   // minInterval in ms
-            100    // intervalDecrement per spawn
+            100,    // intervalDecrement per spawn
+            30000 // gameDurationMillis in ms
     );
 
     /**
@@ -37,14 +40,16 @@ public final class GameConfig {
      * @param initialInterval   The initial time in milliseconds between mole appearances.
      * @param minInterval       The minimum time in milliseconds between mole appearances, representing the max difficulty.
      * @param intervalDecrement The amount of time in milliseconds to reduce the interval by after each successful hit, speeding up the game.
+     * @param gameDurationMillis The total duration of the game in milliseconds.
      */
     public GameConfig(int maxMisses, int numMoles, long initialInterval, long minInterval,
-                      long intervalDecrement) {
+                      long intervalDecrement, long gameDurationMillis) {
         this.maxMisses = maxMisses;
         this.numMoles = numMoles;
         this.initialInterval = initialInterval;
         this.minInterval = minInterval;
         this.intervalDecrement = intervalDecrement;
+        this.gameDurationMillis = gameDurationMillis;
     }
 
     /**
@@ -80,5 +85,12 @@ public final class GameConfig {
      */
     public long getIntervalDecrement() {
         return intervalDecrement;
+    }
+
+    /**
+     * @return The total duration of the game in milliseconds.
+     */
+    public long getGameDurationMillis() {
+        return gameDurationMillis;
     }
 }

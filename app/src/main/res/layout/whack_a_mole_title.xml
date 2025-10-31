@@ -65,7 +65,7 @@
             <Button
                 android:id="@+id/clear_score_button"
                 android:layout_width="160dp"
-                android:layout_height="45dp"
+                android:layout_height="60dp"
 
                 android:layout_marginTop="20dp"
                 android:backgroundTint="@color/button_pink"

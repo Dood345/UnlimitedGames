@@ -5,10 +5,10 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
-import com.example.whackamole.model.GameConfig;
-import com.example.whackamole.model.MoleContainer;
-import com.example.whackamole.repository.GameRepository;
-import com.example.whackamole.util.Scheduler;
+import com.appsters.unlimitedgames.games.whackamole.model.GameConfig;
+import com.appsters.unlimitedgames.games.whackamole.model.MoleContainer;
+import com.appsters.unlimitedgames.games.whackamole.repository.GameRepository;
+import com.appsters.unlimitedgames.games.whackamole.util.Scheduler;
 
 import java.util.Objects;
 import java.util.Random;
@@ -41,6 +41,8 @@ public class WhackAMoleGameViewModel extends ViewModel {
     private final MutableLiveData<Boolean> gameOver;
     private final MutableLiveData<MoleContainer> moles;
     private final MutableLiveData<Integer> misses;
+    private final MutableLiveData<Long> moleTimeRemaining;
+    private final Runnable moleTimerRunnable = this::onMoleTimerTick;
     private long currentInterval;
 
     /**
@@ -74,10 +76,13 @@ public class WhackAMoleGameViewModel extends ViewModel {
                 new MoleContainer(gameConfig.getNumMoles(),
                         random.nextInt(gameConfig.getNumMoles())));
         this.misses = new MutableLiveData<>(0);
+        this.moleTimeRemaining = new MutableLiveData<>(gameConfig.getInitialInterval());
+
 
         this.currentInterval = gameConfig.getInitialInterval();
 
         scheduler.postDelayed(spawnRunnable, gameConfig.getInitialInterval());
+        scheduler.postDelayed(moleTimerRunnable, 100);
     }
 
     /**
@@ -101,8 +106,7 @@ public class WhackAMoleGameViewModel extends ViewModel {
         misses.setValue(currentMisses + 1);
 
         if (misses.getValue() >= gameConfig.getMaxMisses()) {
-            gameOver.setValue(true);
-            scheduler.removeCallbacks(spawnRunnable);
+            stopGameLoop();
             return;
         }
 
@@ -119,6 +123,23 @@ public class WhackAMoleGameViewModel extends ViewModel {
         // Schedule next spawn
         scheduler.removeCallbacks(spawnRunnable);
         scheduler.postDelayed(spawnRunnable, currentInterval);
+        moleTimeRemaining.setValue(currentInterval);
+        scheduler.removeCallbacks(moleTimerRunnable);
+        scheduler.postDelayed(moleTimerRunnable, 100);
+    }
+
+    private void onMoleTimerTick() {
+        long currentTime = Objects.requireNonNull(moleTimeRemaining.getValue());
+        if (currentTime > 0) {
+            moleTimeRemaining.setValue(currentTime - 100);
+            scheduler.postDelayed(moleTimerRunnable, 100);
+        }
+    }
+
+    private void stopGameLoop() {
+        gameOver.setValue(true);
+        scheduler.removeCallbacks(spawnRunnable);
+        scheduler.removeCallbacks(moleTimerRunnable);
     }
 
     /**
@@ -165,6 +186,9 @@ public class WhackAMoleGameViewModel extends ViewModel {
         // Reset spawn timer
         scheduler.removeCallbacks(spawnRunnable);
         scheduler.postDelayed(spawnRunnable, currentInterval);
+        moleTimeRemaining.setValue(currentInterval);
+        scheduler.removeCallbacks(moleTimerRunnable);
+        scheduler.postDelayed(moleTimerRunnable, 100);
     }
 
     /**
@@ -187,8 +211,10 @@ public class WhackAMoleGameViewModel extends ViewModel {
         gameOver.setValue(false);
         moles.setValue(new MoleContainer(gameConfig.getNumMoles(), random.nextInt(
                 gameConfig.getNumMoles())));
+        moleTimeRemaining.setValue(gameConfig.getInitialInterval());
 
         scheduler.postDelayed(spawnRunnable, currentInterval);
+        scheduler.postDelayed(moleTimerRunnable, 100);
     }
 
     /**
@@ -229,6 +255,10 @@ public class WhackAMoleGameViewModel extends ViewModel {
      */
     public LiveData<Integer> getMisses() {
         return misses;
+    }
+
+    public LiveData<Long> getMoleTimeRemaining() {
+        return moleTimeRemaining;
     }
 
     /**

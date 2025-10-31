@@ -3,7 +3,7 @@ package com.appsters.unlimitedgames.games.whackamole.util;
 import android.os.Handler;
 import android.os.Looper;
 
-import com.example.whackamole.util.Scheduler;
+import com.appsters.unlimitedgames.games.whackamole.util.Scheduler;
 
 /**
  * AndroidScheduler uses Handler and Looper to post delayed tasks

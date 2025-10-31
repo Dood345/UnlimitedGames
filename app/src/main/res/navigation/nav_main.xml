@@ -31,9 +31,6 @@
         <action
             android:id="@+id/action_homeFragment_to_NFLQuizFragment"
             app:destination="@id/NFLQuizFragment" />
-        <action
-            android:id="@+id/action_homeFragment_to_whackAMoleFragment"
-            app:destination="@id/whackAMoleFragment" />
     </fragment>
 
     <fragment
@@ -68,7 +65,7 @@
 
     <fragment
         android:id="@+id/sudokuFragment"
-        android:name="com.appsters.unlimitedgames.games.sudoku.SudokuFragment"
+        android.name="com.appsters.unlimitedgames.games.sudoku.SudokuFragment"
         android:label="fragment_sudoku"
         tools:layout="@layout/fragment_sudoku" />
 
@@ -77,11 +74,5 @@
         android:name="com.appsters.unlimitedgames.games.nflquiz.NFLQuizFragment"
         android:label="fragment_nfl_quiz"
         tools:layout="@layout/fragment_nfl_quiz" />
-
-    <fragment
-        android:id="@+id/whackAMoleFragment"
-        android:name="com.appsters.unlimitedgames.games.whackamole.WhackAMoleTitleFragment"
-        android:label="fragment_whack_a_mole"
-        tools:layout="@layout/fragment_whack_a_mole_title" />
 
 </navigation>

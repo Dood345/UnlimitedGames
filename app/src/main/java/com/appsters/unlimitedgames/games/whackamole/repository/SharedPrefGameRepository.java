@@ -5,7 +5,7 @@ import android.content.SharedPreferences;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
-import com.example.whackamole.repository.GameRepository;
+import com.appsters.unlimitedgames.games.whackamole.repository.GameRepository;
 
 /**
  * SharedPrefGameRepository is the production implementation of GameRepository.

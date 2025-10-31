@@ -1,5 +1,6 @@
 package com.appsters.unlimitedgames.app.ui.home;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,6 +14,7 @@ import androidx.recyclerview.widget.GridLayoutManager;
 
 import com.appsters.unlimitedgames.databinding.FragmentHomeBinding;
 import com.appsters.unlimitedgames.app.util.GameType;
+import com.appsters.unlimitedgames.games.whackamole.WhackAMoleTitleActivity;
 
 import java.util.Arrays;
 
@@ -45,6 +47,11 @@ public class HomeFragment extends Fragment implements GameAdapter.OnItemClickLis
 
     @Override
     public void onItemClick(GameType gameType) {
-        NavHostFragment.findNavController(this).navigate(gameType.getActionId());
+        if (gameType == GameType.WHACK_A_MOLE) {
+            Intent intent = new Intent(getActivity(), WhackAMoleTitleActivity.class);
+            startActivity(intent);
+        } else {
+            NavHostFragment.findNavController(this).navigate(gameType.getActionId());
+        }
     }
 }

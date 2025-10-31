@@ -25,6 +25,12 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".games.whackamole.WhackAMoleTitleActivity"
+            android:theme="@style/Theme.UnlimitedGames" />
+        <activity
+            android:name=".games.whackamole.WhackAMoleGameActivity"
+            android:theme="@style/Theme.UnlimitedGames" />
     </application>
 
 </manifest>

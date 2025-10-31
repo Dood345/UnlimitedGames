@@ -6,8 +6,8 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.appsters.unlimitedgames.app.data.model.Game;
 import com.appsters.unlimitedgames.databinding.ItemGameBinding;
-import com.appsters.unlimitedgames.app.util.GameType;
 
 import java.util.List;
 
@@ -16,7 +16,7 @@ import java.util.List;
  */
 public class GameAdapter extends RecyclerView.Adapter<GameAdapter.GameViewHolder> {
 
-    private final List<GameType> games;
+    private final List<Game> games;
     private OnItemClickListener listener;
 
     /**
@@ -24,7 +24,7 @@ public class GameAdapter extends RecyclerView.Adapter<GameAdapter.GameViewHolder
      *
      * @param games The list of games to display.
      */
-    public GameAdapter(List<GameType> games) {
+    public GameAdapter(List<Game> games) {
         this.games = games;
     }
 
@@ -60,9 +60,9 @@ public class GameAdapter extends RecyclerView.Adapter<GameAdapter.GameViewHolder
     }
 
     /**
-     * Returns the total number of items in the data set held by the adapter.
+     * Returns the total number of games in the data set held by the adapter.
      *
-     * @return The total number of items in this adapter.
+     * @return The total number of games in this adapter.
      */
     @Override
     public int getItemCount() {
@@ -74,7 +74,7 @@ public class GameAdapter extends RecyclerView.Adapter<GameAdapter.GameViewHolder
     }
 
     public interface OnItemClickListener {
-        void onItemClick(GameType gameType);
+        void onItemClick(Game game);
     }
 
     /**
@@ -94,7 +94,7 @@ public class GameAdapter extends RecyclerView.Adapter<GameAdapter.GameViewHolder
             this.binding = binding;
 
             itemView.setOnClickListener(v -> {
-                int position = getAdapterPosition();
+                int position = getBindingAdapterPosition();
                 if (listener != null && position != RecyclerView.NO_POSITION) {
                     listener.onItemClick(games.get(position));
                 }
@@ -102,13 +102,14 @@ public class GameAdapter extends RecyclerView.Adapter<GameAdapter.GameViewHolder
         }
 
         /**
-         * Binds a GameType to the item view.
+         * Binds a Game to the item view. Loads the title, and image for the game from the
+         * Game object.
          *
-         * @param gameType The GameType to bind.
+         * @param game The Game to bind.
          */
-        public void bind(GameType gameType) {
-            binding.setGameTitle(gameType.getDisplayName());
-            // TODO: Set game image
+        public void bind(Game game) {
+            binding.setGameTitle(game.getTitle());
+            binding.gameImage.setImageResource(game.getImageResId());
             binding.executePendingBindings();
         }
     }

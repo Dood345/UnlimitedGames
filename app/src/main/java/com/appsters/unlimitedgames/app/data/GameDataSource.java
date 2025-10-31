@@ -7,8 +7,16 @@ import com.appsters.unlimitedgames.app.util.GameType;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * A data source for providing a list of games.
+ */
 public class GameDataSource {
 
+    /**
+     * Gets a list of available games.
+     *
+     * @return A list of {@link Game} objects.
+     */
     public static List<Game> getGames() {
         List<Game> games = new ArrayList<>();
         games.add(

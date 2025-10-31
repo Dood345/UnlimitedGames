@@ -1,5 +1,6 @@
 package com.appsters.unlimitedgames.games.whackamole
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.widget.ImageView
@@ -179,6 +180,9 @@ class WhackAMoleGameActivity : AppCompatActivity() {
             }
             .setNegativeButton("Main Menu") { dialog, _ ->
                 dialog.dismiss()
+                val intent = Intent(this, WhackAMoleTitleActivity::class.java)
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                startActivity(intent)
                 finish()
             }
             .show()

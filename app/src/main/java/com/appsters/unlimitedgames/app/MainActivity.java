@@ -33,7 +33,7 @@ public class MainActivity extends AppCompatActivity {
     /**
      * Called when the activity is first created.
      * This method initializes the activity, sets up the view model and navigation, and observes
-     * the authentication state.
+     * the authentication state. Upon logging out auth state is reset, taking us back to auth flow.
      *
      * @param savedInstanceState If the activity is being re-initialized after
      *                           previously being shut down then this Bundle contains the data it most

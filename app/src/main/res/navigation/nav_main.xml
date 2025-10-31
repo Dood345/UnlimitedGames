@@ -65,7 +65,7 @@
 
     <fragment
         android:id="@+id/sudokuFragment"
-        android.name="com.appsters.unlimitedgames.games.sudoku.SudokuFragment"
+        android:name="com.appsters.unlimitedgames.games.sudoku.SudokuFragment"
         android:label="fragment_sudoku"
         tools:layout="@layout/fragment_sudoku" />
 

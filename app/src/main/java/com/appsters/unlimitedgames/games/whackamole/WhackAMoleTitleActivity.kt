@@ -10,6 +10,11 @@ import com.appsters.unlimitedgames.R
 import com.appsters.unlimitedgames.games.whackamole.repository.SharedPrefGameRepository
 import com.appsters.unlimitedgames.games.whackamole.WhackAMoleTitleViewModel
 
+/**
+ * Title activity that initializes and manages the Whack-a-Mole game.
+ *
+ * @author Jesutofunmi Obimakinde, Rand Roman, Daniel Ripley
+ */
 class WhackAMoleTitleActivity : AppCompatActivity() {
 
     private val mainViewModel: WhackAMoleTitleViewModel by lazy {
@@ -20,6 +25,15 @@ class WhackAMoleTitleActivity : AppCompatActivity() {
 
     private lateinit var highScoreTextView: TextView;
 
+    /**
+     * Initializes the activity, setting up the user interface and view model.
+     * This function is called when the activity is first created. It inflates the layout,
+     * finds UI elements, and sets up listeners for the start and clear score buttons.
+     * It also observes the high score from the view model to keep the display updated.
+     * @param savedInstanceState If the activity is being re-initialized after previously being shut down,
+     * this Bundle contains the data it most recently supplied in onSaveInstanceState(Bundle).
+     * Otherwise, it is null.
+     */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.whack_a_mole_title)
@@ -42,6 +56,11 @@ class WhackAMoleTitleActivity : AppCompatActivity() {
         })
     }
 
+    /**
+     * Called when returning to main window after finishing a round.
+     * At this point, the activity is at the top of the activity stack, with user input going to it.
+     * This implementation ensures the high score is fresh every time the user returns to the main screen.
+     */
     override fun onResume() {
         super.onResume()
         mainViewModel.highScore.observe(this, Observer { highScore ->

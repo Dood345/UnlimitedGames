@@ -17,18 +17,42 @@ import androidx.navigation.Navigation;
 import com.appsters.unlimitedgames.R;
 import com.appsters.unlimitedgames.databinding.FragmentSignupBinding;
 
+/**
+ * A simple {@link Fragment} subclass that handles user registration.
+ * It allows new users to create an account by providing a username, email, and password.
+ */
 public class SignUpFragment extends Fragment {
 
+    /** The binding for the sign-up fragment layout. */
     private FragmentSignupBinding binding;
+    /** The view model for authentication. */
     private AuthViewModel viewModel;
+    /** The navigation controller for navigating between fragments. */
     private NavController navController;
 
+    /**
+     * Called when the fragment is created.
+     * It initializes the {@link AuthViewModel}.
+     * @param savedInstanceState If the fragment is being re-created from
+     * a previous saved state, this is the state.
+     */
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         viewModel = new ViewModelProvider(requireActivity()).get(AuthViewModel.class);
     }
 
+    /**
+     * Inflates the layout for this fragment.
+     * @param inflater The LayoutInflater object that can be used to inflate
+     * any views in the fragment,
+     * @param container If non-null, this is the parent view that the fragment's
+     * UI should be attached to. The fragment should not add the view itself,
+     * but this can be used to generate the LayoutParams of the view.
+     * @param savedInstanceState If non-null, this fragment is being re-constructed
+     * from a previous saved state as given here.
+     * @return The root view of the fragment.
+     */
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -36,6 +60,13 @@ public class SignUpFragment extends Fragment {
         return binding.getRoot();
     }
 
+    /**
+     * Called when the fragment's view has been created.
+     * It sets up the click listeners and observers for the fragment.
+     * @param view The created view.
+     * @param savedInstanceState If non-null, this fragment is being re-constructed
+     * from a previous saved state as given here.
+     */
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
@@ -100,6 +131,10 @@ public class SignUpFragment extends Fragment {
         });
     }
 
+    /**
+     * Called when the view is destroyed.
+     * It nullifies the binding to prevent memory leaks.
+     */
     @Override
     public void onDestroyView() {
         super.onDestroyView();

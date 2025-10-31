@@ -10,7 +10,7 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context=".ui.games.nflquiz.NFLQuizFragment">
+        tools:context=".games.nflquiz.NFLQuizFragment">
 
         <TextView
             android:layout_width="wrap_content"

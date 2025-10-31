@@ -6,7 +6,7 @@
     <data>
         <variable
             name="viewModel"
-            type="com.appsters.unlimitedgames.ui.profile.ProfileViewModel" />
+            type="com.appsters.unlimitedgames.app.ui.profile.ProfileViewModel" />
     </data>
 
     <ScrollView
@@ -18,7 +18,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:padding="16dp"
-            tools:context=".ui.profile.ProfileFragment">
+            tools:context=".app.ui.profile.ProfileFragment">
 
             <!-- Profile Image -->
             <com.google.android.material.card.MaterialCardView

@@ -80,8 +80,8 @@
 
     <fragment
         android:id="@+id/whackAMoleFragment"
-        android:name="com.appsters.unlimitedgames.games.whackamole.WhackAMoleFragment"
+        android:name="com.appsters.unlimitedgames.games.whackamole.WhackAMoleTitleFragment"
         android:label="fragment_whack_a_mole"
-        tools:layout="@layout/fragment_whack_a_mole" />
+        tools:layout="@layout/fragment_whack_a_mole_title" />
 
 </navigation>

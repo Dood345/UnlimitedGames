@@ -7,4 +7,12 @@
     <color name="teal_700">#FF018786</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+
+    <!--  WhackAMole  -->
+    <color name="mole_red">#FF8B0000</color>
+    <color name="mole_blue">#FF0000FF</color>
+    <color name="mole_green">#FF008000</color>
+    <color name="mole_yellow">#FFFFEB3B</color>
+    <color name="mole_purple">#FF8A2BE2</color>
+    <color name="button_pink">#D58883</color>
 </resources>

@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context=".games.whackamole.WhackAMoleTitleFragment">
+
+        <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+            xmlns:app="http://schemas.android.com/apk/res-auto"
+            xmlns:tools="http://schemas.android.com/tools"
+            android:id="@+id/main"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@drawable/cyberpunk_urban_scenery"
+            android:fitsSystemWindows="true"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <TextView
+                android:id="@+id/title"
+                android:layout_width="420dp"
+                android:layout_height="53dp"
+                android:background="@drawable/button"
+                android:gravity="center"
+                android:text="@string/title"
+                android:textAlignment="center"
+                android:textColor="@color/white"
+                android:textSize="32sp" />
+
+            <ImageView
+                android:id="@+id/logo"
+                android:layout_width="250dp"
+                android:layout_height="200dp"
+                android:background="@drawable/mole_man"
+                android:contentDescription="Game Logo"
+                tools:srcCompat="@drawable/mole_man" />
+
+            <TextView
+                android:id="@+id/high_score"
+                android:layout_width="250dp"
+                android:layout_height="39dp"
+                android:layout_marginTop="10dp"
+                android:background="@drawable/button"
+                android:gravity="center"
+                android:text=""
+                android:textColor="@color/white"
+                android:textSize="24sp" />
+
+            <Button
+                android:id="@+id/start_button"
+                android:layout_width="160dp"
+                android:layout_height="45dp"
+                android:layout_marginTop="20dp"
+                android:backgroundTint="@color/button_pink"
+                android:text="@string/start" />
+
+            <Button
+                android:id="@+id/clear_score_button"
+                android:layout_width="160dp"
+                android:layout_height="45dp"
+
+                android:layout_marginTop="20dp"
+                android:backgroundTint="@color/button_pink"
+                android:text="@string/clear" />
+
+        </LinearLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

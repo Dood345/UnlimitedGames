@@ -5,9 +5,9 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import com.appsters.unlimitedgames.app.data.model.User;
+import com.appsters.unlimitedgames.app.data.repository.UserRepository;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.FirebaseFirestore;
 
 /**
  * ViewModel for authentication-related operations.
@@ -17,7 +17,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 public class AuthViewModel extends ViewModel {
 
     private final FirebaseAuth firebaseAuth;
-    private final FirebaseFirestore db;
+    private final UserRepository userRepository;
     private final MutableLiveData<AuthState> authState = new MutableLiveData<>();
     private final MutableLiveData<FirebaseUser> user = new MutableLiveData<>();
     private String errorMessage;
@@ -28,7 +28,7 @@ public class AuthViewModel extends ViewModel {
      */
     public AuthViewModel() {
         firebaseAuth = FirebaseAuth.getInstance();
-        db = FirebaseFirestore.getInstance();
+        userRepository = new UserRepository();
 
         // Check if a user is already logged in
         FirebaseUser currentUser = firebaseAuth.getCurrentUser();
@@ -107,18 +107,16 @@ public class AuthViewModel extends ViewModel {
         String userId = firebaseUser.getUid();
         User newUser = new User(userId, username, email, "");
 
-        db.collection("users")
-                .document(userId)
-                .set(newUser)
-                .addOnSuccessListener(aVoid -> {
-                    user.setValue(firebaseUser);
-                    authState.setValue(AuthState.AUTHENTICATED);
-                })
-                .addOnFailureListener(e -> {
-                    errorMessage = "Failed to create user profile: " + e.getMessage();
-                    authState.setValue(AuthState.ERROR);
-                    firebaseUser.delete();
-                });
+        userRepository.createUser(newUser, task -> {
+            if (task.isSuccessful()) {
+                user.setValue(firebaseUser);
+                authState.setValue(AuthState.AUTHENTICATED);
+            } else {
+                errorMessage = "Failed to create user profile: " + task.getException().getMessage();
+                authState.setValue(AuthState.ERROR);
+                firebaseUser.delete();
+            }
+        });
     }
 
     /**
@@ -148,7 +146,7 @@ public class AuthViewModel extends ViewModel {
      * Signs out the currently authenticated user.
      * The authentication state will be updated to {@link AuthState#UNAUTHENTICATED}.
      */
-    public void signOut() {
+    public void logout() {
         firebaseAuth.signOut();
         authState.setValue(AuthState.UNAUTHENTICATED);
     }

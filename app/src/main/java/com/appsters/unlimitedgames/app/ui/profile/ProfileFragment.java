@@ -22,7 +22,10 @@ import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
 
+import com.appsters.unlimitedgames.R;
 import com.appsters.unlimitedgames.databinding.FragmentProfileBinding;
 import com.appsters.unlimitedgames.app.ui.auth.AuthViewModel;
 import com.appsters.unlimitedgames.app.util.ImageHelper;
@@ -41,6 +44,8 @@ public class ProfileFragment extends Fragment {
     private ProfileViewModel viewModel;
     /** The view model for authentication. */
     private AuthViewModel authViewModel;
+    /** The navigation controller for the fragment. */
+    private NavController navController;
 
     /** A flag to indicate if it's the initial load of the fragment. */
     private boolean isInitialLoad = true;
@@ -102,8 +107,10 @@ public class ProfileFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        viewModel = new ViewModelProvider(this).get(ProfileViewModel.class);
+        viewModel = new ViewModelProvider(requireActivity()).get(ProfileViewModel.class);
+        viewModel.resetFlags();
         authViewModel = new ViewModelProvider(requireActivity()).get(AuthViewModel.class);
+        navController = Navigation.findNavController(view);
         binding.setViewModel(viewModel);
         binding.setLifecycleOwner(getViewLifecycleOwner());
 
@@ -171,7 +178,7 @@ public class ProfileFragment extends Fragment {
         viewModel.getLogoutComplete().observe(getViewLifecycleOwner(), logoutComplete -> {
             if (logoutComplete) {
                 Toast.makeText(requireContext(), "Logged out successfully", Toast.LENGTH_SHORT).show();
-                authViewModel.signOut();
+                authViewModel.logout();
             }
         });
 
@@ -187,7 +194,7 @@ public class ProfileFragment extends Fragment {
      */
     private void setupClickListeners() {
         binding.btnEditProfile.setOnClickListener(v -> {
-            Toast.makeText(requireContext(), "Edit Profile - Coming Soon", Toast.LENGTH_SHORT).show();
+            navController.navigate(R.id.action_profileFragment_to_editProfileFragment);
         });
 
         binding.btnEditProfilePicture.setOnClickListener(v -> {

@@ -22,6 +22,15 @@
     <string name="logout">Logout</string>
     <string name="no_high_scores">No high scores yet. Start playing!</string>
 
+    <!-- Edit Profile -->
+    <string name="username">Username</string>
+    <string name="change_password">Change Password</string>
+    <string name="current_password">Current Password</string>
+    <string name="new_password">New Password</string>
+    <string name="confirm_new_password">Confirm New Password</string>
+    <string name="save_changes">Save Changes</string>
+    <string name="delete_account">Delete Account</string>
+
     <!--  WhackAMole  -->
     <string name="score_format">%d</string>
     <string name="lives_format">%d</string>

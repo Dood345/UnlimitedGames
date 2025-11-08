@@ -11,6 +11,7 @@ import androidx.core.view.WindowInsetsCompat;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
+import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
 import com.appsters.unlimitedgames.R;
@@ -29,6 +30,7 @@ public class MainActivity extends AppCompatActivity {
     private ActivityMainBinding binding;
     private AuthViewModel authViewModel;
     private NavController navController;
+    private AppBarConfiguration appBarConfiguration;
 
     /**
      * Called when the activity is first created.
@@ -46,6 +48,8 @@ public class MainActivity extends AppCompatActivity {
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
+        setSupportActionBar(binding.toolbar);
+
         authViewModel = new ViewModelProvider(this).get(AuthViewModel.class);
 
         NavHostFragment navHostFragment = (NavHostFragment) getSupportFragmentManager()
@@ -53,6 +57,13 @@ public class MainActivity extends AppCompatActivity {
 
         if (navHostFragment != null) {
             navController = navHostFragment.getNavController();
+
+            // Define top-level destinations
+            appBarConfiguration = new AppBarConfiguration.Builder(R.id.homeFragment, R.id.friendsFragment, R.id.leaderboardFragment, R.id.profileFragment)
+                    .build();
+
+            // Set up the toolbar with NavController
+            NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
 
             authViewModel.getAuthState().observe(this, authState -> {
                 if (authState != null) {
@@ -77,9 +88,9 @@ public class MainActivity extends AppCompatActivity {
     private void handleAuthState(AuthState authState) {
         switch (authState) {
             case LOADING:
-                // Show loading indicator, hide bottom nav
+                // Show loading indicator, hide bottom nav and toolbar
                 binding.bottomNav.setVisibility(View.GONE);
-                // You could add a loading overlay here if desired
+                getSupportActionBar().hide();
                 break;
 
             case AUTHENTICATED:
@@ -88,7 +99,36 @@ public class MainActivity extends AppCompatActivity {
                     navController.setGraph(R.navigation.nav_main);
                 }
                 binding.bottomNav.setVisibility(View.VISIBLE);
-                NavigationUI.setupWithNavController(binding.bottomNav, navController);
+                getSupportActionBar().show();
+                binding.bottomNav.setOnItemSelectedListener(item -> {
+                    int itemId = item.getItemId();
+                    int destinationId = -1;
+
+                    if (itemId == R.id.profileFragment) {
+                        destinationId = R.id.profileFragment;
+                    } else if (itemId == R.id.homeFragment) {
+                        destinationId = R.id.homeFragment;
+                    } else if (itemId == R.id.leaderboardFragment) {
+                        destinationId = R.id.leaderboardFragment;
+                    } else if (itemId == R.id.friendsFragment) {
+                        destinationId = R.id.friendsFragment;
+                    }
+
+                    if (destinationId != -1) {
+                        if (navController.getCurrentDestination() == null ||
+                            navController.getCurrentDestination().getId() != destinationId) {
+
+                            boolean popped = navController.popBackStack(destinationId, false);
+
+                            if (!popped) {
+                                navController.navigate(destinationId);
+                            }
+                        }
+                        return true;
+                    }
+
+                    return false;
+                });
                 break;
 
             case UNAUTHENTICATED:
@@ -97,18 +137,19 @@ public class MainActivity extends AppCompatActivity {
                     navController.setGraph(R.navigation.nav_auth);
                 }
                 binding.bottomNav.setVisibility(View.GONE);
+                getSupportActionBar().hide();
                 break;
 
             case ERROR:
-                // Show error message but stay on current screen
-//                String errorMsg = authViewModel.getErrorMessage();
-//                if (errorMsg != null) {
-//                    Toast.makeText(this, errorMsg, Toast.LENGTH_LONG).show();
-//                }
                 // After showing error, revert to unauthenticated state
                 // The auth fragments will handle showing the error to the user
                 break;
         }
+    }
+
+    @Override
+    public boolean onSupportNavigateUp() {
+        return NavigationUI.navigateUp(navController, appBarConfiguration) || super.onSupportNavigateUp();
     }
 
     @Override

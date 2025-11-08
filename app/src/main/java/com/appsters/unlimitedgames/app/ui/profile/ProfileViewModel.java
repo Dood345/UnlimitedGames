@@ -1,13 +1,17 @@
 package com.appsters.unlimitedgames.app.ui.profile;
 
+import android.text.TextUtils;
+
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import com.appsters.unlimitedgames.app.data.model.User;
+import com.appsters.unlimitedgames.app.data.repository.UserRepository;
+import com.google.firebase.auth.AuthCredential;
+import com.google.firebase.auth.EmailAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.FirebaseFirestore;
 import com.appsters.unlimitedgames.app.util.Privacy;
 
 /**
@@ -19,8 +23,8 @@ public class ProfileViewModel extends ViewModel {
 
     /** Firebase authentication instance. */
     private final FirebaseAuth auth;
-    /** Firebase Firestore instance. */
-    private final FirebaseFirestore db;
+    /** User repository instance. */
+    private final UserRepository userRepository;
 
     /** LiveData holding the current user's profile information. */
     private final MutableLiveData<User> currentUser = new MutableLiveData<>();
@@ -32,14 +36,18 @@ public class ProfileViewModel extends ViewModel {
     private final MutableLiveData<Boolean> logoutComplete = new MutableLiveData<>(false);
     /** LiveData to signal if the image upload was successful. */
     private final MutableLiveData<Boolean> imageUploadSuccess = new MutableLiveData<>();
+    /** LiveData to signal if a profile update was successful. */
+    private final MutableLiveData<Boolean> updateSuccess = new MutableLiveData<>(false);
+    /** LiveData to signal if an account deletion was successful. */
+    private final MutableLiveData<Boolean> deleteSuccess = new MutableLiveData<>(false);
 
     /**
      * Constructor for ProfileViewModel.
-     * Initializes FirebaseAuth and FirebaseFirestore instances.
+     * Initializes FirebaseAuth and UserRepository instances.
      */
     public ProfileViewModel() {
         auth = FirebaseAuth.getInstance();
-        db = FirebaseFirestore.getInstance();
+        userRepository = new UserRepository();
     }
 
     /**
@@ -83,6 +91,30 @@ public class ProfileViewModel extends ViewModel {
     }
 
     /**
+     * Returns the LiveData for the profile update success status.
+     * @return A LiveData object that is true when profile update is successful.
+     */
+    public LiveData<Boolean> getUpdateSuccess() {
+        return updateSuccess;
+    }
+
+    /**
+     * Returns the LiveData for the account deletion success status.
+     * @return A LiveData object that is true when account deletion is successful.
+     */
+    public LiveData<Boolean> getDeleteSuccess() {
+        return deleteSuccess;
+    }
+
+    public void resetFlags() {
+        updateSuccess.setValue(false);
+        deleteSuccess.setValue(false);
+        imageUploadSuccess.setValue(false);
+        logoutComplete.setValue(false);
+        errorMessage.setValue(null);
+    }
+
+    /**
      * Loads the current user's profile from Firestore.
      * It fetches the user data associated with the currently authenticated Firebase user.
      */
@@ -94,84 +126,308 @@ public class ProfileViewModel extends ViewModel {
         }
 
         isLoading.setValue(true);
-        db.collection("users")
-                .document(firebaseUser.getUid())
-                .get()
-                .addOnSuccessListener(documentSnapshot -> {
-                    isLoading.setValue(false);
-                    if (documentSnapshot.exists()) {
-                        User user = documentSnapshot.toObject(User.class);
-                        currentUser.setValue(user);
-                    } else {
-                        errorMessage.setValue("User profile not found");
-                    }
-                })
-                .addOnFailureListener(e -> {
-                    isLoading.setValue(false);
-                    errorMessage.setValue("Failed to load profile: " + e.getMessage());
-                });
+        userRepository.getUser(firebaseUser.getUid(), task -> {
+            isLoading.setValue(false);
+            if (task.isSuccessful()) {
+                currentUser.setValue(task.getResult());
+            } else {
+                errorMessage.setValue("Failed to load profile: " + task.getException().getMessage());
+            }
+        });
     }
 
-    /**
-     * Updates the user's privacy setting in Firestore.
-     * @param privacy The new privacy setting.
-     */
     public void updatePrivacy(Privacy privacy) {
-        FirebaseUser firebaseUser = auth.getCurrentUser();
-        if (firebaseUser == null) return;
+        User user = currentUser.getValue();
+        if (user == null) return;
 
-        isLoading.setValue(true);
-        db.collection("users")
-                .document(firebaseUser.getUid())
-                .update("privacy", privacy.name())
-                .addOnSuccessListener(aVoid -> {
-                    isLoading.setValue(false);
-                    User user = currentUser.getValue();
-                    if (user != null) {
-                        user.setPrivacy(privacy);
-                        currentUser.setValue(user);
-                    }
-                })
-                .addOnFailureListener(e -> {
-                    isLoading.setValue(false);
-                    errorMessage.setValue("Failed to update privacy: " + e.getMessage());
-                });
+        user.setPrivacy(privacy);
+        updateUser(user);
     }
 
-    /**
-     * Updates the user's profile picture in Firestore.
-     * @param base64Image The new profile picture encoded as a Base64 string.
-     */
     public void updateProfilePicture(String base64Image) {
-        FirebaseUser firebaseUser = auth.getCurrentUser();
-        if (firebaseUser == null) return;
+        User user = currentUser.getValue();
+        if (user == null) return;
 
-        isLoading.setValue(true);
+        user.setProfileImageUrl(base64Image);
         imageUploadSuccess.setValue(false); // Reset before upload
-        db.collection("users")
-                .document(firebaseUser.getUid())
-                .update("profileImageUrl", base64Image)
-                .addOnSuccessListener(aVoid -> {
-                    isLoading.setValue(false);
-                    User user = currentUser.getValue();
-                    if (user != null) {
-                        user.setProfileImageUrl(base64Image);
-                        currentUser.setValue(user);
-                        imageUploadSuccess.setValue(true);
-                    }
-                })
-                .addOnFailureListener(e -> {
-                    isLoading.setValue(false);
-                    errorMessage.setValue("Failed to update profile picture: " + e.getMessage());
-                    imageUploadSuccess.setValue(false);
-                });
+        updateUser(user);
     }
 
     /**
-     * Logs out the current user.
+     * Validates and updates multiple profile fields in a coordinated way.
+     * Ensures proper sequencing and only one success callback.
      */
+    public void updateProfile(String newUsername, String newEmail, String currentPassword,
+                              String newPassword, String confirmPassword) {
+        User user = currentUser.getValue();
+        if (user == null) {
+            errorMessage.setValue("User data not loaded");
+            return;
+        }
+
+        // Validate all inputs first
+        ValidationResult validation = validateProfileUpdate(
+                user, newUsername, newEmail, currentPassword, newPassword, confirmPassword
+        );
+
+        if (!validation.isValid) {
+            errorMessage.setValue(validation.errorMessage);
+            return;
+        }
+
+        // Determine what needs updating
+        boolean usernameChanged = !newUsername.equals(user.getUsername());
+        boolean emailChanged = !newEmail.equals(user.getEmail());
+        boolean passwordChanged = !TextUtils.isEmpty(newPassword);
+
+        // Execute updates in proper sequence
+        if (emailChanged || passwordChanged) {
+            // Need reauthentication for email/password changes
+            updateWithReauth(user, newUsername, newEmail, currentPassword,
+                    newPassword, usernameChanged, emailChanged, passwordChanged);
+        } else if (usernameChanged) {
+            // Just username - no reauth needed
+            updateUsername(newUsername);
+        }else {
+            errorMessage.setValue("No changes detected");
+        }
+    }
+
+    /**
+     * Validates all profile update inputs.
+     */
+    private ValidationResult validateProfileUpdate(User user, String newUsername, String newEmail,
+                                                   String currentPassword, String newPassword,
+                                                   String confirmPassword) {
+        // Email validation
+        if (TextUtils.isEmpty(newEmail) && !android.util.Patterns.EMAIL_ADDRESS.matcher(newEmail).matches()) {
+            return new ValidationResult(false, "Invalid email address");
+        }
+
+        boolean emailChanged = !newEmail.equals(user.getEmail());
+        boolean passwordChanged = !TextUtils.isEmpty(newPassword);
+
+        // If changing email or password, current password is required
+        if ((emailChanged || passwordChanged) && currentPassword.isEmpty()) {
+            return new ValidationResult(false, "Current password required to change email or password");
+        }
+
+        // Password change validation
+        if (passwordChanged) {
+            if (TextUtils.isEmpty(confirmPassword)) {
+                return new ValidationResult(false, "Please confirm new password");
+            }
+            if (!newPassword.equals(confirmPassword)) {
+                return new ValidationResult(false, "New passwords do not match");
+            }
+            if (newPassword.length() < 6) {
+                return new ValidationResult(false, "Password must be at least 6 characters");
+            }
+            if (newPassword.equals(currentPassword)) {
+                return new ValidationResult(false, "New password must be different from current password");
+            }
+        }
+
+        return new ValidationResult(true, null);
+    }
+
+    /**
+     * Inner class for validation results.
+     */
+    private static class ValidationResult {
+        boolean isValid;
+        String errorMessage;
+
+        ValidationResult(boolean isValid, String errorMessage) {
+            this.isValid = isValid;
+            this.errorMessage = errorMessage;
+        }
+    }
+
+    /**
+     * Updates profile fields that require reauthentication.
+     * Executes in proper sequence: reauth → email → password → username/firestore
+     */
+    private void updateWithReauth(User user, String newEmail, String newUsername,
+                                  String currentPassword, String newPassword,
+                                  boolean usernameChanged, boolean emailChanged,
+                                  boolean passwordChanged) {
+        reauthenticate(user.getEmail(), currentPassword, () -> {
+            FirebaseUser firebaseUser = auth.getCurrentUser();
+            if (firebaseUser == null) {
+                errorMessage.setValue("Authentication error");
+                return;
+            }
+
+            isLoading.setValue(true);
+
+            // Chain the operations in sequence
+            if (emailChanged) {
+                updateEmailThenContinue(firebaseUser, user, newEmail, newPassword,
+                        newUsername, passwordChanged, usernameChanged);
+            } else if (passwordChanged) {
+                updatePasswordThenContinue(firebaseUser, user, newUsername,
+                        newPassword, usernameChanged);
+            }
+        });
+    }
+
+    /**
+     * Updates email in Firebase Auth, then continues with other updates.
+     */
+    private void updateEmailThenContinue(FirebaseUser firebaseUser, User user, String newEmail,
+                                         String newPassword, String newUsername,
+                                         boolean passwordChanged, boolean usernameChanged) {
+        firebaseUser.verifyBeforeUpdateEmail(newEmail).addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                user.setEmail(newEmail);
+
+                if (passwordChanged) {
+                    updatePasswordThenContinue(firebaseUser, user, newUsername,
+                            newPassword, usernameChanged);
+                } else {
+                    finalizeProfileUpdate(user, newUsername, usernameChanged);
+                }
+            } else {
+                isLoading.setValue(false);
+                errorMessage.setValue("Failed to update email: " + task.getException().getMessage());
+            }
+        });
+    }
+
+    /**
+     * Updates password in Firebase Auth, then continues with other updates.
+     */
+    private void updatePasswordThenContinue(FirebaseUser firebaseUser, User user,
+                                            String newUsername, String newPassword,
+                                            boolean usernameChanged) {
+        firebaseUser.updatePassword(newPassword).addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                finalizeProfileUpdate(user, newUsername, usernameChanged);
+            } else {
+                isLoading.setValue(false);
+                errorMessage.setValue("Failed to update password: " + task.getException().getMessage());
+            }
+        });
+    }
+
+    /**
+     * Final step: Update username in Firestore if changed.
+     */
+    private void finalizeProfileUpdate(User user, String newUsername, boolean usernameChanged) {
+        if (usernameChanged) {
+            user.setUsername(newUsername);
+        }
+        updateUser(user);
+    }
+
+    public void updateUsername(String newUsername) {
+        User user = currentUser.getValue();
+        if (user == null) return;
+
+        user.setUsername(newUsername);
+        updateUser(user);
+    }
+
+    public void updateUserEmail(String newEmail, String password) {
+        FirebaseUser firebaseUser = auth.getCurrentUser();
+        User user = currentUser.getValue();
+        if (firebaseUser == null || user == null) return;
+        isLoading.setValue(true);
+        reauthenticate(user.getEmail(), password, () -> {
+                firebaseUser.verifyBeforeUpdateEmail(newEmail).addOnCompleteListener(task -> {
+                if (task.isSuccessful()) {
+                    user.setEmail(newEmail);
+                    updateUser(user);
+                } else {
+                    isLoading.setValue(false);
+                    errorMessage.setValue("Failed to update email: " + task.getException().getMessage());
+                }
+            });
+        });
+    }
+
+    public void updatePassword(String currentPassword, String newPassword) {
+        FirebaseUser firebaseUser = auth.getCurrentUser();
+        User user = currentUser.getValue();
+        if (firebaseUser == null || user == null) return;
+
+        reauthenticate(user.getEmail(), currentPassword, () -> {
+            isLoading.setValue(true);
+            firebaseUser.updatePassword(newPassword).addOnCompleteListener(task -> {
+                isLoading.setValue(false);
+                if (task.isSuccessful()) {
+                    updateSuccess.setValue(true);
+                } else {
+                    errorMessage.setValue("Failed to update password: " + task.getException().getMessage());
+                }
+            });
+        });
+    }
+
+    public void deleteAccount(String password) {
+        FirebaseUser firebaseUser = auth.getCurrentUser();
+        User user = currentUser.getValue();
+        if (firebaseUser == null || user == null) return;
+
+        reauthenticate(user.getEmail(), password, () -> {
+            isLoading.setValue(true);
+            userRepository.deleteUser(user.getUserId(), task -> {
+                if (task.isSuccessful()) {
+                    firebaseUser.delete().addOnCompleteListener(deleteTask -> {
+                        isLoading.setValue(false);
+                        if (deleteTask.isSuccessful()) {
+                            currentUser.setValue(null);
+                            deleteSuccess.setValue(true);
+                        } else {
+                            errorMessage.setValue("Failed to delete Firebase Auth user: " + deleteTask.getException().getMessage());
+                        }
+                    });
+                } else {
+                    isLoading.setValue(false);
+                    errorMessage.setValue("Failed to delete user data: " + task.getException().getMessage());
+                }
+            });
+        });
+    }
+
+    private void updateUser(User userToUpdate) {
+        isLoading.setValue(true);
+        userRepository.updateUser(userToUpdate, task -> {
+            isLoading.setValue(false);
+            if (task.isSuccessful()) {
+                currentUser.setValue(userToUpdate);
+                updateSuccess.setValue(true);
+            } else {
+                if (task.getException() != null) {
+                    errorMessage.setValue("Failed to update profile: " + task.getException().getMessage());
+                } else {
+                    errorMessage.setValue("Failed to update profile");
+                }
+            }
+        });
+    }
+
+    private void reauthenticate(String email, String password, Runnable onReAuthSuccess) {
+        FirebaseUser user = auth.getCurrentUser();
+        if (user == null) return;
+
+        AuthCredential credential = EmailAuthProvider.getCredential(email, password);
+        isLoading.setValue(true);
+        user.reauthenticate(credential).addOnCompleteListener(task -> {
+            isLoading.setValue(false);
+            if (task.isSuccessful()) {
+                onReAuthSuccess.run();
+            } else {
+                errorMessage.setValue("Re-authentication failed: " + task.getException().getMessage());
+            }
+        });
+    }
+
     public void logout() {
-        auth.signOut();
+        // This was actually handled in the profile fragment and is loads easier to do there using AuthViewModel
+        //auth.signOut();
+        currentUser.setValue(null);
         logoutComplete.setValue(true);
     }
 }

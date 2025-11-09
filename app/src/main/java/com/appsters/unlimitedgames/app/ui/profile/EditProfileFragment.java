@@ -1,7 +1,6 @@
 package com.appsters.unlimitedgames.app.ui.profile;
 
 import android.os.Bundle;
-import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,14 +9,12 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 
 import com.appsters.unlimitedgames.R;
-import com.appsters.unlimitedgames.app.ui.auth.AuthState;
 import com.appsters.unlimitedgames.app.ui.auth.AuthViewModel;
 import com.appsters.unlimitedgames.databinding.FragmentEditProfileBinding;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;

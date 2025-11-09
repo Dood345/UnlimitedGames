@@ -26,15 +26,25 @@ import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 
 import com.appsters.unlimitedgames.R;
+import com.appsters.unlimitedgames.app.data.model.User;
 import com.appsters.unlimitedgames.databinding.FragmentProfileBinding;
 import com.appsters.unlimitedgames.app.ui.auth.AuthViewModel;
 import com.appsters.unlimitedgames.app.util.ImageHelper;
 import com.appsters.unlimitedgames.app.util.Privacy;
 
 /**
- * A simple {@link Fragment} subclass that displays the user's profile.
- * Allows users to view their profile information, change their profile picture,
- * update their privacy settings, and log out.
+ * A fragment that displays the user's profile information.
+ * This fragment is responsible for showing user details such as username, email, and profile picture.
+ * It provides functionality for users to:
+ * <ul>
+ *     <li>View their profile information.</li>
+ *     <li>Change their profile picture by selecting an image from the device storage.</li>
+ *     <li>Update their privacy settings (e.g., public, private).</li>
+ *     <li>Navigate to the {@link EditProfileFragment} to edit their details.</li>
+ *     <li>Log out of the application.</li>
+ * </ul>
+ * It interacts with {@link ProfileViewModel} to fetch and update user data and with
+ * {@link AuthViewModel} to handle the logout process.
  */
 public class ProfileFragment extends Fragment {
 
@@ -122,8 +132,10 @@ public class ProfileFragment extends Fragment {
     }
 
     /**
-     * Sets up the privacy spinner with the available privacy options.
-     * When an item is selected, it updates the user's privacy settings.
+     * Sets up the privacy spinner with the available privacy options from the {@link Privacy} enum.
+     * It configures an item selection listener that updates the user's privacy setting in the
+     * ViewModel when a new option is chosen. The update is skipped on the initial setup to
+     * prevent a premature API call.
      */
     private void setupPrivacySpinner() {
         ArrayAdapter<Privacy> adapter = new ArrayAdapter<>(
@@ -143,14 +155,29 @@ public class ProfileFragment extends Fragment {
                 }
             }
 
+            /**
+             * Callback method to be invoked when the selection disappears from this
+             * view. The selection can disappear for instance if the spinner's adapter
+             * is empty.
+             * @param parent The AdapterView that now contains no selected item.
+             */
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
+                // This method is intentionally left blank as no action is needed when nothing is selected.
             }
         });
     }
 
     /**
-     * Sets up observers for the view model's live data.
+     * Sets up observers for the {@link ProfileViewModel}'s LiveData.
+     * This includes observing:
+     * <ul>
+     *     <li>The current user's data to update the username, email, and profile image.</li>
+     *     <li>Loading state to show or hide a progress bar.</li>
+     *     <li>Error messages to display them as toasts.</li>
+     *     <li>Logout completion to trigger the final logout action in the {@link AuthViewModel}.</li>
+     *     <li>Image upload success to notify the user.</li>
+     * </ul>
      */
     private void setupObservers() {
         viewModel.getCurrentUser().observe(getViewLifecycleOwner(), user -> {
@@ -190,7 +217,13 @@ public class ProfileFragment extends Fragment {
     }
 
     /**
-     * Sets up click listeners for the buttons in the fragment.
+     * Sets up click listeners for interactive UI elements in the fragment.
+     * This handles clicks for:
+     * <ul>
+     *     <li>The "Edit Profile" button, which navigates to the {@link EditProfileFragment}.</li>
+     *     <li>The "Edit Profile Picture" button, which initiates the permission request and image selection flow.</li>
+     *     <li>The "Logout" button, which starts the logout process via the ViewModel.</li>
+     * </ul>
      */
     private void setupClickListeners() {
         binding.btnEditProfile.setOnClickListener(v -> {
@@ -273,11 +306,12 @@ public class ProfileFragment extends Fragment {
 
     /**
      * Loads the user's profile image.
-     * If the user has a profile image URL, it decodes the Base64 string and displays the image.
-     * Otherwise, it shows an avatar with the user's initials.
-     * @param user The user whose profile image to load.
+     * If the user has a profile image URL (stored as a Base64 string), it decodes it and
+     * displays the resulting image. If the URL is null, empty, or decoding fails, it falls
+     * back to showing an avatar with the user's initials.
+     * @param user The {@link User} object whose profile image is to be loaded.
      */
-    private void loadProfileImage(com.appsters.unlimitedgames.app.data.model.User user) {
+    private void loadProfileImage(User user) {
         if (user.getProfileImageUrl() != null && !user.getProfileImageUrl().isEmpty()) {
             // Load Base64 image
             Bitmap bitmap = ImageHelper.decodeBase64ToBitmap(user.getProfileImageUrl());
@@ -294,10 +328,11 @@ public class ProfileFragment extends Fragment {
     }
 
     /**
-     * Shows an avatar with the user's initials.
-     * @param user The user whose initials to display.
+     * Creates and displays a circular avatar with the user's initials.
+     * The background color of the avatar is determined by the user's profile color.
+     * @param user The {@link User} object whose initials are to be displayed.
      */
-    private void showInitialsAvatar(com.appsters.unlimitedgames.app.data.model.User user) {
+    private void showInitialsAvatar(User user) {
         String initials = ImageHelper.getInitials(user.getUsername());
         String color = user.getProfileColor() != null ? user.getProfileColor() : "#4ECDC4";
 

@@ -15,8 +15,14 @@
     </style>
 
     <style name="AlertDialogTheme" parent="Theme.MaterialComponents.DayNight.Dialog.Alert">
-        <item name="android:textColor">@color/white</item>
-        <item name="android:textColorPrimary">@color/white</item>
-        <item name="colorAccent">@color/white</item>
+        <item name="buttonBarPositiveButtonStyle">@style/AlertDialog.ButtonDelete</item>
+        <item name="buttonBarNegativeButtonStyle">@style/AlertDialog.ButtonCancel</item>
+    </style>
+    <style name="AlertDialog.ButtonDelete" parent="Widget.MaterialComponents.Button.OutlinedButton">
+        <item name="android:textColor">@color/red</item>
+    </style>
+
+    <style name="AlertDialog.ButtonCancel" parent="Widget.MaterialComponents.Button.OutlinedButton">
+        <item name="android:textColor">@color/deleteCancel</item>
     </style>
 </resources>

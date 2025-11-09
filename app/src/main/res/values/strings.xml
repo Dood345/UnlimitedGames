@@ -11,7 +11,8 @@
     <string name="email">Email</string>
     <string name="password">Password</string>
     <string name="login">Login</string>
-    <string name="sign_up_prompt">Don\'t have an account? Sign Up</string>
+    <string name="sign_up_prompt">Don\'t have an account? <font color='#FF0000'>Sign Up</font></string>
+    <string name="login_prompt">Already have an account? <font color='#FF0000'>Login</font></string>
 
     <!-- Profile -->
     <string name="profile_picture">Profile Picture</string>

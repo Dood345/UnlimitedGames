@@ -5,6 +5,7 @@ import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -21,13 +22,29 @@ import com.appsters.unlimitedgames.app.ui.auth.AuthViewModel;
 import com.appsters.unlimitedgames.databinding.FragmentEditProfileBinding;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
+/**
+ * A fragment that allows users to edit their profile information,
+ * including username, email, and password. It also provides the functionality
+ * for users to delete their account after confirming their password.
+ */
 public class EditProfileFragment extends Fragment {
 
+    /** Binding for the fragment's layout. */
     private FragmentEditProfileBinding binding;
+    /** ViewModel for profile-related data and actions. */
     private ProfileViewModel viewModel;
+    /** ViewModel for authentication-related actions. */
     private AuthViewModel authViewModel;
+    /** Navigation controller for handling screen transitions. */
     private NavController navController;
 
+    /**
+     * Inflates the fragment's layout.
+     * @param inflater The LayoutInflater object that can be used to inflate any views in the fragment.
+     * @param container If non-null, this is the parent view that the fragment's UI should be attached to.
+     * @param savedInstanceState If non-null, this fragment is being re-constructed from a previous saved state.
+     * @return The root view for the fragment's UI.
+     */
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -35,6 +52,12 @@ public class EditProfileFragment extends Fragment {
         return binding.getRoot();
     }
 
+    /**
+     * Initializes the ViewModels, NavController, and sets up UI observers and click listeners
+     * after the view has been created.
+     * @param view The view returned by {@link #onCreateView(LayoutInflater, ViewGroup, Bundle)}.
+     * @param savedInstanceState If non-null, this fragment is being re-constructed from a previous saved state.
+     */
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
@@ -50,6 +73,10 @@ public class EditProfileFragment extends Fragment {
         setupClickListeners();
     }
 
+    /**
+     * Sets up observers on LiveData from the ViewModels to update the UI in response to data changes,
+     * such as user information, loading states, and success or error messages.
+     */
     private void setupObservers() {
         viewModel.getCurrentUser().observe(getViewLifecycleOwner(), user -> {
             if (user != null) {
@@ -84,11 +111,19 @@ public class EditProfileFragment extends Fragment {
         });
     }
 
+    /**
+     * Sets up click listeners for the interactive UI elements in the fragment, such as the
+     * "Save Changes" and "Delete Account" buttons.
+     */
     private void setupClickListeners() {
         binding.btnSaveChanges.setOnClickListener(v -> saveChanges());
         binding.btnDeleteAccount.setOnClickListener(v -> showDeleteConfirmationDialog());
     }
 
+    /**
+     * Gathers the input from the various text fields and calls the ViewModel
+     * to perform the profile update operation.
+     */
     private void saveChanges() {
         String username = binding.etUsername.getText().toString().trim();
         String email = binding.etEmail.getText().toString().trim();
@@ -100,6 +135,10 @@ public class EditProfileFragment extends Fragment {
         viewModel.updateProfile(username, email, currentPassword, newPassword, confirmPassword);
     }
 
+    /**
+     * Displays an alert dialog to confirm whether the user wants to proceed with deleting their account.
+     * If confirmed, it proceeds to show the password prompt.
+     */
     private void showDeleteConfirmationDialog() {
         new MaterialAlertDialogBuilder(requireContext(), R.style.AlertDialogTheme)
                 .setTitle("Delete Account")
@@ -109,14 +148,30 @@ public class EditProfileFragment extends Fragment {
                 .show();
     }
 
+    /**
+     * Displays a dialog prompting the user to enter their password to confirm account deletion.
+     * The input field is placed in a FrameLayout to add horizontal margins for better visual presentation.
+     */
     private void showPasswordPromptForDelete() {
+        FrameLayout container = new FrameLayout(requireContext());
         final com.google.android.material.textfield.TextInputEditText input = new com.google.android.material.textfield.TextInputEditText(requireContext());
         input.setInputType(android.text.InputType.TYPE_CLASS_TEXT | android.text.InputType.TYPE_TEXT_VARIATION_PASSWORD);
         input.setHint("Enter your password");
 
+        //gemini added a frame layout to limit the size of the password entry text field
+        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+        );
+        int margin = (int) (16 * getResources().getDisplayMetrics().density); // 16dp margin
+        params.setMargins(margin, 0, margin, 0);
+        input.setLayoutParams(params);
+
+        container.addView(input);
+
         new MaterialAlertDialogBuilder(requireContext(), R.style.AlertDialogTheme)
                 .setTitle("Confirm Deletion")
-                .setView(input)
+                .setView(container)
                 .setNegativeButton("Cancel", null)
                 .setPositiveButton("Confirm", (dialog, which) -> {
                     String password = input.getText().toString();
@@ -129,6 +184,9 @@ public class EditProfileFragment extends Fragment {
                 .show();
     }
 
+    /**
+     * Cleans up the binding when the fragment's view is destroyed to prevent memory leaks.
+     */
     @Override
     public void onDestroyView() {
         super.onDestroyView();

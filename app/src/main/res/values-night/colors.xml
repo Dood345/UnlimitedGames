@@ -9,7 +9,7 @@
     <color name="white">#FFFFFFFF</color>
     <color name="dark_gray">#FF333333</color>
     <color name="red">#FFFF0000</color>
-    <color name="deleteCancel">#FF333333</color>
+    <color name="deleteCancel">#FFFFFFFF</color>
 
     <!--  WhackAMole  -->
     <color name="mole_red">#FF8B0000</color>

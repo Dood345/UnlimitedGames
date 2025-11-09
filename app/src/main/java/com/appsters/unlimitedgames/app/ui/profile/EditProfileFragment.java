@@ -101,7 +101,7 @@ public class EditProfileFragment extends Fragment {
     }
 
     private void showDeleteConfirmationDialog() {
-        new MaterialAlertDialogBuilder(requireContext())
+        new MaterialAlertDialogBuilder(requireContext(), R.style.AlertDialogTheme)
                 .setTitle("Delete Account")
                 .setMessage("Are you sure you want to delete your account? This action is irreversible.")
                 .setNegativeButton("Cancel", null)
@@ -114,7 +114,7 @@ public class EditProfileFragment extends Fragment {
         input.setInputType(android.text.InputType.TYPE_CLASS_TEXT | android.text.InputType.TYPE_TEXT_VARIATION_PASSWORD);
         input.setHint("Enter your password");
 
-        new MaterialAlertDialogBuilder(requireContext())
+        new MaterialAlertDialogBuilder(requireContext(), R.style.AlertDialogTheme)
                 .setTitle("Confirm Deletion")
                 .setView(input)
                 .setNegativeButton("Cancel", null)

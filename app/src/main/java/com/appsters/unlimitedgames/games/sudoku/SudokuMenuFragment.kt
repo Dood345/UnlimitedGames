@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import android.widget.Button
 import androidx.fragment.app.Fragment
 import com.appsters.unlimitedgames.R
+import com.appsters.unlimitedgames.games.sudoku.repository.SudokuRepository
 
 /**
  * A [Fragment] that displays the Sudoku game menu.
@@ -18,6 +19,7 @@ class SudokuMenuFragment : Fragment() {
 
     private var selectedColor: Int = Color.BLACK
     private lateinit var colorPickers: List<View>
+    private lateinit var repository: SudokuRepository
 
     /**
      * Inflates the layout for this fragment.
@@ -27,6 +29,8 @@ class SudokuMenuFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+        repository = SudokuRepository(requireContext())
+        selectedColor = repository.getLastColor()
         return inflater.inflate(R.layout.fragment_sudoku_menu, container, false)
     }
 
@@ -42,21 +46,20 @@ class SudokuMenuFragment : Fragment() {
     }
 
     private fun setupDifficultyButtons(view: View) {
-        view.findViewById<Button>(R.id.btn_easy).setOnClickListener {
-            startGame(Difficulty.EASY)
-        }
+        val easyButton = view.findViewById<Button>(R.id.btn_easy)
+        val mediumButton = view.findViewById<Button>(R.id.btn_medium)
+        val hardButton = view.findViewById<Button>(R.id.btn_hard)
+        val expertButton = view.findViewById<Button>(R.id.btn_expert)
 
-        view.findViewById<Button>(R.id.btn_medium).setOnClickListener {
-            startGame(Difficulty.MEDIUM)
-        }
+        easyButton.text = "Easy (HS: ${repository.getHighScore(Difficulty.EASY)})"
+        mediumButton.text = "Medium (HS: ${repository.getHighScore(Difficulty.MEDIUM)})"
+        hardButton.text = "Hard (HS: ${repository.getHighScore(Difficulty.HARD)})"
+        expertButton.text = "Expert (HS: ${repository.getHighScore(Difficulty.EXPERT)})"
 
-        view.findViewById<Button>(R.id.btn_hard).setOnClickListener {
-            startGame(Difficulty.HARD)
-        }
-
-        view.findViewById<Button>(R.id.btn_expert).setOnClickListener {
-            startGame(Difficulty.EXPERT)
-        }
+        easyButton.setOnClickListener { startGame(Difficulty.EASY) }
+        mediumButton.setOnClickListener { startGame(Difficulty.MEDIUM) }
+        hardButton.setOnClickListener { startGame(Difficulty.HARD) }
+        expertButton.setOnClickListener { startGame(Difficulty.EXPERT) }
 
         view.findViewById<Button>(R.id.btn_free_play).setOnClickListener {
             startGame(Difficulty.FREE_PLAY)
@@ -71,8 +74,14 @@ class SudokuMenuFragment : Fragment() {
             view.findViewById(R.id.color_green)
         )
 
-        // Set black as the default selected color
-        colorPickers[0].isSelected = true
+        // Set the initially selected color based on repository
+        val colorToSelect = when (selectedColor) {
+            Color.BLUE -> R.id.color_blue
+            Color.RED -> R.id.color_red
+            Color.GREEN -> R.id.color_green
+            else -> R.id.color_black
+        }
+        view.findViewById<View>(colorToSelect).isSelected = true
 
         colorPickers.forEach { picker ->
             picker.setOnClickListener { onColorSelected(it) }
@@ -91,6 +100,7 @@ class SudokuMenuFragment : Fragment() {
             R.id.color_green -> Color.GREEN
             else -> Color.BLACK
         }
+        repository.saveLastColor(selectedColor)
     }
 
     /**
@@ -119,13 +129,5 @@ class SudokuMenuFragment : Fragment() {
         FREE_PLAY(0.0, 0);
 
         fun isRanked(): Boolean = this != FREE_PLAY
-
-        fun getDisplayName(): String = when(this) {
-            EASY -> "Easy"
-            MEDIUM -> "Medium"
-            HARD -> "Hard"
-            EXPERT -> "Expert"
-            FREE_PLAY -> "Free Play"
-        }
     }
 }

@@ -3,12 +3,13 @@ package com.appsters.unlimitedgames.games.sudoku
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import com.appsters.unlimitedgames.games.sudoku.model.Board
 import com.appsters.unlimitedgames.games.sudoku.model.Cell
 import com.appsters.unlimitedgames.games.sudoku.model.GameState
 import com.appsters.unlimitedgames.games.sudoku.model.PuzzleGenerator
 import com.appsters.unlimitedgames.games.sudoku.model.Score
+import com.appsters.unlimitedgames.games.sudoku.repository.SudokuRepository
 import com.appsters.unlimitedgames.games.sudoku.util.SudokuTimer
 import kotlinx.coroutines.launch
 
@@ -18,7 +19,7 @@ import kotlinx.coroutines.launch
  * This ViewModel holds the [GameState], communicates with the UI through [LiveData], and handles
  * user inputs like selecting a cell or entering a number.
  */
-class SudokuViewModel : ViewModel() {
+class SudokuViewModel(private val repository: SudokuRepository) : ViewModel() {
 
     private val _gameState = MutableLiveData<GameState>()
     /** LiveData holding the current state of the game, including the board and player progress. */
@@ -102,7 +103,9 @@ class SudokuViewModel : ViewModel() {
             if (currentBoard.isSolved()) {
                 currentGameState.isCompleted = true
                 sudokuTimer.pause()
-                _gameCompletedEvent.postValue(currentGameState.getScore())
+                val finalScore = currentGameState.getScore()
+                repository.saveHighScore(finalScore)
+                _gameCompletedEvent.postValue(finalScore)
             }
         } else {
             currentGameState.mistakes++
@@ -139,5 +142,18 @@ class SudokuViewModel : ViewModel() {
         if (::sudokuTimer.isInitialized) {
             sudokuTimer.pause()
         }
+    }
+}
+
+/**
+ * A factory for creating [SudokuViewModel] instances with a [SudokuRepository] dependency.
+ */
+class SudokuViewModelFactory(private val repository: SudokuRepository) : ViewModelProvider.Factory {
+    override fun <T : ViewModel> create(modelClass: Class<T>): T {
+        if (modelClass.isAssignableFrom(SudokuViewModel::class.java)) {
+            @Suppress("UNCHECKED_CAST")
+            return SudokuViewModel(repository) as T
+        }
+        throw IllegalArgumentException("Unknown ViewModel class")
     }
 }

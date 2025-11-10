@@ -10,10 +10,12 @@ import android.widget.Button
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModelProvider
 import com.appsters.unlimitedgames.R
 import com.appsters.unlimitedgames.app.ui.custom.TypewriterView
 import com.appsters.unlimitedgames.games.sudoku.model.Score
+import com.appsters.unlimitedgames.games.sudoku.repository.SudokuRepository
 import com.appsters.unlimitedgames.games.sudoku.view.SudokuBoardView
 import nl.dionsegijn.konfetti.core.Party
 import nl.dionsegijn.konfetti.core.emitter.Emitter
@@ -58,7 +60,9 @@ class SudokuGameFragment : Fragment(), SudokuBoardView.OnCellSelectedListener {
             difficulty = SudokuMenuFragment.Difficulty.valueOf(it.getString(ARG_DIFFICULTY) ?: "EASY")
             playerColor = it.getInt(ARG_COLOR, Color.BLACK)
         }
-        viewModel = ViewModelProvider(this)[SudokuViewModel::class.java]
+        val repository = SudokuRepository(requireContext())
+        val factory = SudokuViewModelFactory(repository)
+        viewModel = ViewModelProvider(this, factory)[SudokuViewModel::class.java]
     }
 
     override fun onCreateView(

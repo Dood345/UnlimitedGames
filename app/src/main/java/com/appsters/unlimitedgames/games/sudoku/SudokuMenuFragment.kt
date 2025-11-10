@@ -1,5 +1,6 @@
 package com.appsters.unlimitedgames.games.sudoku
 
+import android.graphics.Color
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -14,6 +15,9 @@ import com.appsters.unlimitedgames.R
  * It also provides access to ranked games and a free-play mode.
  */
 class SudokuMenuFragment : Fragment() {
+
+    private var selectedColor: Int = Color.BLACK
+    private lateinit var colorPickers: List<View>
 
     /**
      * Inflates the layout for this fragment.
@@ -33,6 +37,11 @@ class SudokuMenuFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        setupDifficultyButtons(view)
+        setupColorPicker(view)
+    }
+
+    private fun setupDifficultyButtons(view: View) {
         view.findViewById<Button>(R.id.btn_easy).setOnClickListener {
             startGame(Difficulty.EASY)
         }
@@ -54,6 +63,36 @@ class SudokuMenuFragment : Fragment() {
         }
     }
 
+    private fun setupColorPicker(view: View) {
+        colorPickers = listOf(
+            view.findViewById(R.id.color_black),
+            view.findViewById(R.id.color_blue),
+            view.findViewById(R.id.color_red),
+            view.findViewById(R.id.color_green)
+        )
+
+        // Set black as the default selected color
+        colorPickers[0].isSelected = true
+
+        colorPickers.forEach { picker ->
+            picker.setOnClickListener { onColorSelected(it) }
+        }
+    }
+
+    private fun onColorSelected(view: View) {
+        // Deselect all other pickers
+        colorPickers.forEach { it.isSelected = false }
+        // Select the clicked one
+        view.isSelected = true
+
+        selectedColor = when (view.id) {
+            R.id.color_blue -> Color.BLUE
+            R.id.color_red -> Color.RED
+            R.id.color_green -> Color.GREEN
+            else -> Color.BLACK
+        }
+    }
+
     /**
      * Starts a new game with the specified difficulty.
      * Replaces the current fragment with a [SudokuGameFragment].
@@ -61,7 +100,7 @@ class SudokuMenuFragment : Fragment() {
      * @param difficulty The selected difficulty for the new game.
      */
     private fun startGame(difficulty: Difficulty) {
-        val fragment = SudokuGameFragment.newInstance(difficulty)
+        val fragment = SudokuGameFragment.newInstance(difficulty, selectedColor)
         parentFragmentManager.beginTransaction()
             .replace(R.id.fragment_container, fragment)
             .addToBackStack(null)
@@ -73,21 +112,14 @@ class SudokuMenuFragment : Fragment() {
      * Each difficulty has a multiplier for scoring and a number of given cells.
      */
     enum class Difficulty(val multiplier: Double, val givens: Int) {
-        EASY(1.0, 45),      // More given numbers, easier puzzle
-        MEDIUM(1.5, 35),    // Moderate difficulty
-        HARD(2.0, 28),      // Fewer givens, harder
-        EXPERT(3.0, 22),    // Very few givens, expert level
-        FREE_PLAY(0.0, 0);  // Empty board, no scoring
+        EASY(1.0, 45),
+        MEDIUM(1.5, 35),
+        HARD(2.0, 28),
+        EXPERT(3.0, 22),
+        FREE_PLAY(0.0, 0);
 
-        /**
-         * Checks if the difficulty is ranked for scoring.
-         * @return `true` if the difficulty is not FREE_PLAY, `false` otherwise.
-         */
         fun isRanked(): Boolean = this != FREE_PLAY
 
-        /**
-         * Gets a user-friendly display name for the difficulty.
-         */
         fun getDisplayName(): String = when(this) {
             EASY -> "Easy"
             MEDIUM -> "Medium"

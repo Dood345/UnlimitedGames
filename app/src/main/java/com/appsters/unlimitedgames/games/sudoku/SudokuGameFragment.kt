@@ -29,6 +29,7 @@ class SudokuGameFragment : Fragment(), SudokuBoardView.OnCellSelectedListener {
 
     private lateinit var viewModel: SudokuViewModel
     private lateinit var difficulty: SudokuMenuFragment.Difficulty
+    private var playerColor: Int = Color.BLACK
     private lateinit var sudokuBoardView: SudokuBoardView
     private lateinit var timerTextView: TextView
     private lateinit var numberButtons: List<Button>
@@ -36,14 +37,16 @@ class SudokuGameFragment : Fragment(), SudokuBoardView.OnCellSelectedListener {
 
     companion object {
         private const val ARG_DIFFICULTY = "difficulty"
+        private const val ARG_COLOR = "color"
 
         /**
-         * Creates a new instance of the fragment with the specified difficulty.
+         * Creates a new instance of the fragment with the specified difficulty and color.
          */
-        fun newInstance(difficulty: SudokuMenuFragment.Difficulty): SudokuGameFragment {
+        fun newInstance(difficulty: SudokuMenuFragment.Difficulty, color: Int): SudokuGameFragment {
             return SudokuGameFragment().apply {
                 arguments = Bundle().apply {
                     putString(ARG_DIFFICULTY, difficulty.name)
+                    putInt(ARG_COLOR, color)
                 }
             }
         }
@@ -51,9 +54,10 @@ class SudokuGameFragment : Fragment(), SudokuBoardView.OnCellSelectedListener {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        difficulty = SudokuMenuFragment.Difficulty.valueOf(
-            arguments?.getString(ARG_DIFFICULTY) ?: "EASY"
-        )
+        arguments?.let {
+            difficulty = SudokuMenuFragment.Difficulty.valueOf(it.getString(ARG_DIFFICULTY) ?: "EASY")
+            playerColor = it.getInt(ARG_COLOR, Color.BLACK)
+        }
         viewModel = ViewModelProvider(this)[SudokuViewModel::class.java]
     }
 
@@ -73,6 +77,8 @@ class SudokuGameFragment : Fragment(), SudokuBoardView.OnCellSelectedListener {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        
+        sudokuBoardView.setPlayerColor(playerColor)
         
         setupButtonClickListeners(view)
         observeViewModel()

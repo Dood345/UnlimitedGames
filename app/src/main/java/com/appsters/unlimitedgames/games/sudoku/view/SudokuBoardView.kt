@@ -25,6 +25,7 @@ class SudokuBoardView @JvmOverloads constructor(
     private var board: Board? = null
     private var selectedCell: Cell? = null
     private var listener: OnCellSelectedListener? = null
+    private var playerColor: Int = Color.BLACK
 
     private val thickLinePaint = Paint().apply {
         style = Paint.Style.STROKE
@@ -39,7 +40,6 @@ class SudokuBoardView @JvmOverloads constructor(
     }
 
     private val textPaint = Paint().apply {
-        color = Color.BLACK
         textSize = 64f
         textAlign = Paint.Align.CENTER
     }
@@ -79,6 +79,15 @@ class SudokuBoardView @JvmOverloads constructor(
      */
     fun setSelectedCell(cell: Cell?) {
         this.selectedCell = cell
+        invalidate()
+    }
+
+    /**
+     * Sets the color for the user-entered numbers.
+     */
+    fun setPlayerColor(color: Int) {
+        playerColor = color
+        textPaint.color = playerColor
         invalidate()
     }
 

@@ -4,9 +4,11 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.appsters.unlimitedgames.games.sudoku.model.Board
 import com.appsters.unlimitedgames.games.sudoku.model.Cell
 import com.appsters.unlimitedgames.games.sudoku.model.GameState
 import com.appsters.unlimitedgames.games.sudoku.model.PuzzleGenerator
+import com.appsters.unlimitedgames.games.sudoku.model.Score
 import com.appsters.unlimitedgames.games.sudoku.util.SudokuTimer
 import kotlinx.coroutines.launch
 
@@ -33,6 +35,10 @@ class SudokuViewModel : ViewModel() {
     private val _invalidMoveEvent = MutableLiveData<Int>()
     /** LiveData event that triggers when the user makes an invalid move. It holds the invalid number. */
     val invalidMoveEvent: LiveData<Int> = _invalidMoveEvent
+
+    private val _gameCompletedEvent = MutableLiveData<Score>()
+    /** LiveData event that triggers when the puzzle is successfully solved. It holds the final [Score]. */
+    val gameCompletedEvent: LiveData<Score> = _gameCompletedEvent
 
     private lateinit var sudokuTimer: SudokuTimer
 
@@ -96,6 +102,7 @@ class SudokuViewModel : ViewModel() {
             if (currentBoard.isSolved()) {
                 currentGameState.isCompleted = true
                 sudokuTimer.pause()
+                _gameCompletedEvent.postValue(currentGameState.getScore())
             }
         } else {
             currentGameState.mistakes++

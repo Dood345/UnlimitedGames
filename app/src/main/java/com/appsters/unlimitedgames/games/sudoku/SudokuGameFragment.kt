@@ -8,10 +8,16 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.TextView
+import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.appsters.unlimitedgames.R
+import com.appsters.unlimitedgames.games.sudoku.model.Score
 import com.appsters.unlimitedgames.games.sudoku.view.SudokuBoardView
+import nl.dionsegijn.konfetti.core.Party
+import nl.dionsegijn.konfetti.core.emitter.Emitter
+import nl.dionsegijn.konfetti.xml.KonfettiView
+import java.util.concurrent.TimeUnit
 
 /**
  * A [Fragment] that displays the main Sudoku game screen.
@@ -25,6 +31,7 @@ class SudokuGameFragment : Fragment(), SudokuBoardView.OnCellSelectedListener {
     private lateinit var sudokuBoardView: SudokuBoardView
     private lateinit var timerTextView: TextView
     private lateinit var numberButtons: List<Button>
+    private lateinit var konfettiView: KonfettiView
 
     companion object {
         private const val ARG_DIFFICULTY = "difficulty"
@@ -57,6 +64,7 @@ class SudokuGameFragment : Fragment(), SudokuBoardView.OnCellSelectedListener {
         val view = inflater.inflate(R.layout.fragment_sudoku_game, container, false)
         sudokuBoardView = view.findViewById(R.id.sudoku_board_view)
         timerTextView = view.findViewById(R.id.tv_timer)
+        konfettiView = view.findViewById(R.id.konfetti_view)
         sudokuBoardView.setOnCellSelectedListener(this)
 
         return view
@@ -100,9 +108,6 @@ class SudokuGameFragment : Fragment(), SudokuBoardView.OnCellSelectedListener {
     private fun observeViewModel() {
         viewModel.gameState.observe(viewLifecycleOwner) { gameState ->
             sudokuBoardView.setBoard(gameState.board)
-            if (gameState.isCompleted) {
-                // TODO: Show game over dialog with score
-            }
         }
 
         viewModel.timer.observe(viewLifecycleOwner) { time ->
@@ -116,11 +121,15 @@ class SudokuGameFragment : Fragment(), SudokuBoardView.OnCellSelectedListener {
         viewModel.invalidMoveEvent.observe(viewLifecycleOwner) { number ->
             flashButton(numberButtons[number - 1])
         }
+
+        viewModel.gameCompletedEvent.observe(viewLifecycleOwner) { score ->
+            showConfetti()
+            showCompletionDialog(score)
+        }
     }
 
     /**
      * Animates a button with a red flash to indicate an invalid move.
-     * This is done by temporarily changing the background tint and then restoring it.
      */
     private fun flashButton(button: Button) {
         val originalTint = button.backgroundTintList
@@ -128,6 +137,36 @@ class SudokuGameFragment : Fragment(), SudokuBoardView.OnCellSelectedListener {
         button.postDelayed({
             button.backgroundTintList = originalTint
         }, 300) // Restore after 0.3 seconds
+    }
+
+    /**
+     * Triggers a burst of confetti to celebrate solving the puzzle.
+     */
+    private fun showConfetti() {
+        val party = Party(
+            speed = 0f,
+            maxSpeed = 30f,
+            damping = 0.9f,
+            spread = 360,
+            colors = listOf(0xfce18a, 0xff726d, 0xf4306d, 0xb48def),
+            emitter = Emitter(duration = 100, TimeUnit.MILLISECONDS).max(100),
+            position = nl.dionsegijn.konfetti.core.Position.Relative(0.5, 0.3)
+        )
+        konfettiView.start(party)
+    }
+
+    /**
+     * Displays a dialog with the final score and a button to return to the menu.
+     */
+    private fun showCompletionDialog(score: Score) {
+        AlertDialog.Builder(requireContext())
+            .setTitle("Puzzle Solved!")
+            .setMessage(score.getScoreBreakdown())
+            .setPositiveButton("Awesome!") { _, _ ->
+                parentFragmentManager.popBackStack()
+            }
+            .setCancelable(false)
+            .show()
     }
 
     /**

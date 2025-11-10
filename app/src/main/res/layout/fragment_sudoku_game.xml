@@ -1,104 +1,115 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="16dp"
     tools:context=".games.sudoku.SudokuGameFragment">
 
-    <TextView
-        android:id="@+id/tv_timer"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="00:00"
-        android:textSize="24sp"
-        android:layout_gravity="center"
-        android:layout_marginBottom="16dp" />
-
-    <com.appsters.unlimitedgames.games.sudoku.view.SudokuBoardView
-        android:id="@+id/sudoku_board_view"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1" />
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:padding="16dp">
 
-    <GridLayout
+        <TextView
+            android:id="@+id/tv_timer"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="00:00"
+            android:textSize="24sp"
+            android:layout_gravity="center"
+            android:layout_marginBottom="16dp" />
+
+        <com.appsters.unlimitedgames.games.sudoku.view.SudokuBoardView
+            android:id="@+id/sudoku_board_view"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+
+        <GridLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:columnCount="5"
+            android:alignmentMode="alignMargins"
+            android:layout_marginTop="16dp">
+
+            <Button
+                android:id="@+id/btn_number_1"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_columnWeight="1"
+                android:text="1" />
+
+            <Button
+                android:id="@+id/btn_number_2"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_columnWeight="1"
+                android:text="2" />
+
+            <Button
+                android:id="@+id/btn_number_3"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_columnWeight="1"
+                android:text="3" />
+
+            <Button
+                android:id="@+id/btn_number_4"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_columnWeight="1"
+                android:text="4" />
+
+            <Button
+                android:id="@+id/btn_number_5"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_columnWeight="1"
+                android:text="5" />
+
+            <Button
+                android:id="@+id/btn_number_6"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_columnWeight="1"
+                android:text="6" />
+
+            <Button
+                android:id="@+id/btn_number_7"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_columnWeight="1"
+                android:text="7" />
+
+            <Button
+                android:id="@+id/btn_number_8"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_columnWeight="1"
+                android:text="8" />
+
+            <Button
+                android:id="@+id/btn_number_9"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_columnWeight="1"
+                android:text="9" />
+
+            <Button
+                android:id="@+id/btn_clear"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_columnWeight="1"
+                android:text="Clear" />
+
+        </GridLayout>
+
+    </LinearLayout>
+
+    <nl.dionsegijn.konfetti.xml.KonfettiView
+        android:id="@+id/konfetti_view"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:columnCount="5"
-        android:alignmentMode="alignMargins"
-        android:layout_marginTop="16dp">
+        android:layout_height="match_parent" />
 
-        <Button
-            android:id="@+id/btn_number_1"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_columnWeight="1"
-            android:text="1" />
-
-        <Button
-            android:id="@+id/btn_number_2"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_columnWeight="1"
-            android:text="2" />
-
-        <Button
-            android:id="@+id/btn_number_3"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_columnWeight="1"
-            android:text="3" />
-
-        <Button
-            android:id="@+id/btn_number_4"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_columnWeight="1"
-            android:text="4" />
-
-        <Button
-            android:id="@+id/btn_number_5"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_columnWeight="1"
-            android:text="5" />
-
-        <Button
-            android:id="@+id/btn_number_6"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_columnWeight="1"
-            android:text="6" />
-
-        <Button
-            android:id="@+id/btn_number_7"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_columnWeight="1"
-            android:text="7" />
-
-        <Button
-            android:id="@+id/btn_number_8"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_columnWeight="1"
-            android:text="8" />
-
-        <Button
-            android:id="@+id/btn_number_9"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_columnWeight="1"
-            android:text="9" />
-        
-        <Button
-            android:id="@+id/btn_clear"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_columnWeight="1"
-            android:text="Clear" />
-
-    </GridLayout>
-
-</LinearLayout>
+</FrameLayout>

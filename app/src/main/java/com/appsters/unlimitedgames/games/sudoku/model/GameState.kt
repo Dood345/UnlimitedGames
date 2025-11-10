@@ -18,4 +18,15 @@ data class GameState(
         val seconds = totalSeconds % 60
         return String.format("%02d:%02d", minutes, seconds)
     }
+
+    fun isRanked(): Boolean = difficulty.isRanked()
+
+    fun getScore(): Score {
+        return Score(
+            difficulty = difficulty,
+            timeInSeconds = elapsedTime / 1000,
+            mistakes = mistakes,
+            hintsUsed = hintsUsed
+        )
+    }
 }

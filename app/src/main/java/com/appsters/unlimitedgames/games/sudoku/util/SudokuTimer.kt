@@ -1,4 +1,4 @@
-package com.appsters.unlimitedgames.games.sudoku.model
+package com.appsters.unlimitedgames.games.sudoku.util
 
 import android.os.Handler
 import android.os.Looper
@@ -10,7 +10,7 @@ class SudokuTimer(
     private var startTime: Long = 0L
     private var elapsedTime: Long = 0L
     private var isRunning = false
-    
+
     private val tickRunnable = object : Runnable {
         override fun run() {
             if (isRunning) {
@@ -20,7 +20,7 @@ class SudokuTimer(
             }
         }
     }
-    
+
     fun start() {
         if (!isRunning) {
             startTime = System.currentTimeMillis() - elapsedTime
@@ -28,27 +28,27 @@ class SudokuTimer(
             handler.post(tickRunnable)
         }
     }
-    
+
     fun pause() {
         isRunning = false
         handler.removeCallbacks(tickRunnable)
     }
-    
+
     fun resume() {
         start()
     }
-    
+
     fun reset() {
         pause()
         elapsedTime = 0L
         onTick(0L)
     }
-    
+
     fun getElapsedTime(): Long = elapsedTime
-    
+
     fun setElapsedTime(time: Long) {
         elapsedTime = time
     }
-    
+
     fun isRunning(): Boolean = isRunning
 }

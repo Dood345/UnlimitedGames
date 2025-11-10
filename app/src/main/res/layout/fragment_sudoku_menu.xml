@@ -5,7 +5,7 @@
     android:orientation="vertical"
     android:gravity="center"
     android:padding="32dp">
-    
+
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -13,28 +13,59 @@
         android:textSize="48sp"
         android:textStyle="bold"
         android:layout_marginBottom="48dp" />
-    
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Ranked Games"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="16dp" />
+
     <Button
         android:id="@+id/btn_easy"
         android:layout_width="200dp"
         android:layout_height="wrap_content"
-        android:text="Easy"
+        android:text="Easy (1.0x)"
         android:textSize="18sp"
-        android:layout_marginBottom="16dp" />
-    
+        android:layout_marginBottom="12dp" />
+
     <Button
         android:id="@+id/btn_medium"
         android:layout_width="200dp"
         android:layout_height="wrap_content"
-        android:text="Medium"
+        android:text="Medium (1.5x)"
         android:textSize="18sp"
-        android:layout_marginBottom="16dp" />
-    
+        android:layout_marginBottom="12dp" />
+
     <Button
         android:id="@+id/btn_hard"
         android:layout_width="200dp"
         android:layout_height="wrap_content"
-        android:text="Hard"
-        android:textSize="18sp" />
-    
+        android:text="Hard (2.0x)"
+        android:textSize="18sp"
+        android:layout_marginBottom="12dp" />
+
+    <Button
+        android:id="@+id/btn_expert"
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:text="Expert (3.0x)"
+        android:textSize="18sp"
+        android:layout_marginBottom="32dp" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#CCCCCC"
+        android:layout_marginVertical="16dp" />
+
+    <Button
+        android:id="@+id/btn_free_play"
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:text="Free Play"
+        android:textSize="18sp"
+        style="@style/Widget.Material3.Button.OutlinedButton" />
+
 </LinearLayout>

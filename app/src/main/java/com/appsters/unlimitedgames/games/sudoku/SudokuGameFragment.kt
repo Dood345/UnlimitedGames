@@ -31,7 +31,8 @@ class SudokuGameFragment : Fragment(), SudokuBoardView.OnCellSelectedListener {
 
     private lateinit var viewModel: SudokuViewModel
     private lateinit var difficulty: SudokuMenuFragment.Difficulty
-    private var playerColor: Int = Color.BLACK
+    private var selectedColor: Int = Color.BLACK
+    private var isRanked: Boolean = true
     private lateinit var sudokuBoardView: SudokuBoardView
     private lateinit var timerTextView: TextView
     private lateinit var numberButtons: List<Button>
@@ -40,15 +41,21 @@ class SudokuGameFragment : Fragment(), SudokuBoardView.OnCellSelectedListener {
     companion object {
         private const val ARG_DIFFICULTY = "difficulty"
         private const val ARG_COLOR = "color"
+        private const val ARG_IS_RANKED = "is_ranked"
 
         /**
          * Creates a new instance of the fragment with the specified difficulty and color.
          */
-        fun newInstance(difficulty: SudokuMenuFragment.Difficulty, color: Int): SudokuGameFragment {
+        fun newInstance(
+            difficulty: SudokuMenuFragment.Difficulty,
+            color: Int,
+            isRanked: Boolean = true
+        ): SudokuGameFragment {
             return SudokuGameFragment().apply {
                 arguments = Bundle().apply {
                     putString(ARG_DIFFICULTY, difficulty.name)
                     putInt(ARG_COLOR, color)
+                    putBoolean(ARG_IS_RANKED, isRanked)
                 }
             }
         }
@@ -58,7 +65,8 @@ class SudokuGameFragment : Fragment(), SudokuBoardView.OnCellSelectedListener {
         super.onCreate(savedInstanceState)
         arguments?.let {
             difficulty = SudokuMenuFragment.Difficulty.valueOf(it.getString(ARG_DIFFICULTY) ?: "EASY")
-            playerColor = it.getInt(ARG_COLOR, Color.BLACK)
+            selectedColor = it.getInt(ARG_COLOR, Color.BLACK)
+            isRanked = it.getBoolean(ARG_IS_RANKED, true)
         }
         val repository = SudokuRepository(requireContext())
         val factory = SudokuViewModelFactory(repository)
@@ -81,13 +89,13 @@ class SudokuGameFragment : Fragment(), SudokuBoardView.OnCellSelectedListener {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        
-        sudokuBoardView.setPlayerColor(playerColor)
-        
+
+        sudokuBoardView.setPlayerColor(selectedColor)
+
         setupButtonClickListeners(view)
         observeViewModel()
-        
-        viewModel.createNewGame(difficulty)
+
+        viewModel.startNewGame(difficulty, isRanked)
     }
 
     /**
@@ -109,7 +117,7 @@ class SudokuGameFragment : Fragment(), SudokuBoardView.OnCellSelectedListener {
         numberButtons.forEachIndexed { index, button ->
             button.setOnClickListener { viewModel.enterValue(index + 1) }
         }
-        
+
         view.findViewById<Button>(R.id.btn_clear)?.setOnClickListener { viewModel.clearCell() }
     }
 
@@ -172,7 +180,7 @@ class SudokuGameFragment : Fragment(), SudokuBoardView.OnCellSelectedListener {
     private fun showAnimatedCompletionDialog(score: Score) {
         val dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_animated_text, null)
         val typewriterView = dialogView.findViewById<TypewriterView>(R.id.typewriter_text)
-        
+
         val dialog = AlertDialog.Builder(requireContext())
             .setTitle("Puzzle Solved!")
             .setView(dialogView)

@@ -48,15 +48,24 @@ class SudokuViewModel(private val repository: SudokuRepository) : ViewModel() {
      * Generates a new puzzle, sets up the game state, and starts the timer.
      *
      * @param difficulty The difficulty level for the new game.
+     * @param isRanked Whether the game is ranked or free play.
      */
-    fun createNewGame(difficulty: SudokuMenuFragment.Difficulty) {
+    fun startNewGame(difficulty: SudokuMenuFragment.Difficulty, isRanked: Boolean = true) {
         viewModelScope.launch {
             val board = PuzzleGenerator.generate(difficulty)
-            val newGameState = GameState(board, difficulty)
+            val newGameState = GameState(
+                board = board,
+                difficulty = difficulty,
+                isRanked = isRanked
+            )
             _gameState.postValue(newGameState)
             _selectedCell.postValue(null)
             startTimer(newGameState)
         }
+    }
+
+    fun isRankedGame(): Boolean {
+        return _gameState.value?.isRanked ?: false
     }
 
     /**
@@ -103,18 +112,21 @@ class SudokuViewModel(private val repository: SudokuRepository) : ViewModel() {
             if (currentBoard.isSolved()) {
                 currentGameState.isCompleted = true
                 sudokuTimer.pause()
-                val finalScore = currentGameState.getScore()
-                repository.saveHighScore(finalScore)
-                _gameCompletedEvent.postValue(finalScore)
+                currentGameState.getScore()?.let { finalScore ->
+                    repository.saveHighScore(finalScore)
+                    _gameCompletedEvent.postValue(finalScore)
+                }
             }
         } else {
-            currentGameState.mistakes++
+            if (isRankedGame()) {
+                currentGameState.mistakes++
+            }
             _invalidMoveEvent.postValue(number)
         }
 
         _gameState.postValue(currentGameState)
     }
-    
+
     /**
      * Clears the value of the currently selected cell, if it's not a fixed part of the puzzle.
      * The cell's value is reset to 0.

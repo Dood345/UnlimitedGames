@@ -22,8 +22,6 @@ class SudokuRepository(context: Context) {
      * Saves a new score if it's higher than the existing high score for that difficulty.
      */
     fun saveHighScore(score: Score) {
-        if (!score.difficulty.isRanked()) return
-
         val newScoreValue = score.calculateScore()
         val key = HIGH_SCORE_KEY_PREFIX + score.difficulty.name
         val currentHighScore = prefs.getInt(key, 0)

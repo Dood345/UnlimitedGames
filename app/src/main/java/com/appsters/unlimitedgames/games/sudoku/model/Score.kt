@@ -28,8 +28,6 @@ data class Score(
      * @return The calculated score, with a minimum of 0.
      */
     fun calculateScore(): Int {
-        if (!difficulty.isRanked()) return 0
-        
         val baseScore = 10000 - timeInSeconds.toInt()
         val difficultyScore = (baseScore * difficulty.multiplier).toInt()
         val mistakePenalty = mistakes * 50
@@ -54,8 +52,6 @@ data class Score(
      * @return A formatted string explaining the score calculation.
      */
     fun getScoreBreakdown(): String {
-        if (!difficulty.isRanked()) return "Free Play - No Score"
-
         val timeScore = 10000 - timeInSeconds.toInt()
         val difficultyBonus = (timeScore * (difficulty.multiplier - 1)).toInt()
         val mistakePenalty = mistakes * 50

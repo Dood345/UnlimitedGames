@@ -5,7 +5,7 @@ import kotlin.random.Random
 
 /**
  * An object responsible for generating Sudoku puzzles.
- * Currently, it provides sample puzzles for different difficulty levels.
+ * Uses a backtracking algorithm to create valid, solvable puzzles.
  */
 object PuzzleGenerator {
 
@@ -16,38 +16,175 @@ object PuzzleGenerator {
      * @return A [Board] object containing the generated puzzle.
      */
     fun generate(difficulty: SudokuMenuFragment.Difficulty): Board {
-        return when (difficulty) {
-            SudokuMenuFragment.Difficulty.FREE_PLAY -> createEmptyBoard()
-            else -> createPuzzleWithDifficulty(difficulty)
+        return generatePuzzle(difficulty)
+    }
+
+    /**
+     * Generates a new puzzle using backtracking algorithm.
+     * 1. Creates a complete valid solution
+     * 2. Removes cells based on difficulty
+     * 3. Ensures the puzzle has a unique solution
+     */
+    private fun generatePuzzle(difficulty: SudokuMenuFragment.Difficulty): Board {
+        // Create a solved board first
+        val board = Board()
+        fillBoard(board)
+
+        // Remove cells based on difficulty
+        val cellsToRemove = 81 - difficulty.givens
+        removeCells(board, cellsToRemove)
+
+        return board
+    }
+
+    /**
+     * Fills the board with a valid complete Sudoku solution using backtracking.
+     */
+    private fun fillBoard(board: Board): Boolean {
+        // Find next empty cell
+        for (row in 0..8) {
+            for (col in 0..8) {
+                if (board.getCell(row, col).value == 0) {
+                    // Try numbers 1-9 in random order
+                    val numbers = (1..9).shuffled()
+
+                    for (num in numbers) {
+                        if (board.isValid(row, col, num)) {
+                            board.setCell(row, col, num)
+                            // DON'T set isFixed here - we're just solving
+
+                            if (fillBoard(board)) {
+                                return true
+                            }
+
+                            // Backtrack
+                            board.setCell(row, col, 0)
+                        }
+                    }
+                    return false
+                }
+            }
+        }
+        return true // Board is complete
+    }
+
+    /**
+     * Removes cells from the board while ensuring the puzzle remains solvable
+     * and has a unique solution.
+     */
+    private fun removeCells(board: Board, count: Int) {
+        // First, mark all cells as fixed (part of the puzzle)
+        for (row in 0..8) {
+            for (col in 0..8) {
+                board.cells[row][col].isFixed = true
+            }
+        }
+
+        var removed = 0
+        val attempts = mutableSetOf<Pair<Int, Int>>()
+
+        while (removed < count && attempts.size < 81) {
+            val row = Random.nextInt(9)
+            val col = Random.nextInt(9)
+            val cell = Pair(row, col)
+
+            // Skip if already attempted
+            if (attempts.contains(cell)) continue
+            attempts.add(cell)
+
+            val currentCell = board.getCell(row, col)
+            if (currentCell.value == 0) continue // Already empty
+
+            // Save the value
+            val backup = currentCell.value
+
+            // Try removing it
+            board.cells[row][col].isFixed = false  // Mark as not fixed (player can edit)
+            board.setCell(row, col, 0)
+
+            // Check if puzzle still has unique solution
+            if (hasUniqueSolution(board)) {
+                removed++
+            } else {
+                // Restore the value and keep it fixed
+                board.setCell(row, col, backup)
+                board.cells[row][col].isFixed = true
+            }
         }
     }
 
     /**
-     * Creates a completely empty board for free-play mode.
+     * Checks if the board has exactly one unique solution.
+     * Uses a modified backtracking solver that counts solutions.
      */
-    private fun createEmptyBoard(): Board {
-        // Return completely empty board for free play
-        return Board()
+    private fun hasUniqueSolution(board: Board): Boolean {
+        val boardCopy = board.copy()
+        val solutionCount = countSolutions(boardCopy, 2) // Stop after finding 2
+        return solutionCount == 1
     }
 
     /**
-     * Creates a puzzle with a predefined pattern based on the difficulty.
-     * TODO: Replace this with a proper puzzle generation algorithm.
+     * Counts the number of solutions for the given board.
+     * Stops counting after reaching maxCount for efficiency.
      */
-    private fun createPuzzleWithDifficulty(difficulty: SudokuMenuFragment.Difficulty): Board {
-        // TODO: Implement proper puzzle generation with difficulty levels
-        // For now, use sample puzzles based on difficulty
-        return when (difficulty) {
-            SudokuMenuFragment.Difficulty.EASY -> createSampleEasyPuzzle()
-            SudokuMenuFragment.Difficulty.MEDIUM -> createSampleMediumPuzzle()
-            SudokuMenuFragment.Difficulty.HARD -> createSampleHardPuzzle()
-            SudokuMenuFragment.Difficulty.EXPERT -> createSampleExpertPuzzle()
-            else -> createSampleEasyPuzzle()
+    private fun countSolutions(board: Board, maxCount: Int): Int {
+        return countSolutionsHelper(board, 0, maxCount)
+    }
+
+    private fun countSolutionsHelper(board: Board, currentCount: Int, maxCount: Int): Int {
+        if (currentCount >= maxCount) return currentCount
+
+        // Find next empty cell
+        for (row in 0..8) {
+            for (col in 0..8) {
+                if (board.getCell(row, col).value == 0) {
+                    var count = currentCount
+
+                    for (num in 1..9) {
+                        if (board.isValid(row, col, num)) {
+                            board.setCell(row, col, num)
+                            count = countSolutionsHelper(board, count, maxCount)
+                            board.setCell(row, col, 0)
+
+                            if (count >= maxCount) return count
+                        }
+                    }
+                    return count
+                }
+            }
         }
+        // Found a complete solution
+        return currentCount + 1
     }
 
     /**
-     * Creates a sample easy puzzle.
+     * Solves the board using backtracking (used for validation).
+     * Returns true if a solution exists.
+     */
+    fun solve(board: Board): Boolean {
+        for (row in 0..8) {
+            for (col in 0..8) {
+                if (board.getCell(row, col).value == 0) {
+                    for (num in 1..9) {
+                        if (board.isValid(row, col, num)) {
+                            board.setCell(row, col, num)
+
+                            if (solve(board)) {
+                                return true
+                            }
+
+                            board.setCell(row, col, 0)
+                        }
+                    }
+                    return false
+                }
+            }
+        }
+        return true
+    }
+
+    /**
+     * Creates a sample easy puzzle (fallback for testing).
      */
     private fun createSampleEasyPuzzle(): Board {
         val board = Board()
@@ -61,66 +198,6 @@ object PuzzleGenerator {
             intArrayOf(0, 6, 0, 0, 0, 0, 2, 8, 0),
             intArrayOf(0, 0, 0, 4, 1, 9, 0, 0, 5),
             intArrayOf(0, 0, 0, 0, 8, 0, 0, 7, 9)
-        )
-
-        return fillBoardFromArray(board, puzzle)
-    }
-
-    /**
-     * Creates a sample medium puzzle.
-     */
-    private fun createSampleMediumPuzzle(): Board {
-        val board = Board()
-        val puzzle = arrayOf(
-            intArrayOf(0, 0, 0, 6, 0, 0, 4, 0, 0),
-            intArrayOf(7, 0, 0, 0, 0, 3, 6, 0, 0),
-            intArrayOf(0, 0, 0, 0, 9, 1, 0, 8, 0),
-            intArrayOf(0, 0, 0, 0, 0, 0, 0, 0, 0),
-            intArrayOf(0, 5, 0, 1, 8, 0, 0, 0, 3),
-            intArrayOf(0, 0, 0, 3, 0, 6, 0, 4, 5),
-            intArrayOf(0, 4, 0, 2, 0, 0, 0, 6, 0),
-            intArrayOf(9, 0, 3, 0, 0, 0, 0, 0, 0),
-            intArrayOf(0, 2, 0, 0, 0, 0, 1, 0, 0)
-        )
-
-        return fillBoardFromArray(board, puzzle)
-    }
-
-    /**
-     * Creates a sample hard puzzle.
-     */
-    private fun createSampleHardPuzzle(): Board {
-        val board = Board()
-        val puzzle = arrayOf(
-            intArrayOf(0, 0, 0, 0, 0, 0, 0, 1, 2),
-            intArrayOf(0, 0, 0, 0, 3, 5, 0, 0, 0),
-            intArrayOf(0, 0, 0, 6, 0, 0, 0, 7, 0),
-            intArrayOf(7, 0, 0, 0, 0, 0, 3, 0, 0),
-            intArrayOf(0, 0, 0, 4, 0, 0, 8, 0, 0),
-            intArrayOf(1, 0, 0, 0, 0, 0, 0, 0, 0),
-            intArrayOf(0, 0, 0, 1, 2, 0, 0, 0, 0),
-            intArrayOf(0, 8, 0, 0, 0, 0, 0, 4, 0),
-            intArrayOf(0, 5, 0, 0, 0, 0, 6, 0, 0)
-        )
-
-        return fillBoardFromArray(board, puzzle)
-    }
-
-    /**
-     * Creates a sample expert puzzle.
-     */
-    private fun createSampleExpertPuzzle(): Board {
-        val board = Board()
-        val puzzle = arrayOf(
-            intArrayOf(0, 0, 0, 0, 0, 0, 0, 0, 0),
-            intArrayOf(0, 0, 0, 0, 0, 3, 0, 8, 5),
-            intArrayOf(0, 0, 1, 0, 2, 0, 0, 0, 0),
-            intArrayOf(0, 0, 0, 5, 0, 7, 0, 0, 0),
-            intArrayOf(0, 0, 4, 0, 0, 0, 1, 0, 0),
-            intArrayOf(0, 9, 0, 0, 0, 0, 0, 0, 0),
-            intArrayOf(5, 0, 0, 0, 0, 0, 0, 7, 3),
-            intArrayOf(0, 0, 2, 0, 1, 0, 0, 0, 0),
-            intArrayOf(0, 0, 0, 0, 4, 0, 0, 0, 9)
         )
 
         return fillBoardFromArray(board, puzzle)

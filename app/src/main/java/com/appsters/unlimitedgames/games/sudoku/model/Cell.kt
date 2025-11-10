@@ -13,7 +13,7 @@ data class Cell(
     val row: Int,
     val col: Int,
     var value: Int = 0,           // 0 means empty
-    val isFixed: Boolean = false, // True if part of initial puzzle
+    var isFixed: Boolean = false, // True if part of initial puzzle
     var notes: MutableSet<Int> = mutableSetOf() // For pencil marks (1-9)
 ) {
     /**

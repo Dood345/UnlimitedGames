@@ -14,6 +14,7 @@ import com.appsters.unlimitedgames.games.sudoku.SudokuMenuFragment
  * @property isCompleted `true` if the puzzle has been successfully solved.
  * @property mistakes The number of incorrect moves the player has made.
  * @property hintsUsed The number of hints the player has used.
+ * @property isRanked `true` if the game is a ranked match.
  */
 data class GameState(
     val board: Board,
@@ -23,7 +24,8 @@ data class GameState(
     var isPaused: Boolean = false,
     var isCompleted: Boolean = false,
     var mistakes: Int = 0,
-    var hintsUsed: Int = 0
+    var hintsUsed: Int = 0,
+    val isRanked: Boolean = true
 ) {
     /**
      * Formats the elapsed time into a "MM:SS" string.
@@ -36,20 +38,19 @@ data class GameState(
     }
 
     /**
-     * Checks if the current game is ranked (i.e., not in free play mode).
+     * Creates a [Score] object from the current game state if the game is ranked.
+     * Returns null if the game is not ranked.
      */
-    fun isRanked(): Boolean = difficulty.isRanked()
-
-    /**
-     * Creates a [Score] object from the current game state.
-     * This can be used to calculate and display the final score.
-     */
-    fun getScore(): Score {
-        return Score(
-            difficulty = difficulty,
-            timeInSeconds = elapsedTime / 1000,
-            mistakes = mistakes,
-            hintsUsed = hintsUsed
-        )
+    fun getScore(): Score? {
+        return if (isRanked) {
+            Score(
+                difficulty = difficulty,
+                timeInSeconds = elapsedTime / 1000,
+                mistakes = mistakes,
+                hintsUsed = hintsUsed
+            )
+        } else {
+            null
+        }
     }
 }

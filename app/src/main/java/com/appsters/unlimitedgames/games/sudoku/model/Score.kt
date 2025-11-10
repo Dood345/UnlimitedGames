@@ -30,18 +30,11 @@ data class Score(
     fun calculateScore(): Int {
         if (!difficulty.isRanked()) return 0
         
-        // Base score: 10000 points, minus time penalty
-        // Each second reduces score by 1 point
         val baseScore = 10000 - timeInSeconds.toInt()
-        
-        // Apply difficulty multiplier
         val difficultyScore = (baseScore * difficulty.multiplier).toInt()
-        
-        // Penalties
         val mistakePenalty = mistakes * 50
         val hintPenalty = hintsUsed * 100
         
-        // Final score (minimum 0)
         return maxOf(0, difficultyScore - mistakePenalty - hintPenalty)
     }
     
@@ -55,28 +48,34 @@ data class Score(
     }
     
     /**
-     * Provides a detailed breakdown of how the score was calculated.
+     * Provides a detailed breakdown of how the score was calculated, formatted like a receipt.
      * This is useful for displaying on a results screen.
      *
      * @return A formatted string explaining the score calculation.
      */
     fun getScoreBreakdown(): String {
         if (!difficulty.isRanked()) return "Free Play - No Score"
-        
-        val baseScore = 10000 - timeInSeconds.toInt()
-        val difficultyScore = (baseScore * difficulty.multiplier).toInt()
+
+        val timeScore = 10000 - timeInSeconds.toInt()
+        val difficultyBonus = (timeScore * (difficulty.multiplier - 1)).toInt()
         val mistakePenalty = mistakes * 50
-        val hintPenalty = hintsUsed * 100
-        val finalScore = calculateScore()
-        
+        val hintPenalty = hintsUsed * 100       //may be used down the road
+
+        fun formatLine(label: String, value: Any): String {
+            val valueStr = value.toString()
+            val lineLength = 35
+            val padding = ".".repeat(maxOf(0, lineLength - label.length - valueStr.length))
+            return "$label$padding$value"
+        }
+
+        val separator = ".".repeat(35)
+
         return """
-            Time: ${getFormattedTime()} (${timeInSeconds}s)
-            Base Score: $baseScore
-            Difficulty: ${difficulty.getDisplayName()} (${difficulty.multiplier}x)
-            Score after difficulty: $difficultyScore
-            Mistakes: -$mistakePenalty (${mistakes} x 50)
-            Hints: -$hintPenalty (${hintsUsed} x 100)
-            Final Score: $finalScore
+            ${formatLine("Time Bonus", timeScore)}
+            ${formatLine("Difficulty Bonus (x${difficulty.multiplier})", "+$difficultyBonus")}
+            ${formatLine("Mistake Penalty ($mistakes)", "-$mistakePenalty")}
+            $separator
+            ${formatLine("Total Score", calculateScore())}
         """.trimIndent()
     }
 }

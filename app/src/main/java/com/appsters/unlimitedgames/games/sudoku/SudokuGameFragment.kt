@@ -12,6 +12,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.appsters.unlimitedgames.R
+import com.appsters.unlimitedgames.app.ui.custom.TypewriterView
 import com.appsters.unlimitedgames.games.sudoku.model.Score
 import com.appsters.unlimitedgames.games.sudoku.view.SudokuBoardView
 import nl.dionsegijn.konfetti.core.Party
@@ -124,7 +125,7 @@ class SudokuGameFragment : Fragment(), SudokuBoardView.OnCellSelectedListener {
 
         viewModel.gameCompletedEvent.observe(viewLifecycleOwner) { score ->
             showConfetti()
-            showCompletionDialog(score)
+            showAnimatedCompletionDialog(score)
         }
     }
 
@@ -156,17 +157,25 @@ class SudokuGameFragment : Fragment(), SudokuBoardView.OnCellSelectedListener {
     }
 
     /**
-     * Displays a dialog with the final score and a button to return to the menu.
+     * Displays a dialog with the final score, animated with a typewriter effect.
      */
-    private fun showCompletionDialog(score: Score) {
-        AlertDialog.Builder(requireContext())
+    private fun showAnimatedCompletionDialog(score: Score) {
+        val dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_animated_text, null)
+        val typewriterView = dialogView.findViewById<TypewriterView>(R.id.typewriter_text)
+        
+        val dialog = AlertDialog.Builder(requireContext())
             .setTitle("Puzzle Solved!")
-            .setMessage(score.getScoreBreakdown())
+            .setView(dialogView)
             .setPositiveButton("Awesome!") { _, _ ->
                 parentFragmentManager.popBackStack()
             }
             .setCancelable(false)
-            .show()
+            .create()
+
+        typewriterView.setCharacterDelay(50)
+        typewriterView.animateText(score.getScoreBreakdown())
+
+        dialog.show()
     }
 
     /**

@@ -1,7 +1,6 @@
 package com.appsters.unlimitedgames.games.sudoku
 
-import android.animation.ArgbEvaluator
-import android.animation.ValueAnimator
+import android.content.res.ColorStateList
 import android.graphics.Color
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -121,18 +120,14 @@ class SudokuGameFragment : Fragment(), SudokuBoardView.OnCellSelectedListener {
 
     /**
      * Animates a button with a red flash to indicate an invalid move.
+     * This is done by temporarily changing the background tint and then restoring it.
      */
     private fun flashButton(button: Button) {
-        val red = Color.RED
-        val originalColor = (button.background as? android.graphics.drawable.ColorDrawable)?.color ?: Color.TRANSPARENT
-
-        ValueAnimator.ofObject(ArgbEvaluator(), red, originalColor).apply {
-            duration = 500 // 0.5 seconds
-            addUpdateListener { animator ->
-                button.setBackgroundColor(animator.animatedValue as Int)
-            }
-            start()
-        }
+        val originalTint = button.backgroundTintList
+        button.backgroundTintList = ColorStateList.valueOf(Color.RED)
+        button.postDelayed({
+            button.backgroundTintList = originalTint
+        }, 300) // Restore after 0.3 seconds
     }
 
     /**

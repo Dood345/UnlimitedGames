@@ -1,5 +1,8 @@
 package com.appsters.unlimitedgames.games.sudoku
 
+import android.animation.ArgbEvaluator
+import android.animation.ValueAnimator
+import android.graphics.Color
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -11,16 +14,25 @@ import androidx.lifecycle.ViewModelProvider
 import com.appsters.unlimitedgames.R
 import com.appsters.unlimitedgames.games.sudoku.view.SudokuBoardView
 
+/**
+ * A [Fragment] that displays the main Sudoku game screen.
+ * This fragment contains the Sudoku board, timer, and number input controls.
+ * It communicates with a [SudokuViewModel] to manage the game state.
+ */
 class SudokuGameFragment : Fragment(), SudokuBoardView.OnCellSelectedListener {
 
     private lateinit var viewModel: SudokuViewModel
     private lateinit var difficulty: SudokuMenuFragment.Difficulty
     private lateinit var sudokuBoardView: SudokuBoardView
     private lateinit var timerTextView: TextView
+    private lateinit var numberButtons: List<Button>
 
     companion object {
         private const val ARG_DIFFICULTY = "difficulty"
 
+        /**
+         * Creates a new instance of the fragment with the specified difficulty.
+         */
         fun newInstance(difficulty: SudokuMenuFragment.Difficulty): SudokuGameFragment {
             return SudokuGameFragment().apply {
                 arguments = Bundle().apply {
@@ -60,22 +72,32 @@ class SudokuGameFragment : Fragment(), SudokuBoardView.OnCellSelectedListener {
         viewModel.createNewGame(difficulty)
     }
 
+    /**
+     * Sets up click listeners for all the number and control buttons.
+     */
     private fun setupButtonClickListeners(view: View) {
-        // Set up number button listeners (1-9)
-        view.findViewById<Button>(R.id.btn_number_1)?.setOnClickListener { viewModel.enterValue(1) }
-        view.findViewById<Button>(R.id.btn_number_2)?.setOnClickListener { viewModel.enterValue(2) }
-        view.findViewById<Button>(R.id.btn_number_3)?.setOnClickListener { viewModel.enterValue(3) }
-        view.findViewById<Button>(R.id.btn_number_4)?.setOnClickListener { viewModel.enterValue(4) }
-        view.findViewById<Button>(R.id.btn_number_5)?.setOnClickListener { viewModel.enterValue(5) }
-        view.findViewById<Button>(R.id.btn_number_6)?.setOnClickListener { viewModel.enterValue(6) }
-        view.findViewById<Button>(R.id.btn_number_7)?.setOnClickListener { viewModel.enterValue(7) }
-        view.findViewById<Button>(R.id.btn_number_8)?.setOnClickListener { viewModel.enterValue(8) }
-        view.findViewById<Button>(R.id.btn_number_9)?.setOnClickListener { viewModel.enterValue(9) }
+        numberButtons = listOf(
+            view.findViewById(R.id.btn_number_1),
+            view.findViewById(R.id.btn_number_2),
+            view.findViewById(R.id.btn_number_3),
+            view.findViewById(R.id.btn_number_4),
+            view.findViewById(R.id.btn_number_5),
+            view.findViewById(R.id.btn_number_6),
+            view.findViewById(R.id.btn_number_7),
+            view.findViewById(R.id.btn_number_8),
+            view.findViewById(R.id.btn_number_9)
+        )
+
+        numberButtons.forEachIndexed { index, button ->
+            button.setOnClickListener { viewModel.enterValue(index + 1) }
+        }
         
-        // Add a clear/erase button
         view.findViewById<Button>(R.id.btn_clear)?.setOnClickListener { viewModel.clearCell() }
     }
 
+    /**
+     * Observes [LiveData] from the [SudokuViewModel] to update the UI.
+     */
     private fun observeViewModel() {
         viewModel.gameState.observe(viewLifecycleOwner) { gameState ->
             sudokuBoardView.setBoard(gameState.board)
@@ -91,8 +113,31 @@ class SudokuGameFragment : Fragment(), SudokuBoardView.OnCellSelectedListener {
         viewModel.selectedCell.observe(viewLifecycleOwner) { cell ->
             sudokuBoardView.setSelectedCell(cell)
         }
+
+        viewModel.invalidMoveEvent.observe(viewLifecycleOwner) { number ->
+            flashButton(numberButtons[number - 1])
+        }
     }
 
+    /**
+     * Animates a button with a red flash to indicate an invalid move.
+     */
+    private fun flashButton(button: Button) {
+        val red = Color.RED
+        val originalColor = (button.background as? android.graphics.drawable.ColorDrawable)?.color ?: Color.TRANSPARENT
+
+        ValueAnimator.ofObject(ArgbEvaluator(), red, originalColor).apply {
+            duration = 500 // 0.5 seconds
+            addUpdateListener { animator ->
+                button.setBackgroundColor(animator.animatedValue as Int)
+            }
+            start()
+        }
+    }
+
+    /**
+     * Called when a cell on the board is selected by the user.
+     */
     override fun onCellSelected(row: Int, col: Int) {
         viewModel.onCellSelected(row, col)
     }

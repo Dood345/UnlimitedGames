@@ -11,6 +11,11 @@ import android.view.View
 import com.appsters.unlimitedgames.games.sudoku.model.Board
 import com.appsters.unlimitedgames.games.sudoku.model.Cell
 
+/**
+ * A custom [View] that renders the Sudoku game board.
+ * This view is responsible for drawing the grid, numbers, and user selections.
+ * It also handles touch events to allow the user to select cells.
+ */
 class SudokuBoardView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
@@ -59,16 +64,27 @@ class SudokuBoardView @JvmOverloads constructor(
     private var cellSize = 0f
     private val textBounds = Rect()
 
+    /**
+     * Sets the Sudoku board to be displayed by the view.
+     * @param board The [Board] to render.
+     */
     fun setBoard(board: Board) {
         this.board = board
         invalidate()
     }
 
+    /**
+     * Sets the currently selected cell to highlight it on the board.
+     * @param cell The [Cell] that is currently selected, or `null` for no selection.
+     */
     fun setSelectedCell(cell: Cell?) {
         this.selectedCell = cell
         invalidate()
     }
 
+    /**
+     * Sets a listener to be notified when a cell is selected.
+     */
     fun setOnCellSelectedListener(listener: OnCellSelectedListener?) {
         this.listener = listener
     }
@@ -93,6 +109,9 @@ class SudokuBoardView @JvmOverloads constructor(
         drawNumbers(canvas)
     }
 
+    /**
+     * Draws highlights for the selected cell and its related row, column, and box.
+     */
     private fun drawSelectedAndRelatedCells(canvas: Canvas) {
         selectedCell?.let {
             // Highlight the selected cell
@@ -132,6 +151,9 @@ class SudokuBoardView @JvmOverloads constructor(
         }
     }
 
+    /**
+     * Draws the main 9x9 grid lines of the Sudoku board.
+     */
     private fun drawGrid(canvas: Canvas) {
         for (i in 0..9) {
             val paint = if (i % 3 == 0) thickLinePaint else thinLinePaint
@@ -142,6 +164,10 @@ class SudokuBoardView @JvmOverloads constructor(
         }
     }
 
+    /**
+     * Draws the numbers inside the cells of the board.
+     * Fixed numbers are drawn in a bold style.
+     */
     private fun drawNumbers(canvas: Canvas) {
         board?.cells?.forEach { row ->
             row.forEach { cell ->
@@ -174,7 +200,15 @@ class SudokuBoardView @JvmOverloads constructor(
         return false
     }
 
+    /**
+     * An interface to listen for when a cell is selected on the board.
+     */
     interface OnCellSelectedListener {
+        /**
+         * Called when a user taps on a cell.
+         * @param row The row of the selected cell.
+         * @param col The column of the selected cell.
+         */
         fun onCellSelected(row: Int, col: Int)
     }
 }

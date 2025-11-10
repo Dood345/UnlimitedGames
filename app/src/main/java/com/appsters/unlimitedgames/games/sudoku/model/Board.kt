@@ -1,5 +1,12 @@
 package com.appsters.unlimitedgames.games.sudoku.model
 
+/**
+ * Represents the 9x9 Sudoku game board.
+ * This class holds a 2D array of [Cell] objects and provides methods for accessing and modifying them.
+ * It also includes logic for validating moves and checking if the puzzle is solved.
+ *
+ * @property cells A 2D array representing the grid of cells on the board.
+ */
 data class Board(
     val cells: Array<Array<Cell>> = Array(9) { row ->
         Array(9) { col ->
@@ -7,18 +14,34 @@ data class Board(
         }
     }
 ) {
+    /**
+     * Retrieves the cell at the specified row and column.
+     */
     fun getCell(row: Int, col: Int): Cell = cells[row][col]
     
+    /**
+     * Sets the value of a cell, but only if it is not a fixed (pre-filled) cell.
+     */
     fun setCell(row: Int, col: Int, value: Int) {
         if (!cells[row][col].isFixed) {
             cells[row][col].value = value
         }
     }
     
+    /**
+     * Returns a list of all cells in a specific row.
+     */
     fun getRow(row: Int): List<Cell> = cells[row].toList()
     
+    /**
+     * Returns a list of all cells in a specific column.
+     */
     fun getColumn(col: Int): List<Cell> = cells.map { it[col] }
     
+    /**
+     * Returns a list of all cells in a specific 3x3 box.
+     * @param boxIndex The index of the box (0-8), calculated from top-left to bottom-right.
+     */
     fun getBox(boxIndex: Int): List<Cell> {
         val boxRow = (boxIndex / 3) * 3
         val boxCol = (boxIndex % 3) * 3
@@ -32,6 +55,12 @@ data class Board(
         return boxCells
     }
     
+    /**
+     * Checks if placing a given value in a specific cell is a valid move according to Sudoku rules.
+     * It checks for conflicts in the row, column, and 3x3 box.
+     *
+     * @return `true` if the move is valid, `false` otherwise.
+     */
     fun isValid(row: Int, col: Int, value: Int): Boolean {
         // Check row
         if (getRow(row).any { it.value == value && it.col != col }) return false
@@ -48,6 +77,10 @@ data class Board(
         return true
     }
     
+    /**
+     * Checks if the entire board is solved correctly.
+     * A solved board has no empty cells and all values are valid.
+     */
     fun isSolved(): Boolean {
         return cells.all { row ->
             row.all { cell ->
@@ -56,6 +89,9 @@ data class Board(
         }
     }
     
+    /**
+     * Creates a deep copy of the board, including all its cells.
+     */
     fun copy(): Board {
         val newCells = Array(9) { row ->
             Array(9) { col ->

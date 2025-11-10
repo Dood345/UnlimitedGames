@@ -3,8 +3,18 @@ package com.appsters.unlimitedgames.games.sudoku.model
 import com.appsters.unlimitedgames.games.sudoku.SudokuMenuFragment
 import kotlin.random.Random
 
+/**
+ * An object responsible for generating Sudoku puzzles.
+ * Currently, it provides sample puzzles for different difficulty levels.
+ */
 object PuzzleGenerator {
 
+    /**
+     * Generates a new Sudoku board based on the specified difficulty.
+     *
+     * @param difficulty The desired difficulty for the puzzle.
+     * @return A [Board] object containing the generated puzzle.
+     */
     fun generate(difficulty: SudokuMenuFragment.Difficulty): Board {
         return when (difficulty) {
             SudokuMenuFragment.Difficulty.FREE_PLAY -> createEmptyBoard()
@@ -12,11 +22,18 @@ object PuzzleGenerator {
         }
     }
 
+    /**
+     * Creates a completely empty board for free-play mode.
+     */
     private fun createEmptyBoard(): Board {
         // Return completely empty board for free play
         return Board()
     }
 
+    /**
+     * Creates a puzzle with a predefined pattern based on the difficulty.
+     * TODO: Replace this with a proper puzzle generation algorithm.
+     */
     private fun createPuzzleWithDifficulty(difficulty: SudokuMenuFragment.Difficulty): Board {
         // TODO: Implement proper puzzle generation with difficulty levels
         // For now, use sample puzzles based on difficulty
@@ -29,6 +46,9 @@ object PuzzleGenerator {
         }
     }
 
+    /**
+     * Creates a sample easy puzzle.
+     */
     private fun createSampleEasyPuzzle(): Board {
         val board = Board()
         val puzzle = arrayOf(
@@ -46,6 +66,9 @@ object PuzzleGenerator {
         return fillBoardFromArray(board, puzzle)
     }
 
+    /**
+     * Creates a sample medium puzzle.
+     */
     private fun createSampleMediumPuzzle(): Board {
         val board = Board()
         val puzzle = arrayOf(
@@ -63,6 +86,9 @@ object PuzzleGenerator {
         return fillBoardFromArray(board, puzzle)
     }
 
+    /**
+     * Creates a sample hard puzzle.
+     */
     private fun createSampleHardPuzzle(): Board {
         val board = Board()
         val puzzle = arrayOf(
@@ -80,6 +106,9 @@ object PuzzleGenerator {
         return fillBoardFromArray(board, puzzle)
     }
 
+    /**
+     * Creates a sample expert puzzle.
+     */
     private fun createSampleExpertPuzzle(): Board {
         val board = Board()
         val puzzle = arrayOf(
@@ -97,6 +126,10 @@ object PuzzleGenerator {
         return fillBoardFromArray(board, puzzle)
     }
 
+    /**
+     * Fills a board from a 2D integer array.
+     * A value of 0 is treated as an empty cell, while any other value is a fixed cell.
+     */
     private fun fillBoardFromArray(board: Board, puzzle: Array<IntArray>): Board {
         for (row in 0..8) {
             for (col in 0..8) {

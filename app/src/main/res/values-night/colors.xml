@@ -10,6 +10,8 @@
     <color name="dark_gray">#FF333333</color>
     <color name="red">#FFFF0000</color>
     <color name="deleteCancel">#FFFFFFFF</color>
+    <color name="blue">#69A2FF</color>
+
 
     <!-- Sudoku Board Colors -->
     <color name="sudoku_board_line_color">#FFFFFFFF</color>

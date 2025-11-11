@@ -9,6 +9,7 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModelProvider
@@ -68,6 +69,15 @@ class SudokuGameFragment : Fragment(), SudokuBoardView.OnCellSelectedListener {
             selectedColor = it.getInt(ARG_COLOR, Color.BLACK)
             isRanked = it.getBoolean(ARG_IS_RANKED, true)
         }
+
+        context?.let {
+            if (selectedColor == Color.BLACK) {
+                selectedColor = ContextCompat.getColor(it, R.color.sudoku_board_text_color)
+            } else if (selectedColor == Color.BLUE) {
+                selectedColor = ContextCompat.getColor(it, R.color.blue)
+            }
+        }
+
         val repository = SudokuRepository(requireContext())
         val factory = SudokuViewModelFactory(repository)
         viewModel = ViewModelProvider(this, factory)[SudokuViewModel::class.java]

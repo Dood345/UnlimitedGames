@@ -1,5 +1,5 @@
 [versions]
-agp = "8.13.0"
+agp = "8.13.1"
 konfetti = "1.3.2"
 konfettiCore = "2.0.5"
 konfettiXml = "2.0.5"

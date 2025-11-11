@@ -1,192 +1,207 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:fillViewport="true">
+    android:layout_height="match_parent">
 
-    <LinearLayout
+    <ScrollView
         android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:orientation="vertical"
+            android:padding="24dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="32dp"
+                android:text="Sudoku"
+                android:textSize="48sp"
+                android:textStyle="bold" />
+
+            <!-- Header Row -->
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="200dp"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:text="Ranked Games"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="100dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="12dp"
+                    android:gravity="center"
+                    android:text="Free Play"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <!-- Easy Row -->
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp"
+                android:orientation="horizontal">
+
+                <Button
+                    android:id="@+id/btn_easy"
+                    android:layout_width="200dp"
+                    android:layout_height="60dp"
+                    android:text="Easy"
+                    android:textSize="16sp" />
+
+                <Button
+                    android:id="@+id/btn_easy_free"
+                    android:layout_width="120dp"
+                    android:layout_height="60dp"
+                    android:layout_marginStart="12dp"
+                    android:text="Easy"
+                    android:textSize="16sp" />
+            </LinearLayout>
+
+            <!-- Medium Row -->
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp"
+                android:orientation="horizontal">
+
+                <Button
+                    android:id="@+id/btn_medium"
+                    android:layout_width="200dp"
+                    android:layout_height="60dp"
+                    android:text="Medium"
+                    android:textSize="16sp" />
+
+                <Button
+                    android:id="@+id/btn_medium_free"
+                    android:layout_width="120dp"
+                    android:layout_height="60dp"
+                    android:layout_marginStart="12dp"
+                    android:text="Medium"
+                    android:textSize="16sp" />
+            </LinearLayout>
+
+            <!-- Hard Row -->
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp"
+                android:orientation="horizontal">
+
+                <Button
+                    android:id="@+id/btn_hard"
+                    android:layout_width="200dp"
+                    android:layout_height="60dp"
+                    android:text="Hard"
+                    android:textSize="16sp" />
+
+                <Button
+                    android:id="@+id/btn_hard_free"
+                    android:layout_width="120dp"
+                    android:layout_height="60dp"
+                    android:layout_marginStart="12dp"
+                    android:text="Hard"
+                    android:textSize="16sp" />
+            </LinearLayout>
+
+            <!-- Expert Row -->
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="32dp"
+                android:orientation="horizontal">
+
+                <Button
+                    android:id="@+id/btn_expert"
+                    android:layout_width="200dp"
+                    android:layout_height="60dp"
+                    android:text="Expert"
+                    android:textSize="16sp" />
+
+                <Button
+                    android:id="@+id/btn_expert_free"
+                    android:layout_width="120dp"
+                    android:layout_height="60dp"
+                    android:layout_marginStart="12dp"
+                    android:text="Expert"
+                    android:textSize="16sp" />
+            </LinearLayout>
+
+            <!-- Divider -->
+            <View
+                android:layout_width="312dp"
+                android:layout_height="1dp"
+                android:layout_marginVertical="8dp"
+                android:background="#CCCCCC" />
+
+            <!-- Color Picker Section -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="12dp"
+                android:text="Number Color"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:orientation="horizontal">
+
+                <View
+                    android:id="@+id/color_black"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_margin="8dp"
+                    android:background="@drawable/color_selector_black" />
+
+                <View
+                    android:id="@+id/color_blue"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_margin="8dp"
+                    android:background="@drawable/color_selector_blue" />
+
+                <View
+                    android:id="@+id/color_red"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_margin="8dp"
+                    android:background="@drawable/color_selector_red" />
+
+                <View
+                    android:id="@+id/color_green"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_margin="8dp"
+                    android:background="@drawable/color_selector_green" />
+            </LinearLayout>
+
+        </LinearLayout>
+    </ScrollView>
+
+    <ProgressBar
+        android:id="@+id/loading_indicator"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:gravity="center_horizontal"
-        android:padding="24dp">
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="128dp"
+        android:visibility="gone" />
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Sudoku"
-            android:textSize="48sp"
-            android:textStyle="bold"
-            android:layout_marginBottom="32dp" />
-
-        <!-- Header Row -->
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginBottom="12dp">
-
-            <TextView
-                android:layout_width="200dp"
-                android:layout_height="wrap_content"
-                android:text="Ranked Games"
-                android:textSize="16sp"
-                android:textStyle="bold"
-                android:gravity="center" />
-
-            <TextView
-                android:layout_width="100dp"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="12dp"
-                android:text="Free Play"
-                android:textSize="16sp"
-                android:textStyle="bold"
-                android:gravity="center" />
-        </LinearLayout>
-
-        <!-- Easy Row -->
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginBottom="12dp">
-
-            <Button
-                android:id="@+id/btn_easy"
-                android:layout_width="200dp"
-                android:layout_height="60dp"
-                android:text="Easy"
-                android:textSize="16sp" />
-
-            <Button
-                android:id="@+id/btn_easy_free"
-                android:layout_width="120dp"
-                android:layout_height="60dp"
-                android:layout_marginStart="12dp"
-                android:text="Easy"
-                android:textSize="16sp" />
-        </LinearLayout>
-
-        <!-- Medium Row -->
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginBottom="12dp">
-
-            <Button
-                android:id="@+id/btn_medium"
-                android:layout_width="200dp"
-                android:layout_height="60dp"
-                android:text="Medium"
-                android:textSize="16sp" />
-
-            <Button
-                android:id="@+id/btn_medium_free"
-                android:layout_width="120dp"
-                android:layout_height="60dp"
-                android:layout_marginStart="12dp"
-                android:text="Medium"
-                android:textSize="16sp" />
-        </LinearLayout>
-
-        <!-- Hard Row -->
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginBottom="12dp">
-
-            <Button
-                android:id="@+id/btn_hard"
-                android:layout_width="200dp"
-                android:layout_height="60dp"
-                android:text="Hard"
-                android:textSize="16sp" />
-
-            <Button
-                android:id="@+id/btn_hard_free"
-                android:layout_width="120dp"
-                android:layout_height="60dp"
-                android:layout_marginStart="12dp"
-                android:text="Hard"
-                android:textSize="16sp" />
-        </LinearLayout>
-
-        <!-- Expert Row -->
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginBottom="32dp">
-
-            <Button
-                android:id="@+id/btn_expert"
-                android:layout_width="200dp"
-                android:layout_height="60dp"
-                android:text="Expert"
-                android:textSize="16sp" />
-
-            <Button
-                android:id="@+id/btn_expert_free"
-                android:layout_width="120dp"
-                android:layout_height="60dp"
-                android:layout_marginStart="12dp"
-                android:text="Expert"
-                android:textSize="16sp" />
-        </LinearLayout>
-
-        <!-- Divider -->
-        <View
-            android:layout_width="312dp"
-            android:layout_height="1dp"
-            android:background="#CCCCCC"
-            android:layout_marginVertical="8dp" />
-
-        <!-- Color Picker Section -->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Number Color"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            android:layout_marginTop="8dp"
-            android:layout_marginBottom="12dp"/>
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center">
-
-            <View
-                android:id="@+id/color_black"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:layout_margin="8dp"
-                android:background="@drawable/color_selector_black" />
-
-            <View
-                android:id="@+id/color_blue"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:layout_margin="8dp"
-                android:background="@drawable/color_selector_blue" />
-
-            <View
-                android:id="@+id/color_red"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:layout_margin="8dp"
-                android:background="@drawable/color_selector_red" />
-
-            <View
-                android:id="@+id/color_green"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:layout_margin="8dp"
-                android:background="@drawable/color_selector_green" />
-        </LinearLayout>
-
-    </LinearLayout>
-</ScrollView>
+</RelativeLayout>

@@ -1,8 +1,6 @@
 package com.appsters.unlimitedgames.games.sudoku.model
 
 import com.appsters.unlimitedgames.games.sudoku.SudokuMenuFragment
-import kotlin.random.Random
-
 /**
  * An object responsible for generating Sudoku puzzles.
  * Uses a backtracking algorithm to create valid, solvable puzzles.
@@ -73,33 +71,31 @@ object PuzzleGenerator {
      * and has a unique solution.
      */
     private fun removeCells(board: Board, count: Int) {
-        // First, mark all cells as fixed (part of the puzzle)
+        // Mark all cells as fixed (part of the puzzle)
         for (row in 0..8) {
             for (col in 0..8) {
                 board.cells[row][col].isFixed = true
             }
         }
 
+        // Create a shuffled list of all 81 cell coordinates
+        // This ensures we try each cell exactly once in random order
+        val cells = (0..80).shuffled()
         var removed = 0
-        val attempts = mutableSetOf<Pair<Int, Int>>()
 
-        while (removed < count && attempts.size < 81) {
-            val row = Random.nextInt(9)
-            val col = Random.nextInt(9)
-            val cell = Pair(row, col)
+        for (cellId in cells) {
+            // Early exit: stop as soon as we've removed enough cells
+            if (removed >= count) break
 
-            // Skip if already attempted
-            if (attempts.contains(cell)) continue
-            attempts.add(cell)
-
+            val row = cellId / 9
+            val col = cellId % 9
             val currentCell = board.getCell(row, col)
-            if (currentCell.value == 0) continue // Already empty
 
             // Save the value
             val backup = currentCell.value
 
             // Try removing it
-            board.cells[row][col].isFixed = false  // Mark as not fixed (player can edit)
+            board.cells[row][col].isFixed = false
             board.setCell(row, col, 0)
 
             // Check if puzzle still has unique solution

@@ -31,7 +31,7 @@
                 android:orientation="horizontal">
 
                 <TextView
-                    android:layout_width="200dp"
+                    android:layout_width="220dp"
                     android:layout_height="wrap_content"
                     android:gravity="center"
                     android:text="Ranked Games"
@@ -39,7 +39,7 @@
                     android:textStyle="bold" />
 
                 <TextView
-                    android:layout_width="100dp"
+                    android:layout_width="120dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="12dp"
                     android:gravity="center"
@@ -57,7 +57,7 @@
 
                 <Button
                     android:id="@+id/btn_easy"
-                    android:layout_width="200dp"
+                    android:layout_width="220dp"
                     android:layout_height="60dp"
                     android:text="Easy"
                     android:textSize="16sp" />
@@ -80,7 +80,7 @@
 
                 <Button
                     android:id="@+id/btn_medium"
-                    android:layout_width="200dp"
+                    android:layout_width="220dp"
                     android:layout_height="60dp"
                     android:text="Medium"
                     android:textSize="16sp" />
@@ -103,7 +103,7 @@
 
                 <Button
                     android:id="@+id/btn_hard"
-                    android:layout_width="200dp"
+                    android:layout_width="220dp"
                     android:layout_height="60dp"
                     android:text="Hard"
                     android:textSize="16sp" />
@@ -126,7 +126,7 @@
 
                 <Button
                     android:id="@+id/btn_expert"
-                    android:layout_width="200dp"
+                    android:layout_width="220dp"
                     android:layout_height="60dp"
                     android:text="Expert"
                     android:textSize="16sp" />

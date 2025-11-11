@@ -141,40 +141,40 @@ class SudokuBoardView @JvmOverloads constructor(
      */
     private fun drawSelectedAndRelatedCells(canvas: Canvas) {
         selectedCell?.let {
-            // Highlight the selected cell
-            canvas.drawRect(
-                it.col * cellSize, it.row * cellSize, 
-                (it.col + 1) * cellSize, (it.row + 1) * cellSize, 
-                selectedCellPaint
-            )
-
             // Highlight the row, column, and box of the selected cell
             for (i in 0..8) {
                 // Row
                 canvas.drawRect(
-                    i * cellSize, it.row * cellSize, 
-                    (i + 1) * cellSize, (it.row + 1) * cellSize, 
+                    i * cellSize, it.row * cellSize,
+                    (i + 1) * cellSize, (it.row + 1) * cellSize,
                     relatedCellPaint
                 )
                 // Column
                 canvas.drawRect(
-                    it.col * cellSize, i * cellSize, 
-                    (it.col + 1) * cellSize, (i + 1) * cellSize, 
+                    it.col * cellSize, i * cellSize,
+                    (it.col + 1) * cellSize, (i + 1) * cellSize,
                     relatedCellPaint
                 )
             }
-            
+
             val boxRow = (it.row / 3) * 3
             val boxCol = (it.col / 3) * 3
             for (r in boxRow until boxRow + 3) {
                 for (c in boxCol until boxCol + 3) {
                     canvas.drawRect(
-                        c * cellSize, r * cellSize, 
-                        (c + 1) * cellSize, (r + 1) * cellSize, 
+                        c * cellSize, r * cellSize,
+                        (c + 1) * cellSize, (r + 1) * cellSize,
                         relatedCellPaint
                     )
                 }
             }
+
+            // Highlight the selected cell
+            canvas.drawRect(
+                it.col * cellSize, it.row * cellSize,
+                (it.col + 1) * cellSize, (it.row + 1) * cellSize,
+                selectedCellPaint
+            )
         }
     }
 
@@ -204,9 +204,9 @@ class SudokuBoardView @JvmOverloads constructor(
                     paint.getTextBounds(text, 0, text.length, textBounds)
                     val textHeight = textBounds.height()
                     canvas.drawText(
-                        text, 
-                        cell.col * cellSize + cellSize / 2, 
-                        cell.row * cellSize + cellSize / 2 + textHeight / 2, 
+                        text,
+                        cell.col * cellSize + cellSize / 2,
+                        cell.row * cellSize + cellSize / 2 + textHeight / 2,
                         paint
                     )
                 }

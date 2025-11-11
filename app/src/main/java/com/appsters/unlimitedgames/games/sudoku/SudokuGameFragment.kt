@@ -74,7 +74,7 @@ class SudokuGameFragment : Fragment(), SudokuBoardView.OnCellSelectedListener {
             if (selectedColor == Color.BLACK) {
                 selectedColor = ContextCompat.getColor(it, R.color.sudoku_board_text_color)
             } else if (selectedColor == Color.BLUE) {
-                selectedColor = ContextCompat.getColor(it, R.color.blue)
+                selectedColor = ContextCompat.getColor(it, R.color.mole_blue)
             }
         }
 
@@ -191,7 +191,7 @@ class SudokuGameFragment : Fragment(), SudokuBoardView.OnCellSelectedListener {
         val dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_animated_text, null)
         val typewriterView = dialogView.findViewById<TypewriterView>(R.id.typewriter_text)
 
-        val dialog = AlertDialog.Builder(requireContext())
+        val dialog = AlertDialog.Builder(requireContext(), R.style.SudokuDialogTheme)
             .setTitle("Puzzle Solved!")
             .setView(dialogView)
             .setPositiveButton("Awesome!") { _, _ ->

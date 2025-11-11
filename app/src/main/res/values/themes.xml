@@ -30,6 +30,6 @@
         <item name="buttonBarPositiveButtonStyle">@style/AlertDialog.ButtonAwesome</item>
     </style>
     <style name="AlertDialog.ButtonAwesome" parent="Widget.MaterialComponents.Button.OutlinedButton">
-        <item name="android:textColor">@color/mole_blue</item>
+        <item name="android:textColor">@color/black</item>
     </style>
 </resources>

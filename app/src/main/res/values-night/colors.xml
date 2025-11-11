@@ -13,10 +13,11 @@
     <color name="blue">#69A2FF</color>
 
 
-    <!-- Sudoku Board Colors -->
+    <!-- Sudoku Colors -->
+    <color name="color_selector">#818181</color>
     <color name="sudoku_board_line_color">#FFFFFFFF</color>
     <color name="sudoku_board_text_color">#FFFFFFFF</color>
     <color name="sudoku_board_fixed_text_color">#FFCCCCCC</color>
-    <color name="sudoku_board_selected_cell_color">#FF555555</color>
+    <color name="sudoku_board_selected_cell_color">#8E8E8E</color>
     <color name="sudoku_board_related_cell_color">#FF444444</color>
 </resources>

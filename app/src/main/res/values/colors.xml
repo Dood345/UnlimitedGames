@@ -18,4 +18,11 @@
     <color name="mole_yellow">#FFFFEB3B</color>
     <color name="mole_purple">#FF8A2BE2</color>
     <color name="button_pink">#D58883</color>
+
+    <!-- Sudoku Board Colors -->
+    <color name="sudoku_board_line_color">#FF000000</color>
+    <color name="sudoku_board_text_color">#FF000000</color>
+    <color name="sudoku_board_fixed_text_color">#FF333333</color>
+    <color name="sudoku_board_selected_cell_color">#FFD3D3D3</color>
+    <color name="sudoku_board_related_cell_color">#FFE0E0E0</color>
 </resources>

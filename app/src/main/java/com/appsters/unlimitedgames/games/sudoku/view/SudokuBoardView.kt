@@ -2,12 +2,13 @@ package com.appsters.unlimitedgames.games.sudoku.view
 
 import android.content.Context
 import android.graphics.Canvas
-import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.Rect
 import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.View
+import androidx.core.content.ContextCompat
+import com.appsters.unlimitedgames.R
 import com.appsters.unlimitedgames.games.sudoku.model.Board
 import com.appsters.unlimitedgames.games.sudoku.model.Cell
 
@@ -25,44 +26,61 @@ class SudokuBoardView @JvmOverloads constructor(
     private var board: Board? = null
     private var selectedCell: Cell? = null
     private var listener: OnCellSelectedListener? = null
-    private var playerColor: Int = Color.BLACK
+    private var playerColor: Int
 
-    private val thickLinePaint = Paint().apply {
-        style = Paint.Style.STROKE
-        color = Color.BLACK
-        strokeWidth = 4f
-    }
-
-    private val thinLinePaint = Paint().apply {
-        style = Paint.Style.STROKE
-        color = Color.BLACK
-        strokeWidth = 2f
-    }
-
-    private val textPaint = Paint().apply {
-        textSize = 64f
-        textAlign = Paint.Align.CENTER
-    }
-
-    private val fixedTextPaint = Paint().apply {
-        color = Color.DKGRAY
-        textSize = 64f
-        textAlign = Paint.Align.CENTER
-        isFakeBoldText = true
-    }
-
-    private val selectedCellPaint = Paint().apply {
-        style = Paint.Style.FILL
-        color = Color.LTGRAY
-    }
-
-    private val relatedCellPaint = Paint().apply {
-        style = Paint.Style.FILL
-        color = Color.parseColor("#E0E0E0") // A light gray
-    }
+    private val thickLinePaint: Paint
+    private val thinLinePaint: Paint
+    private val textPaint: Paint
+    private val fixedTextPaint: Paint
+    private val selectedCellPaint: Paint
+    private val relatedCellPaint: Paint
 
     private var cellSize = 0f
     private val textBounds = Rect()
+
+    init {
+        val lineColor = ContextCompat.getColor(context, R.color.sudoku_board_line_color)
+        val textColor = ContextCompat.getColor(context, R.color.sudoku_board_text_color)
+        playerColor = textColor
+        val fixedTextColor = ContextCompat.getColor(context, R.color.sudoku_board_fixed_text_color)
+        val selectedCellColor = ContextCompat.getColor(context, R.color.sudoku_board_selected_cell_color)
+        val relatedCellColor = ContextCompat.getColor(context, R.color.sudoku_board_related_cell_color)
+
+        thickLinePaint = Paint().apply {
+            style = Paint.Style.STROKE
+            color = lineColor
+            strokeWidth = 4f
+        }
+
+        thinLinePaint = Paint().apply {
+            style = Paint.Style.STROKE
+            color = lineColor
+            strokeWidth = 2f
+        }
+
+        textPaint = Paint().apply {
+            color = textColor
+            textSize = 64f
+            textAlign = Paint.Align.CENTER
+        }
+
+        fixedTextPaint = Paint().apply {
+            color = fixedTextColor
+            textSize = 64f
+            textAlign = Paint.Align.CENTER
+            isFakeBoldText = true
+        }
+
+        selectedCellPaint = Paint().apply {
+            style = Paint.Style.FILL
+            color = selectedCellColor
+        }
+
+        relatedCellPaint = Paint().apply {
+            style = Paint.Style.FILL
+            color = relatedCellColor
+        }
+    }
 
     /**
      * Sets the Sudoku board to be displayed by the view.

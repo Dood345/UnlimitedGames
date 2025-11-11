@@ -1,4 +1,4 @@
-package com.appsters.unlimitedgames.app.ui.custom
+package com.appsters.unlimitedgames.app.ui.util
 
 import android.content.Context
 import android.os.Handler

@@ -49,13 +49,13 @@ class SudokuGameFragment : Fragment(), SudokuBoardView.OnCellSelectedListener {
          */
         fun newInstance(
             difficulty: SudokuMenuFragment.Difficulty,
-            color: Int,
+            colorRes: Int,
             isRanked: Boolean = true
         ): SudokuGameFragment {
             return SudokuGameFragment().apply {
                 arguments = Bundle().apply {
                     putString(ARG_DIFFICULTY, difficulty.name)
-                    putInt(ARG_COLOR, color)
+                    putInt(ARG_COLOR, colorRes)
                     putBoolean(ARG_IS_RANKED, isRanked)
                 }
             }
@@ -66,18 +66,9 @@ class SudokuGameFragment : Fragment(), SudokuBoardView.OnCellSelectedListener {
         super.onCreate(savedInstanceState)
         arguments?.let {
             difficulty = SudokuMenuFragment.Difficulty.valueOf(it.getString(ARG_DIFFICULTY) ?: "EASY")
-            selectedColor = it.getInt(ARG_COLOR, Color.BLACK)
+            val colorRes = it.getInt(ARG_COLOR, R.color.sudoku_board_text_color)
+            selectedColor = ContextCompat.getColor(requireContext(), colorRes)
             isRanked = it.getBoolean(ARG_IS_RANKED, true)
-        }
-
-        context?.let {
-            if (selectedColor == Color.BLACK) {
-                selectedColor = ContextCompat.getColor(it, R.color.sudoku_board_text_color)
-            } else if (selectedColor == Color.BLUE) {
-                selectedColor = ContextCompat.getColor(it, R.color.blue)
-            } else if (selectedColor == Color.RED) {
-                selectedColor = ContextCompat.getColor(it, R.color.red)
-            }
         }
 
         val repository = SudokuRepository(requireContext())

@@ -123,7 +123,13 @@ class SudokuMenuFragment : Fragment() {
      */
     private fun startGame(difficulty: Difficulty, isRanked: Boolean) {
         loadingIndicator.visibility = View.VISIBLE
-        val fragment = SudokuGameFragment.newInstance(difficulty, selectedColor, isRanked)
+        val colorRes = when (selectedColor) {
+            Color.BLUE -> R.color.blue
+            Color.RED -> R.color.red
+            Color.GREEN -> R.color.green
+            else -> R.color.sudoku_board_text_color
+        }
+        val fragment = SudokuGameFragment.newInstance(difficulty, colorRes, isRanked)
         parentFragmentManager.beginTransaction()
             .replace(R.id.fragment_container, fragment)
             .addToBackStack(null)

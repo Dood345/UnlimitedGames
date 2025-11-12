@@ -86,24 +86,28 @@ class SudokuMenuFragment : Fragment() {
         )
 
         // Set the initially selected color based on repository
-        val colorToSelect = when (selectedColor) {
+        val colorToSelectId = when (selectedColor) {
             Color.BLUE -> R.id.color_blue
             Color.RED -> R.id.color_red
             Color.GREEN -> R.id.color_green
             else -> R.id.color_black
         }
-        view.findViewById<View>(colorToSelect).isSelected = true
 
+        // could be handled with states in resource (state_selected) but would not be animated
         colorPickers.forEach { picker ->
+            val scale = if (picker.id == colorToSelectId) 1f else 0.54f
+            picker.scaleX = scale
+            picker.scaleY = scale
             picker.setOnClickListener { onColorSelected(it) }
         }
     }
 
     private fun onColorSelected(view: View) {
-        // Deselect all other pickers
-        colorPickers.forEach { it.isSelected = false }
-        // Select the clicked one
-        view.isSelected = true
+        // could be handled with states in resource (state_selected) but would not be animated
+        colorPickers.forEach {
+            val scale = if (it == view) 1f else 0.54f
+            it.animate().scaleX(scale).scaleY(scale).setDuration(150).start()
+        }
 
         selectedColor = when (view.id) {
             R.id.color_blue -> Color.BLUE

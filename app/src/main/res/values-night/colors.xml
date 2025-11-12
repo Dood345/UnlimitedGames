@@ -8,16 +8,16 @@
     <color name="black"> #FF000000 </color>
     <color name="white"> #FFFFFFFF </color>
     <color name="dark_gray"> #FF333333 </color>
-    <color name="red"> #FFFF0000 </color>
+    <color name="red">#FF7171</color>
     <color name="deleteCancel"> #FFFFFFFF </color>
     <color name="blue"> #69A2FF </color>
-
+    <color name="green"> #00FF00 </color>
 
     <!-- Sudoku Colors -->
-    <color name="color_selector"> #00e5ffff </color>
+    <color name="color_selector"> #00FFFF </color>
     <color name="sudoku_board_line_color"> #FFFFFFFF </color>
     <color name="sudoku_board_text_color"> #FFFFFFFF </color>
     <color name="sudoku_board_fixed_text_color"> #FFCCCCCC </color>
-    <color name="sudoku_board_selected_cell_color"> #8E8E8E </color>
-    <color name="sudoku_board_related_cell_color"> #FF444444 </color>
+    <color name="sudoku_board_selected_cell_color">#545454</color>
+    <color name="sudoku_board_related_cell_color">#353535</color>
 </resources>

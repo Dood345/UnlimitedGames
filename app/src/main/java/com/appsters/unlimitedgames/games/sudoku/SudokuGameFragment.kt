@@ -75,6 +75,8 @@ class SudokuGameFragment : Fragment(), SudokuBoardView.OnCellSelectedListener {
                 selectedColor = ContextCompat.getColor(it, R.color.sudoku_board_text_color)
             } else if (selectedColor == Color.BLUE) {
                 selectedColor = ContextCompat.getColor(it, R.color.blue)
+            } else if (selectedColor == Color.RED) {
+                selectedColor = ContextCompat.getColor(it, R.color.red)
             }
         }
 

@@ -11,6 +11,7 @@
     <color name="red"> #FFFF0000 </color>
     <color name="deleteCancel"> #FF333333 </color>
     <color name="blue"> #FF0000FF </color>
+    <color name="green"> #FF008000 </color>
 
     <!--  WhackAMole  -->
     <color name="mole_red"> #FF8B0000 </color>
@@ -21,7 +22,7 @@
     <color name="button_pink"> #D58883 </color>
 
     <!-- Sudoku Colors -->
-    <color name="color_selector"> #00e5ffff </color>
+    <color name="color_selector">#00FFFF</color>
     <color name="sudoku_board_line_color"> #FF000000 </color>
     <color name="sudoku_board_text_color"> #FF000000 </color>
     <color name="sudoku_board_fixed_text_color"> #FF333333 </color>

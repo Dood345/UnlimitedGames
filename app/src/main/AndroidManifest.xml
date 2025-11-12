@@ -35,6 +35,9 @@
             android:name=".games.sudoku.SudokuActivity"
             android:screenOrientation="portrait"
             android:exported="false" />
+        <activity
+            android:name=".games.maze.MazeGameActivity"
+            android:theme="@style/Theme.UnlimitedGames" />
     </application>
 
 </manifest>

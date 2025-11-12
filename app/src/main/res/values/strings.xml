@@ -6,6 +6,7 @@
     <string name="profile">Profile</string>
     <string name="friends">Friends</string>
     <string name="leaderboard">Leaderboard</string>
+    <string name="maze">Maze</string>
 
     <!-- Login -->
     <string name="email">Email</string>

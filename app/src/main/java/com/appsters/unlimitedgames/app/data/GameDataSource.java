@@ -59,6 +59,14 @@ public class GameDataSource {
                         "",
                         0,
                         R.drawable.mole_transparent));
+        games.add(
+                new Game(
+                        "6",
+                        GameType.PUZZLE,
+                        "Maze",
+                        "",
+                        R.id.action_homeFragment_to_mazeMenuFragment,
+                        R.drawable.ic_maze));
         return games;
     }
 }

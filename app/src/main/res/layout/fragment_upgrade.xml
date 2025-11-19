@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:background="#CC000000"
+    android:gravity="center">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="UPGRADES"
+        android:textColor="#FFFFFF"
+        android:textSize="32sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="24dp"/>
+
+    <TextView
+        android:id="@+id/tv_available_currency"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Money: $0  |  XP: 0"
+        android:textColor="#FFD700"
+        android:textSize="18sp"
+        android:layout_marginBottom="32dp"/>
+
+    <!-- Upgrade 1: Max Stamina -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginBottom="16dp">
+        
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Max Stamina"
+            android:textColor="#FFFFFF"
+            android:textSize="18sp"/>
+        
+        <Button
+            android:id="@+id/btn_upgrade_stamina"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="$50"/>
+    </LinearLayout>
+
+    <!-- Upgrade 2: Speed -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginBottom="16dp">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Movement Speed"
+            android:textColor="#FFFFFF"
+            android:textSize="18sp"/>
+
+        <Button
+            android:id="@+id/btn_upgrade_speed"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="$100"/>
+    </LinearLayout>
+
+    <!-- Upgrade 3: Efficiency -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginBottom="32dp">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Stamina Efficiency"
+            android:textColor="#FFFFFF"
+            android:textSize="18sp"/>
+
+        <Button
+            android:id="@+id/btn_upgrade_efficiency"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="$75"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center">
+
+        <Button
+            android:id="@+id/btn_main_menu"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Main Menu"
+            android:backgroundTint="#F44336"
+            android:layout_marginEnd="8dp"/>
+
+        <Button
+            android:id="@+id/btn_next_level"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Next Level"
+            android:backgroundTint="#4CAF50"
+            android:layout_marginStart="8dp"/>
+    </LinearLayout>
+
+</LinearLayout>

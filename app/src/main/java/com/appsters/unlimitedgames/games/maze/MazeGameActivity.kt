@@ -12,12 +12,24 @@ class MazeGameActivity : AppCompatActivity() {
     private lateinit var dPad: DirectionalPadView
     private lateinit var viewModel: MazeViewModel
 
+    private lateinit var pbStamina: android.widget.ProgressBar
+    private lateinit var pbXP: android.widget.ProgressBar
+    private lateinit var tvMoney: android.widget.TextView
+    private lateinit var tvRound: android.widget.TextView
+
+    private lateinit var tvStaminaValue: android.widget.TextView
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_maze_game)
 
         mazeView = findViewById(R.id.maze_view)
         dPad = findViewById(R.id.d_pad)
+        pbStamina = findViewById(R.id.pb_stamina)
+        pbXP = findViewById(R.id.pb_xp)
+        tvMoney = findViewById(R.id.tv_money)
+        tvRound = findViewById(R.id.tv_round)
+        tvStaminaValue = findViewById(R.id.tv_stamina_value)
 
         viewModel = androidx.lifecycle.ViewModelProvider(this)[MazeViewModel::class.java]
         viewModel.generateMaze(15, 15)
@@ -43,13 +55,28 @@ class MazeGameActivity : AppCompatActivity() {
         viewModel.isLevelComplete.observe(this) { isComplete ->
             if (isComplete) {
                 mazeView.stopGame()
-                showLevelCompleteDialog()
+                showUpgradeScreen()
             }
         }
 
-        // Observe Stamina (for debugging/future UI)
+        // Observe Stamina
         viewModel.currentStamina.observe(this) { stamina ->
-            // android.util.Log.d("MazeGame", "Stamina: $stamina")
+            pbStamina.max = viewModel.maxStamina.toInt()
+            pbStamina.progress = stamina.toInt()
+            tvStaminaValue.text = "${stamina.toInt()}/${viewModel.maxStamina.toInt()}"
+        }
+
+        // Observe Run State
+        viewModel.currentRunMoney.observe(this) { money ->
+            android.util.Log.d("MazeGame", "Money Updated: $money")
+            tvMoney.text = "Money: $$money"
+        }
+        viewModel.currentRunXP.observe(this) { xp ->
+            android.util.Log.d("MazeGame", "XP Updated: $xp")
+            pbXP.progress = xp % 100 // Simple level up logic for now
+        }
+        viewModel.currentRound.observe(this) { round ->
+            tvRound.text = "Round: $round"
         }
 
         mazeView.onTileChangedListener = {
@@ -66,6 +93,29 @@ class MazeGameActivity : AppCompatActivity() {
                 mazeView.isPressingRight = dx == 1
             }
         }
+    }
+
+    private fun showUpgradeScreen() {
+        val upgradeFragment = UpgradeFragment()
+        upgradeFragment.onUpgradeListener = {
+            viewModel.updateRunState()
+        }
+        upgradeFragment.onNextLevelListener = {
+            com.appsters.unlimitedgames.games.maze.RunManager.nextRound()
+            viewModel.resetGame(15, 15)
+            mazeView.maxSpeed = viewModel.currentMaxSpeed
+            mazeView.acceleration = viewModel.currentAcceleration
+            
+            // Re-apply maze to view
+            viewModel.maze?.let {
+                mazeView.setMaze(it)
+                mazeView.setPlayerPosition(viewModel.playerX, viewModel.playerY)
+            }
+        }
+        upgradeFragment.onMainMenuListener = {
+            finish()
+        }
+        upgradeFragment.show(supportFragmentManager, "UpgradeFragment")
     }
 
     private fun showGameOverDialog() {
@@ -88,33 +138,6 @@ class MazeGameActivity : AppCompatActivity() {
                     mazeView.setMaze(it)
                     mazeView.setPlayerPosition(viewModel.playerX, viewModel.playerY)
                 }
-                // We don't strictly need recreate() if we reset the VM and View state correctly.
-                // But recreate() ensures a clean UI state (dialogs gone, etc).
-                // However, recreate() re-uses the VM.
-                // So we reset VM *then* recreate? Or just update UI?
-                // Updating UI is faster.
-            }
-            .setCancelable(false)
-            .show()
-    }
-
-    private fun showLevelCompleteDialog() {
-        androidx.appcompat.app.AlertDialog.Builder(this)
-            .setTitle("Level Complete!")
-            .setMessage("Money: ${viewModel.currentRunMoney}\nXP: ${viewModel.currentRunXP}")
-            .setPositiveButton("Next Level") { _, _ ->
-                // Go to next level (Generate new maze)
-                com.appsters.unlimitedgames.games.maze.RunManager.nextRound()
-                viewModel.resetGame(15, 15)
-                
-                // Re-apply maze to view
-                viewModel.maze?.let {
-                    mazeView.setMaze(it)
-                    mazeView.setPlayerPosition(viewModel.playerX, viewModel.playerY)
-                }
-            }
-            .setNegativeButton("Main Menu") { _, _ ->
-                finish()
             }
             .setCancelable(false)
             .show()

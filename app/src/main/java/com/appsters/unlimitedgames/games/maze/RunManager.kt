@@ -8,10 +8,10 @@ object RunManager {
     var roundNumber: Int = 1
 
     // Base Stats (Can be upgraded)
-    var maxStamina: Float = 100f
-    var staminaDrainRate: Float = 0.5f // Stamina lost per unit of movement/time
-    var baseMaxSpeed: Float = 0.2f
-    var baseAcceleration: Float = 0.02f
+    var maxStamina: Float = GameConfig.BASE_MAX_STAMINA
+    var staminaDrainRate: Float = GameConfig.BASE_STAMINA_DRAIN
+    var baseMaxSpeed: Float = GameConfig.BASE_MAX_SPEED
+    var baseAcceleration: Float = GameConfig.BASE_ACCELERATION
 
     fun startNewRun() {
         totalMoney = 0
@@ -21,10 +21,10 @@ object RunManager {
         android.util.Log.d("RunManager", "New Run Started. Round: $roundNumber")
         
         // Reset stats to defaults
-        maxStamina = 25f
-        staminaDrainRate = 0.5f
-        baseMaxSpeed = 0.2f
-        baseAcceleration = 0.02f
+        maxStamina = GameConfig.BASE_MAX_STAMINA
+        staminaDrainRate = GameConfig.BASE_STAMINA_DRAIN
+        baseMaxSpeed = GameConfig.BASE_MAX_SPEED
+        baseAcceleration = GameConfig.BASE_ACCELERATION
     }
 
     fun nextRound() {

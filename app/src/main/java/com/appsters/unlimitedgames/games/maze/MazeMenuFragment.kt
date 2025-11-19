@@ -22,7 +22,16 @@ class MazeMenuFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        val tvStats = view.findViewById<android.widget.TextView>(R.id.tv_last_run_stats)
+        tvStats.text = "Current Run: Round ${RunManager.roundNumber} - $${RunManager.totalMoney}"
+
         view.findViewById<Button>(R.id.btn_start_maze).setOnClickListener {
+            val intent = Intent(requireContext(), MazeGameActivity::class.java)
+            startActivity(intent)
+        }
+
+        view.findViewById<Button>(R.id.btn_new_run).setOnClickListener {
+            RunManager.startNewRun()
             val intent = Intent(requireContext(), MazeGameActivity::class.java)
             startActivity(intent)
         }

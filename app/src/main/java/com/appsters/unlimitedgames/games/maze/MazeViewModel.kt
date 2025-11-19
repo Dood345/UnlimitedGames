@@ -33,15 +33,27 @@ class MazeViewModel : ViewModel() {
         private set
 
     // Run State
-    var currentRunMoney: Int = 0
-        private set
-    var currentRunXP: Int = 0
-        private set
+    private val _currentRunMoney = androidx.lifecycle.MutableLiveData<Int>(0)
+    val currentRunMoney: androidx.lifecycle.LiveData<Int> = _currentRunMoney
+    
+    private val _currentRunXP = androidx.lifecycle.MutableLiveData<Int>(0)
+    val currentRunXP: androidx.lifecycle.LiveData<Int> = _currentRunXP
+
+    private val _currentRound = androidx.lifecycle.MutableLiveData<Int>(1)
+    val currentRound: androidx.lifecycle.LiveData<Int> = _currentRound
 
     fun generateMaze(width: Int, height: Int) {
         if (maze == null) {
             createMaze(width, height)
         }
+        // Sync initial run state
+        updateRunState()
+    }
+
+    fun updateRunState() {
+        _currentRunMoney.value = RunManager.totalMoney
+        _currentRunXP.value = RunManager.totalXP
+        _currentRound.value = RunManager.roundNumber
     }
 
     fun resetGame(width: Int, height: Int) {
@@ -147,7 +159,7 @@ class MazeViewModel : ViewModel() {
             is com.appsters.unlimitedgames.games.maze.model.MazeItem.Artifact -> {
                 RunManager.totalMoney += item.value
                 RunManager.totalXP += 10 // Arbitrary XP
-                // Notify UI of collection?
+                updateRunState()
             }
             is com.appsters.unlimitedgames.games.maze.model.MazeItem.PowerUp -> {
                 when (item.type) {

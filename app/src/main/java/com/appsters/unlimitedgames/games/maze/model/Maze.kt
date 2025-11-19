@@ -9,7 +9,8 @@ data class Cell(
     var bottomWall: Boolean = true,
     var leftWall: Boolean = true,
     var rightWall: Boolean = true,
-    var isVisited: Boolean = false
+    var isVisited: Boolean = false,
+    var isRevealed: Boolean = false
 )
 
 class Maze(val width: Int, val height: Int) {

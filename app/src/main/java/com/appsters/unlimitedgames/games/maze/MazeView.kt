@@ -106,6 +106,20 @@ class MazeView(context: Context, attrs: AttributeSet?) : View(context, attrs) {
     private var lastCol = 0
     private var lastRow = 0
 
+    // Visual Mechanics
+    var visibilityRadius = 4 // In tiles
+    private val trailPoints = java.util.LinkedList<android.graphics.PointF>()
+    private val maxTrailLength = 20
+    private val trailPaint = Paint().apply {
+        color = ContextCompat.getColor(context, R.color.maze_player_color)
+        strokeWidth = 10f
+        style = Paint.Style.STROKE
+        strokeCap = Paint.Cap.ROUND
+    }
+    private val artifactPaint = Paint().apply { color = android.graphics.Color.YELLOW }
+    private val powerUpPaint = Paint().apply { color = android.graphics.Color.CYAN }
+    private val fogPaint = Paint().apply { color = android.graphics.Color.DKGRAY } // Fog color
+
     private fun update() {
         val currentMaze = maze ?: return
 
@@ -129,6 +143,32 @@ class MazeView(context: Context, attrs: AttributeSet?) : View(context, attrs) {
         // Stop movement if velocity is very low
         if (abs(playerVX) < 0.001f) playerVX = 0f
         if (abs(playerVY) < 0.001f) playerVY = 0f
+
+        // Update Trail
+        if (speed > 0.01f) {
+            trailPoints.add(android.graphics.PointF(playerX, playerY))
+            if (trailPoints.size > maxTrailLength) {
+                trailPoints.removeFirst()
+            }
+        } else if (trailPoints.isNotEmpty()) {
+            trailPoints.removeFirst() // Fade out when stopped
+        }
+
+        // Update Fog of War (Reveal tiles)
+        val pCol = playerX.toInt()
+        val pRow = playerY.toInt()
+        val minCol = (pCol - visibilityRadius).coerceAtLeast(0)
+        val maxCol = (pCol + visibilityRadius).coerceAtMost(currentMaze.width - 1)
+        val minRow = (pRow - visibilityRadius).coerceAtLeast(0)
+        val maxRow = (pRow + visibilityRadius).coerceAtMost(currentMaze.height - 1)
+
+        for (row in minRow..maxRow) {
+            for (col in minCol..maxCol) {
+                if ((col - pCol) * (col - pCol) + (row - pRow) * (row - pRow) <= visibilityRadius * visibilityRadius) {
+                    currentMaze.cells[row][col].isRevealed = true
+                }
+            }
+        }
 
         if (playerVX == 0f && playerVY == 0f) return
 
@@ -250,7 +290,7 @@ class MazeView(context: Context, attrs: AttributeSet?) : View(context, attrs) {
 
             canvas.translate(hMargin, vMargin)
 
-            // Draw maze walls
+            // Draw maze
             for (row in 0 until mazeHeight) {
                 for (col in 0 until mazeWidth) {
                     val cell = maze.cells[row][col]
@@ -259,10 +299,39 @@ class MazeView(context: Context, attrs: AttributeSet?) : View(context, attrs) {
                     val x2 = (col + 1) * cellSize
                     val y2 = (row + 1) * cellSize
 
-                    if (cell.topWall) canvas.drawLine(x1, y1, x2, y1, wallPaint)
-                    if (cell.bottomWall) canvas.drawLine(x1, y2, x2, y2, wallPaint)
-                    if (cell.leftWall) canvas.drawLine(x1, y1, x1, y2, wallPaint)
-                    if (cell.rightWall) canvas.drawLine(x2, y1, x2, y2, wallPaint)
+                    if (!cell.isRevealed) {
+                        // Draw Fog
+                        canvas.drawRect(x1, y1, x2, y2, fogPaint)
+                    } else {
+                        // Draw Walls
+                        if (cell.topWall) canvas.drawLine(x1, y1, x2, y1, wallPaint)
+                        if (cell.bottomWall) canvas.drawLine(x1, y2, x2, y2, wallPaint)
+                        if (cell.leftWall) canvas.drawLine(x1, y1, x1, y2, wallPaint)
+                        if (cell.rightWall) canvas.drawLine(x2, y1, x2, y2, wallPaint)
+                    }
+                }
+            }
+
+            // Draw Items (Only revealed ones)
+            for (item in maze.items) {
+                if (maze.cells[item.y][item.x].isRevealed) {
+                    val cx = (item.x + 0.5f) * cellSize
+                    val cy = (item.y + 0.5f) * cellSize
+                    val paint = when (item) {
+                        is com.appsters.unlimitedgames.games.maze.model.MazeItem.Artifact -> artifactPaint
+                        is com.appsters.unlimitedgames.games.maze.model.MazeItem.PowerUp -> powerUpPaint
+                    }
+                    canvas.drawRect(cx - cellSize/4, cy - cellSize/4, cx + cellSize/4, cy + cellSize/4, paint)
+                }
+            }
+
+            // Draw Trail
+            if (trailPoints.size > 1) {
+                for (i in 0 until trailPoints.size - 1) {
+                    val p1 = trailPoints[i]
+                    val p2 = trailPoints[i+1]
+                    trailPaint.alpha = (255 * (i.toFloat() / trailPoints.size)).toInt()
+                    canvas.drawLine(p1.x * cellSize, p1.y * cellSize, p2.x * cellSize, p2.y * cellSize, trailPaint)
                 }
             }
 
@@ -271,10 +340,12 @@ class MazeView(context: Context, attrs: AttributeSet?) : View(context, attrs) {
             val playerDrawY = playerY * cellSize
             canvas.drawCircle(playerDrawX, playerDrawY, cellSize / 3, playerPaint)
 
-            // Draw exit
-            val exitCX = (exitCol + 0.5f) * cellSize
-            val exitCY = (exitRow + 0.5f) * cellSize
-            canvas.drawCircle(exitCX, exitCY, cellSize / 3, exitPaint)
+            // Draw exit (Only if revealed)
+            if (maze.cells[exitRow][exitCol].isRevealed) {
+                val exitCX = (exitCol + 0.5f) * cellSize
+                val exitCY = (exitRow + 0.5f) * cellSize
+                canvas.drawCircle(exitCX, exitCY, cellSize / 3, exitPaint)
+            }
         }
     }
 }

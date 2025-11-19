@@ -16,8 +16,10 @@ class MazeView(context: Context, attrs: AttributeSet?) : View(context, attrs) {
     private var maze: Maze? = null
 
     // Player position, velocity
-    private var playerX = 0.5f
-    private var playerY = 0.5f
+    var playerX = 0.5f
+        private set
+    var playerY = 0.5f
+        private set
     private var playerVX = 0f
     private var playerVY = 0f
 
@@ -40,12 +42,10 @@ class MazeView(context: Context, attrs: AttributeSet?) : View(context, attrs) {
     private var hMargin = 0f
     private var vMargin = 0f
 
-    // Physics constants
-    companion object {
-        private const val ACCELERATION = 0.02f
-        private const val FRICTION = 0.94f
-        private const val MAX_SPEED = 0.2f
-    }
+    // Physics variables (Dynamic)
+    var maxSpeed = 0.2f
+    var acceleration = 0.02f
+    private val FRICTION = 0.94f
 
     private val gameLoop = object : Runnable {
         override fun run() {
@@ -69,10 +69,18 @@ class MazeView(context: Context, attrs: AttributeSet?) : View(context, attrs) {
         playerVY = 0f
         exitCol = maze.width - 1
         exitRow = maze.height - 1
+        lastCol = playerX.toInt()
+        lastRow = playerY.toInt()
 
         removeCallbacks(gameLoop)
         postOnAnimation(gameLoop)
 
+        invalidate()
+    }
+
+    fun setPlayerPosition(x: Float, y: Float) {
+        playerX = x
+        playerY = y
         invalidate()
     }
 
@@ -89,20 +97,29 @@ class MazeView(context: Context, attrs: AttributeSet?) : View(context, attrs) {
         removeCallbacks(gameLoop)
     }
 
+    fun stopGame() {
+        removeCallbacks(gameLoop)
+    }
+
+    // Listener for tile changes (steps)
+    var onTileChangedListener: (() -> Unit)? = null
+    private var lastCol = 0
+    private var lastRow = 0
+
     private fun update() {
         val currentMaze = maze ?: return
 
         // Apply input
-        if (isPressingUp) playerVY -= ACCELERATION
-        if (isPressingDown) playerVY += ACCELERATION
-        if (isPressingLeft) playerVX -= ACCELERATION
-        if (isPressingRight) playerVX += ACCELERATION
+        if (isPressingUp) playerVY -= acceleration
+        if (isPressingDown) playerVY += acceleration
+        if (isPressingLeft) playerVX -= acceleration
+        if (isPressingRight) playerVX += acceleration
 
         // Clamp to max speed
         val speed = sqrt(playerVX * playerVX + playerVY * playerVY)
-        if (speed > MAX_SPEED) {
-            playerVX = (playerVX / speed) * MAX_SPEED
-            playerVY = (playerVY / speed) * MAX_SPEED
+        if (speed > maxSpeed) {
+            playerVX = (playerVX / speed) * maxSpeed
+            playerVY = (playerVY / speed) * maxSpeed
         }
 
         // Apply friction
@@ -196,6 +213,15 @@ class MazeView(context: Context, attrs: AttributeSet?) : View(context, attrs) {
             }
         }
         playerY = newY.coerceIn(playerRadius, currentMaze.height - playerRadius)
+
+        // Check for tile change
+        val newCol = playerX.toInt()
+        val newRow = playerY.toInt()
+        if (newCol != lastCol || newRow != lastRow) {
+            lastCol = newCol
+            lastRow = newRow
+            onTileChangedListener?.invoke()
+        }
 
         // Win condition
         if (playerX.toInt() == exitCol && playerY.toInt() == exitRow) {

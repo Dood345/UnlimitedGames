@@ -1,6 +1,7 @@
 package com.appsters.unlimitedgames.games.maze.model
 
 import kotlin.random.Random
+import com.appsters.unlimitedgames.games.maze.model.MazeItem
 
 data class Cell(
     val col: Int, val row: Int,
@@ -17,6 +18,8 @@ class Maze(val width: Int, val height: Int) {
             Cell(col, row)
         }
     }
+
+    val items = mutableListOf<MazeItem>()
 
     private val stack = mutableListOf<Cell>()
 

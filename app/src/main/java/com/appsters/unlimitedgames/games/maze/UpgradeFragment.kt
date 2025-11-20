@@ -36,6 +36,9 @@ class UpgradeFragment : DialogFragment() {
         return inflater.inflate(com.appsters.unlimitedgames.R.layout.fragment_upgrade, container, false)
     }
 
+    private lateinit var tvSkillPoints: TextView
+    private lateinit var btnUnlockWallSmash: Button
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -45,6 +48,9 @@ class UpgradeFragment : DialogFragment() {
         btnEfficiency = view.findViewById(com.appsters.unlimitedgames.R.id.btn_upgrade_efficiency)
         btnMainMenu = view.findViewById(com.appsters.unlimitedgames.R.id.btn_main_menu)
         btnNextLevel = view.findViewById(com.appsters.unlimitedgames.R.id.btn_next_level)
+        
+        tvSkillPoints = view.findViewById(com.appsters.unlimitedgames.R.id.tv_skill_points)
+        btnUnlockWallSmash = view.findViewById(com.appsters.unlimitedgames.R.id.btn_unlock_wall_smash)
 
         if (isGameOver) {
             btnNextLevel.text = "New Run"
@@ -88,6 +94,19 @@ class UpgradeFragment : DialogFragment() {
                 Toast.makeText(context, "Not enough money!", Toast.LENGTH_SHORT).show()
             }
         }
+        
+        btnUnlockWallSmash.setOnClickListener {
+            if (RunManager.player.isWallSmashUnlocked) {
+                Toast.makeText(context, "Already Unlocked!", Toast.LENGTH_SHORT).show()
+            } else if (RunManager.player.skillPoints >= 1) {
+                RunManager.player.skillPoints -= 1
+                RunManager.player.isWallSmashUnlocked = true
+                updateUI()
+                onUpgradeListener?.invoke()
+            } else {
+                Toast.makeText(context, "Need 1 Skill Point!", Toast.LENGTH_SHORT).show()
+            }
+        }
 
         btnMainMenu.setOnClickListener {
             dismiss()
@@ -102,6 +121,15 @@ class UpgradeFragment : DialogFragment() {
 
     private fun updateUI() {
         tvCurrency.text = "Money: $${RunManager.totalMoney}  |  XP: ${RunManager.totalXP}"
+        tvSkillPoints.text = "Skill Points: ${RunManager.player.skillPoints}"
+        
+        if (RunManager.player.isWallSmashUnlocked) {
+            btnUnlockWallSmash.text = "UNLOCKED"
+            btnUnlockWallSmash.isEnabled = false
+        } else {
+            btnUnlockWallSmash.text = "1 SP"
+            btnUnlockWallSmash.isEnabled = RunManager.player.skillPoints >= 1
+        }
     }
 
     override fun onStart() {

@@ -6,11 +6,18 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.fragment.NavHostFragment
 import com.appsters.unlimitedgames.R
 
+import nl.dionsegijn.konfetti.xml.KonfettiView
+import nl.dionsegijn.konfetti.core.Party
+import nl.dionsegijn.konfetti.core.Position
+import nl.dionsegijn.konfetti.core.emitter.Emitter
+import java.util.concurrent.TimeUnit
+
 class MazeGameActivity : AppCompatActivity() {
 
     private lateinit var mazeView: MazeView
     private lateinit var dPad: DirectionalPadView
     private lateinit var viewModel: MazeViewModel
+    private lateinit var konfettiView: KonfettiView
 
     private lateinit var pbStamina: android.widget.ProgressBar
     private lateinit var pbXP: android.widget.ProgressBar
@@ -32,6 +39,7 @@ class MazeGameActivity : AppCompatActivity() {
         tvRound = findViewById(R.id.tv_round)
         tvStaminaValue = findViewById(R.id.tv_stamina_value)
         tvLevel = findViewById(R.id.tv_level)
+        konfettiView = findViewById(R.id.konfettiView)
 
         viewModel = androidx.lifecycle.ViewModelProvider(this)[MazeViewModel::class.java]
         viewModel.generateMaze(15, 15)
@@ -39,7 +47,6 @@ class MazeGameActivity : AppCompatActivity() {
         // Sync physics
         mazeView.maxSpeed = viewModel.currentMaxSpeed
         mazeView.acceleration = viewModel.currentAcceleration
-        mazeView.visibilityRadius = viewModel.visibilityRadius
 
         viewModel.maze?.let {
             mazeView.setMaze(it)
@@ -57,6 +64,7 @@ class MazeGameActivity : AppCompatActivity() {
         // Observe Level Complete
         viewModel.isLevelComplete.observe(this) { isComplete ->
             if (isComplete) {
+                triggerConfetti()
                 mazeView.stopGame()
                 showUpgradeScreen(false)
             }
@@ -67,6 +75,11 @@ class MazeGameActivity : AppCompatActivity() {
             pbStamina.max = viewModel.maxStamina.toInt()
             pbStamina.progress = stamina.toInt()
             tvStaminaValue.text = "${stamina.toInt()}/${viewModel.maxStamina.toInt()}"
+        }
+
+        // Observe Visibility
+        viewModel.currentVisibility.observe(this) { radius ->
+            mazeView.visibilityRadius = radius
         }
 
         // Observe Run State
@@ -100,6 +113,42 @@ class MazeGameActivity : AppCompatActivity() {
                 mazeView.inputY = yPercent
             }
         }
+        
+        val fabWallSmash: com.google.android.material.floatingactionbutton.FloatingActionButton = findViewById(R.id.fab_wall_smash)
+        
+        // Wall Smash Logic
+        if (com.appsters.unlimitedgames.games.maze.RunManager.player.isWallSmashUnlocked) {
+            fabWallSmash.visibility = android.view.View.VISIBLE
+        } else {
+            fabWallSmash.visibility = android.view.View.GONE
+        }
+        
+        fabWallSmash.setOnClickListener {
+            viewModel.activateWallSmash()
+        }
+        
+        viewModel.isWallSmashActive.observe(this) { isActive ->
+            if (isActive) {
+                fabWallSmash.backgroundTintList = android.content.res.ColorStateList.valueOf(android.graphics.Color.YELLOW)
+                fabWallSmash.setImageResource(android.R.drawable.ic_menu_delete) // Placeholder for Hammer
+            } else {
+                fabWallSmash.backgroundTintList = android.content.res.ColorStateList.valueOf(android.graphics.Color.parseColor("#F44336")) // Red
+                fabWallSmash.setImageResource(android.R.drawable.ic_menu_close_clear_cancel) // Reset icon
+                
+                // Check if used
+                if (viewModel.hasUsedWallSmash) {
+                    fabWallSmash.isEnabled = false
+                    fabWallSmash.alpha = 0.5f
+                } else {
+                    fabWallSmash.isEnabled = true
+                    fabWallSmash.alpha = 1.0f
+                }
+            }
+        }
+        
+        mazeView.onWallCollisionListener = { col: Int, row: Int, wallType: Int ->
+            viewModel.onWallSmash(col, row, wallType)
+        }
     }
 
     private fun showUpgradeScreen(isGameOver: Boolean = false) {
@@ -121,7 +170,6 @@ class MazeGameActivity : AppCompatActivity() {
             viewModel.resetGame(15, 15)
             mazeView.maxSpeed = viewModel.currentMaxSpeed
             mazeView.acceleration = viewModel.currentAcceleration
-            mazeView.visibilityRadius = viewModel.visibilityRadius
             
             // Re-apply maze to view
             viewModel.maze?.let {
@@ -159,5 +207,18 @@ class MazeGameActivity : AppCompatActivity() {
             else -> return super.onKeyUp(keyCode, event)
         }
         return true
+    }
+
+    private fun triggerConfetti() {
+        val party = Party(
+            speed = 0f,
+            maxSpeed = 30f,
+            damping = 0.9f,
+            spread = 360,
+            colors = listOf(0xfce18a, 0xff726d, 0xf4306d, 0xb48def),
+            emitter = Emitter(duration = 100, TimeUnit.MILLISECONDS).max(100),
+            position = Position.Relative(0.5, 0.3)
+        )
+        konfettiView.start(party)
     }
 }

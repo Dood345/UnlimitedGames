@@ -101,6 +101,7 @@ class MazeView(context: Context, attrs: AttributeSet?) : View(context, attrs) {
 
     // Listener for tile changes (steps)
     var onTileChangedListener: (() -> Unit)? = null
+    var onWallCollisionListener: ((col: Int, row: Int, wallType: Int) -> Unit)? = null // 0=Top, 1=Bottom, 2=Left, 3=Right
     private var lastCol = 0
     private var lastRow = 0
 
@@ -115,8 +116,12 @@ class MazeView(context: Context, attrs: AttributeSet?) : View(context, attrs) {
         strokeCap = Paint.Cap.ROUND
     }
     private val artifactPaint = Paint().apply { color = android.graphics.Color.YELLOW }
-    private val powerUpPaint = Paint().apply { color = android.graphics.Color.CYAN }
-    private val fogPaint = Paint().apply { color = android.graphics.Color.DKGRAY } // Fog color
+    private val xpPaint = Paint().apply { color = android.graphics.Color.parseColor("#00FFFF") } // Cyan for XP
+    private val speedPaint = Paint().apply { color = android.graphics.Color.RED }
+    private val visionPaint = Paint().apply { color = android.graphics.Color.MAGENTA } // Purple-ish
+    private val staminaPaint = Paint().apply { color = android.graphics.Color.GREEN }
+    private val fogPaint = Paint().apply { color = android.graphics.Color.BLACK } // Fog color
+    private val vignettePaint = Paint()
 
     private fun update() {
         val currentMaze = maze ?: return
@@ -184,6 +189,7 @@ class MazeView(context: Context, attrs: AttributeSet?) : View(context, attrs) {
                 for (row in topRow..bottomRow) {
                     if (currentMaze.cells[row][currCol].rightWall) {
                         collided = true
+                        onWallCollisionListener?.invoke(currCol, row, 3) // Right Wall
                         break
                     }
                 }
@@ -200,6 +206,7 @@ class MazeView(context: Context, attrs: AttributeSet?) : View(context, attrs) {
                 for (row in topRow..bottomRow) {
                     if (currentMaze.cells[row][currCol].leftWall) {
                         collided = true
+                        onWallCollisionListener?.invoke(currCol, row, 2) // Left Wall
                         break
                     }
                 }
@@ -224,6 +231,7 @@ class MazeView(context: Context, attrs: AttributeSet?) : View(context, attrs) {
                 for (col in leftCol..rightCol) {
                     if (currentMaze.cells[currRow][col].bottomWall) {
                         collided = true
+                        onWallCollisionListener?.invoke(col, currRow, 1) // Bottom Wall
                         break
                     }
                 }
@@ -240,6 +248,7 @@ class MazeView(context: Context, attrs: AttributeSet?) : View(context, attrs) {
                 for (col in leftCol..rightCol) {
                     if (currentMaze.cells[currRow][col].topWall) {
                         collided = true
+                        onWallCollisionListener?.invoke(col, currRow, 0) // Top Wall
                         break
                     }
                 }
@@ -265,6 +274,7 @@ class MazeView(context: Context, attrs: AttributeSet?) : View(context, attrs) {
             removeCallbacks(gameLoop) // Stop game
         }
     }
+
 
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
@@ -316,8 +326,16 @@ class MazeView(context: Context, attrs: AttributeSet?) : View(context, attrs) {
                     val cy = (item.y + 0.5f) * cellSize
                     val paint = when (item) {
                         is com.appsters.unlimitedgames.games.maze.model.MazeItem.Artifact -> artifactPaint
-                        is com.appsters.unlimitedgames.games.maze.model.MazeItem.PowerUp -> powerUpPaint
+                        is com.appsters.unlimitedgames.games.maze.model.MazeItem.XpOrb -> xpPaint
+                        is com.appsters.unlimitedgames.games.maze.model.MazeItem.PowerUp -> {
+                            when (item.type) {
+                                com.appsters.unlimitedgames.games.maze.model.PowerUpType.STAMINA_REFILL -> staminaPaint
+                                com.appsters.unlimitedgames.games.maze.model.PowerUpType.SPEED_BOOST -> speedPaint
+                                com.appsters.unlimitedgames.games.maze.model.PowerUpType.VISION_EXPAND -> visionPaint
+                            }
+                        }
                     }
+                    
                     canvas.drawRect(cx - cellSize/4, cy - cellSize/4, cx + cellSize/4, cy + cellSize/4, paint)
                 }
             }
@@ -343,6 +361,20 @@ class MazeView(context: Context, attrs: AttributeSet?) : View(context, attrs) {
                 val exitCY = (exitRow + 0.5f) * cellSize
                 canvas.drawCircle(exitCX, exitCY, cellSize / 3, exitPaint)
             }
+
+            // Draw Vignette
+            // Radius tracks player vision: Vision Radius - 2
+            val vignetteRadius = (visibilityRadius + 0f).coerceAtLeast(1.0f) * cellSize
+            val gradient = android.graphics.RadialGradient(
+                playerDrawX, playerDrawY,
+                vignetteRadius,
+                intArrayOf(android.graphics.Color.TRANSPARENT, android.graphics.Color.parseColor("#CC000000")),
+                floatArrayOf(0.3f, 1.0f),
+                android.graphics.Shader.TileMode.CLAMP
+            )
+            vignettePaint.shader = gradient
+            // Draw rect covering the whole screen (relative to translated canvas)
+            canvas.drawRect(-hMargin, -vMargin, width.toFloat() - hMargin, height.toFloat() - vMargin, vignettePaint)
         }
     }
 }

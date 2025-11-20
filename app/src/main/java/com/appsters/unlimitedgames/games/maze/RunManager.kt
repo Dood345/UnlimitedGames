@@ -49,13 +49,14 @@ object RunManager {
 
             // Apply Bonus
             player.maxStamina += GameConfig.LEVEL_UP_STAMINA_BONUS
+            player.skillPoints++ // Award Skill Point
 
             // Calc next threshold
             xpToNextLevel = (xpToNextLevel * GameConfig.XP_SCALING_FACTOR).toInt()
 
             android.util.Log.d(
                 "RunManager",
-                "Level Up! New Level: $currentLevel, Max Stamina: ${player.maxStamina}"
+                "Level Up! New Level: $currentLevel, Max Stamina: ${player.maxStamina}, SP: ${player.skillPoints}"
             )
             return true
         }

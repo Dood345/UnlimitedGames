@@ -33,8 +33,8 @@ class MazeViewModel : ViewModel() {
     val currentAcceleration: Float
         get() = RunManager.player.baseAcceleration
         
-    val visibilityRadius: Int
-        get() = RunManager.player.effectiveVisibility
+    private val _currentVisibility = androidx.lifecycle.MutableLiveData<Int>(RunManager.player.effectiveVisibility)
+    val currentVisibility: androidx.lifecycle.LiveData<Int> = _currentVisibility
 
     // Run State
     private val _currentRunMoney = androidx.lifecycle.MutableLiveData<Int>(0)
@@ -70,9 +70,11 @@ class MazeViewModel : ViewModel() {
 
     fun resetGame(width: Int, height: Int) {
         maze = null
+        RunManager.player.clearEffects()
         _isGameOver.value = false
         _isLevelComplete.value = false
         _currentStamina.value = maxStamina
+        _currentVisibility.value = RunManager.player.effectiveVisibility
         createMaze(width, height)
     }
 
@@ -92,6 +94,9 @@ class MazeViewModel : ViewModel() {
         _currentStamina.value = RunManager.player.currentStamina
         _isGameOver.value = false
         _isLevelComplete.value = false
+        
+        hasUsedWallSmash = false
+        _isWallSmashActive.value = false
 
         spawnItems(width, height)
     }
@@ -112,8 +117,8 @@ class MazeViewModel : ViewModel() {
             val (c, r) = queue.poll() ?: break
             val dist = distances[r][c]
             
-            // Collect valid points (10-20 steps away)
-            if (dist in 10..20) {
+            // Collect valid points (10-60 steps away)
+            if (dist in 10..60) {
                 validSpawnPoints.add(Pair(c, r))
             }
             
@@ -141,7 +146,7 @@ class MazeViewModel : ViewModel() {
         }
         
         // Spawn Items
-        val numberOfItems = 10 // Increased for testing
+        val numberOfItems = 15 // Increased slightly
         
         if (validSpawnPoints.isNotEmpty()) {
             validSpawnPoints.shuffle()
@@ -149,16 +154,19 @@ class MazeViewModel : ViewModel() {
             for (i in 0 until kotlin.math.min(numberOfItems, validSpawnPoints.size)) {
                 val (c, r) = validSpawnPoints[i]
                 
-                // 50/50 Artifact or PowerUp
-                if (kotlin.random.Random.nextBoolean()) {
+                val rand = kotlin.random.Random.nextFloat()
+                if (rand < 0.4f) { // 40% Money
                     m.items.add(com.appsters.unlimitedgames.games.maze.model.MazeItem.Artifact(c, r, 10))
-                } else {
-                    m.items.add(com.appsters.unlimitedgames.games.maze.model.MazeItem.PowerUp(c, r, com.appsters.unlimitedgames.games.maze.model.PowerUpType.STAMINA_REFILL, 0))
+                } else if (rand < 0.7f) { // 30% XP
+                    m.items.add(com.appsters.unlimitedgames.games.maze.model.MazeItem.XpOrb(c, r, 15))
+                } else { // 30% PowerUp
+                    val type = com.appsters.unlimitedgames.games.maze.model.PowerUpType.values().random()
+                    val duration = if (type == com.appsters.unlimitedgames.games.maze.model.PowerUpType.STAMINA_REFILL) 0L else 10000L // 10 seconds
+                    m.items.add(com.appsters.unlimitedgames.games.maze.model.MazeItem.PowerUp(c, r, type, duration))
                 }
             }
         } else {
-            android.util.Log.w("MazeViewModel", "No valid spawn points found within 10-20 steps!")
-            // Fallback?
+            android.util.Log.w("MazeViewModel", "No valid spawn points found within 10-60 steps!")
         }
     }
 
@@ -167,6 +175,7 @@ class MazeViewModel : ViewModel() {
 
         // Tick Player Effects
         RunManager.player.tickEffects()
+        _currentVisibility.value = RunManager.player.effectiveVisibility
 
         // Drain Stamina
         val drain = RunManager.player.staminaDrainRate
@@ -205,20 +214,62 @@ class MazeViewModel : ViewModel() {
         }
     }
 
+    // Skills
+    private val _isWallSmashActive = androidx.lifecycle.MutableLiveData<Boolean>(false)
+    val isWallSmashActive: androidx.lifecycle.LiveData<Boolean> = _isWallSmashActive
+    
+    var hasUsedWallSmash = false
+
+    fun activateWallSmash() {
+        if (!hasUsedWallSmash && RunManager.player.isWallSmashUnlocked) {
+            _isWallSmashActive.value = true
+            hasUsedWallSmash = true
+        }
+    }
+    
+    fun onWallSmash(col: Int, row: Int, wallType: Int) {
+        // wallType: 0=Top, 1=Bottom, 2=Left, 3=Right
+        val m = maze ?: return
+        if (_isWallSmashActive.value == true) {
+            val cell = m.cells[row][col]
+            when (wallType) {
+                0 -> { // Top
+                    cell.topWall = false
+                    if (row > 0) m.cells[row-1][col].bottomWall = false
+                }
+                1 -> { // Bottom
+                    cell.bottomWall = false
+                    if (row < m.height - 1) m.cells[row+1][col].topWall = false
+                }
+                2 -> { // Left
+                    cell.leftWall = false
+                    if (col > 0) m.cells[row][col-1].rightWall = false
+                }
+                3 -> { // Right
+                    cell.rightWall = false
+                    if (col < m.width - 1) m.cells[row][col+1].leftWall = false
+                }
+            }
+            _isWallSmashActive.value = false
+            // Trigger a redraw or update? MazeView handles it via reference, but we might need to notify.
+            // Actually MazeView draws every frame, so modifying the cell data is enough.
+        }
+    }
+
     private fun collectItem(item: com.appsters.unlimitedgames.games.maze.model.MazeItem) {
         when (item) {
             is com.appsters.unlimitedgames.games.maze.model.MazeItem.Artifact -> {
                 RunManager.totalMoney += item.value
-                val leveledUp = RunManager.addXP(10) // 10 XP per artifact
-                
+                // Artifacts now only give money
+                updateRunState()
+            }
+            is com.appsters.unlimitedgames.games.maze.model.MazeItem.XpOrb -> {
+                val leveledUp = RunManager.addXP(item.xpValue)
                 if (leveledUp) {
                     // Refill Stamina
                     RunManager.player.currentStamina = RunManager.player.maxStamina
                     _currentStamina.value = RunManager.player.currentStamina
-                    // Show Toast or some indicator? ViewModel shouldn't show Toast directly.
-                    // We can use a SingleLiveEvent or just let the UI observe the level change.
                 }
-                
                 updateRunState()
             }
             is com.appsters.unlimitedgames.games.maze.model.MazeItem.PowerUp -> {
@@ -227,8 +278,10 @@ class MazeViewModel : ViewModel() {
                         RunManager.player.currentStamina = RunManager.player.maxStamina
                         _currentStamina.value = RunManager.player.currentStamina
                     }
-                    else -> {
-                        // Implement other powerups later
+                    com.appsters.unlimitedgames.games.maze.model.PowerUpType.SPEED_BOOST,
+                    com.appsters.unlimitedgames.games.maze.model.PowerUpType.VISION_EXPAND -> {
+                        RunManager.player.addEffect(item)
+                        _currentVisibility.value = RunManager.player.effectiveVisibility
                     }
                 }
             }

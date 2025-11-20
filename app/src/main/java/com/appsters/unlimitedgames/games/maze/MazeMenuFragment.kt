@@ -23,9 +23,19 @@ class MazeMenuFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         val tvStats = view.findViewById<android.widget.TextView>(R.id.tv_last_run_stats)
-        tvStats.text = "Current Run: Round ${RunManager.roundNumber} - $${RunManager.totalMoney}"
+        val btnContinue = view.findViewById<Button>(R.id.btn_start_maze)
 
-        view.findViewById<Button>(R.id.btn_start_maze).setOnClickListener {
+        if (RunManager.isRunInProgress) {
+            tvStats.text = "Current Run: Round ${RunManager.roundNumber} - $${RunManager.totalMoney}"
+            btnContinue.isEnabled = true
+            btnContinue.alpha = 1.0f
+        } else {
+            tvStats.text = "No current run"
+            btnContinue.isEnabled = false
+            btnContinue.alpha = 0.5f
+        }
+
+        btnContinue.setOnClickListener {
             val intent = Intent(requireContext(), MazeGameActivity::class.java)
             startActivity(intent)
         }

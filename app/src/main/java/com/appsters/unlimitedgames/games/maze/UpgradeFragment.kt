@@ -22,6 +22,12 @@ class UpgradeFragment : DialogFragment() {
     var onMainMenuListener: (() -> Unit)? = null
     var onUpgradeListener: (() -> Unit)? = null
 
+    private var isGameOver = false
+
+    fun setGameOverState(isGameOver: Boolean) {
+        this.isGameOver = isGameOver
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -39,6 +45,14 @@ class UpgradeFragment : DialogFragment() {
         btnEfficiency = view.findViewById(com.appsters.unlimitedgames.R.id.btn_upgrade_efficiency)
         btnMainMenu = view.findViewById(com.appsters.unlimitedgames.R.id.btn_main_menu)
         btnNextLevel = view.findViewById(com.appsters.unlimitedgames.R.id.btn_next_level)
+
+        if (isGameOver) {
+            btnNextLevel.text = "New Run"
+            btnNextLevel.backgroundTintList = android.content.res.ColorStateList.valueOf(android.graphics.Color.parseColor("#FF9800")) // Orange for retry
+        } else {
+            btnNextLevel.text = "Next Level"
+            btnNextLevel.backgroundTintList = android.content.res.ColorStateList.valueOf(android.graphics.Color.parseColor("#4CAF50")) // Green for next
+        }
 
         updateUI()
 

@@ -47,7 +47,7 @@ class MazeGameActivity : AppCompatActivity() {
         viewModel.isGameOver.observe(this) { isGameOver ->
             if (isGameOver) {
                 mazeView.stopGame()
-                showGameOverDialog()
+                showUpgradeScreen(true)
             }
         }
 
@@ -55,7 +55,7 @@ class MazeGameActivity : AppCompatActivity() {
         viewModel.isLevelComplete.observe(this) { isComplete ->
             if (isComplete) {
                 mazeView.stopGame()
-                showUpgradeScreen()
+                showUpgradeScreen(false)
             }
         }
 
@@ -95,13 +95,22 @@ class MazeGameActivity : AppCompatActivity() {
         }
     }
 
-    private fun showUpgradeScreen() {
+    private fun showUpgradeScreen(isGameOver: Boolean = false) {
         val upgradeFragment = UpgradeFragment()
+        upgradeFragment.setGameOverState(isGameOver)
+        
         upgradeFragment.onUpgradeListener = {
             viewModel.updateRunState()
         }
         upgradeFragment.onNextLevelListener = {
-            com.appsters.unlimitedgames.games.maze.RunManager.nextRound()
+            if (isGameOver) {
+                // New Run
+                com.appsters.unlimitedgames.games.maze.RunManager.startNewRun()
+            } else {
+                // Next Level
+                com.appsters.unlimitedgames.games.maze.RunManager.nextRound()
+            }
+            
             viewModel.resetGame(15, 15)
             mazeView.maxSpeed = viewModel.currentMaxSpeed
             mazeView.acceleration = viewModel.currentAcceleration
@@ -118,30 +127,7 @@ class MazeGameActivity : AppCompatActivity() {
         upgradeFragment.show(supportFragmentManager, "UpgradeFragment")
     }
 
-    private fun showGameOverDialog() {
-        androidx.appcompat.app.AlertDialog.Builder(this)
-            .setTitle("Game Over")
-            .setMessage("You ran out of stamina!")
-            .setPositiveButton("Main Menu") { _, _ ->
-                finish()
-            }
-            .setNegativeButton("Try Again") { _, _ ->
-                // Reset run?
-                com.appsters.unlimitedgames.games.maze.RunManager.startNewRun()
-                viewModel.resetGame(15, 15)
-                // Sync physics again just in case
-                mazeView.maxSpeed = viewModel.currentMaxSpeed
-                mazeView.acceleration = viewModel.currentAcceleration
-                
-                // Re-apply maze to view
-                viewModel.maze?.let {
-                    mazeView.setMaze(it)
-                    mazeView.setPlayerPosition(viewModel.playerX, viewModel.playerY)
-                }
-            }
-            .setCancelable(false)
-            .show()
-    }
+
 
     override fun onPause() {
         super.onPause()

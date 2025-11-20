@@ -59,7 +59,7 @@ class UpgradeFragment : DialogFragment() {
         btnStamina.setOnClickListener {
             if (RunManager.totalMoney >= GameConfig.COST_UPGRADE_STAMINA) {
                 RunManager.totalMoney -= GameConfig.COST_UPGRADE_STAMINA
-                RunManager.maxStamina += GameConfig.UPGRADE_STAMINA_AMOUNT
+                RunManager.player.maxStamina += GameConfig.UPGRADE_STAMINA_AMOUNT
                 updateUI()
                 onUpgradeListener?.invoke()
             } else {
@@ -70,7 +70,7 @@ class UpgradeFragment : DialogFragment() {
         btnSpeed.setOnClickListener {
             if (RunManager.totalMoney >= GameConfig.COST_UPGRADE_SPEED) {
                 RunManager.totalMoney -= GameConfig.COST_UPGRADE_SPEED
-                RunManager.baseMaxSpeed += GameConfig.UPGRADE_SPEED_AMOUNT
+                RunManager.player.baseSpeed += GameConfig.UPGRADE_SPEED_AMOUNT
                 updateUI()
                 onUpgradeListener?.invoke()
             } else {
@@ -81,7 +81,7 @@ class UpgradeFragment : DialogFragment() {
         btnEfficiency.setOnClickListener {
             if (RunManager.totalMoney >= GameConfig.COST_UPGRADE_EFFICIENCY) {
                 RunManager.totalMoney -= GameConfig.COST_UPGRADE_EFFICIENCY
-                RunManager.staminaDrainRate *= GameConfig.UPGRADE_EFFICIENCY_MULTIPLIER
+                RunManager.player.staminaDrainRate *= GameConfig.UPGRADE_EFFICIENCY_MULTIPLIER
                 updateUI()
                 onUpgradeListener?.invoke()
             } else {

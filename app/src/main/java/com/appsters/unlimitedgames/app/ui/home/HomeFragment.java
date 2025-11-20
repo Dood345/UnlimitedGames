@@ -88,7 +88,10 @@ public class HomeFragment extends Fragment implements GameAdapter.OnItemClickLis
             Intent intent = new Intent(getActivity(), SudokuActivity.class);
             startActivity(intent);
         } else {
-            NavHostFragment.findNavController(this).navigate(game.getActionId());
+            androidx.navigation.NavController navController = NavHostFragment.findNavController(this);
+            if (navController.getCurrentDestination() != null && navController.getCurrentDestination().getId() == com.appsters.unlimitedgames.R.id.homeFragment) {
+                navController.navigate(game.getActionId());
+            }
         }
     }
 }

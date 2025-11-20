@@ -39,6 +39,7 @@ class MazeGameActivity : AppCompatActivity() {
         // Sync physics
         mazeView.maxSpeed = viewModel.currentMaxSpeed
         mazeView.acceleration = viewModel.currentAcceleration
+        mazeView.visibilityRadius = viewModel.visibilityRadius
 
         viewModel.maze?.let {
             mazeView.setMaze(it)
@@ -120,6 +121,7 @@ class MazeGameActivity : AppCompatActivity() {
             viewModel.resetGame(15, 15)
             mazeView.maxSpeed = viewModel.currentMaxSpeed
             mazeView.acceleration = viewModel.currentAcceleration
+            mazeView.visibilityRadius = viewModel.visibilityRadius
             
             // Re-apply maze to view
             viewModel.maze?.let {

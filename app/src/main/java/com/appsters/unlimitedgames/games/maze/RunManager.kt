@@ -8,11 +8,8 @@ object RunManager {
     var roundNumber: Int = 1
     var isRunInProgress: Boolean = false
 
-    // Base Stats (Can be upgraded)
-    var maxStamina: Float = GameConfig.BASE_MAX_STAMINA
-    var staminaDrainRate: Float = GameConfig.BASE_STAMINA_DRAIN
-    var baseMaxSpeed: Float = GameConfig.BASE_MAX_SPEED
-    var baseAcceleration: Float = GameConfig.BASE_ACCELERATION
+    // Player Instance
+    val player = com.appsters.unlimitedgames.games.maze.model.Player()
 
     fun startNewRun() {
         totalMoney = 0
@@ -22,11 +19,8 @@ object RunManager {
         isRunInProgress = true
         android.util.Log.d("RunManager", "New Run Started. Round: $roundNumber")
 
-        // Reset stats to defaults
-        maxStamina = GameConfig.BASE_MAX_STAMINA
-        staminaDrainRate = GameConfig.BASE_STAMINA_DRAIN
-        baseMaxSpeed = GameConfig.BASE_MAX_SPEED
-        baseAcceleration = GameConfig.BASE_ACCELERATION
+        // Reset player stats
+        player.reset()
 
         currentLevelXP = 0
         xpToNextLevel = GameConfig.XP_PER_LEVEL_BASE
@@ -54,14 +48,14 @@ object RunManager {
             currentLevel++
 
             // Apply Bonus
-            maxStamina += GameConfig.LEVEL_UP_STAMINA_BONUS
+            player.maxStamina += GameConfig.LEVEL_UP_STAMINA_BONUS
 
             // Calc next threshold
             xpToNextLevel = (xpToNextLevel * GameConfig.XP_SCALING_FACTOR).toInt()
 
             android.util.Log.d(
                 "RunManager",
-                "Level Up! New Level: $currentLevel, Max Stamina: $maxStamina"
+                "Level Up! New Level: $currentLevel, Max Stamina: ${player.maxStamina}"
             )
             return true
         }

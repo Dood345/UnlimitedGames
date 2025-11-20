@@ -6,6 +6,7 @@ object GameConfig {
     const val BASE_STAMINA_DRAIN = 0.5f
     const val BASE_MAX_SPEED = 0.2f
     const val BASE_ACCELERATION = 0.02f
+    const val BASE_VISIBILITY_RADIUS = 4
 
     // Upgrade Increments
     const val UPGRADE_STAMINA_AMOUNT = 10f

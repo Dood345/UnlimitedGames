@@ -17,7 +17,7 @@ class MazeViewModel : ViewModel() {
     val currentStamina: androidx.lifecycle.LiveData<Float> = _currentStamina
 
     val maxStamina: Float
-        get() = RunManager.maxStamina
+        get() = RunManager.player.maxStamina
     
     // Game State
     private val _isGameOver = androidx.lifecycle.MutableLiveData<Boolean>(false)
@@ -27,10 +27,14 @@ class MazeViewModel : ViewModel() {
     val isLevelComplete: androidx.lifecycle.LiveData<Boolean> = _isLevelComplete
 
     // Physics (Dynamic)
-    var currentMaxSpeed: Float = RunManager.baseMaxSpeed
-        private set
-    var currentAcceleration: Float = RunManager.baseAcceleration
-        private set
+    val currentMaxSpeed: Float
+        get() = RunManager.player.effectiveSpeed
+    
+    val currentAcceleration: Float
+        get() = RunManager.player.baseAcceleration
+        
+    val visibilityRadius: Int
+        get() = RunManager.player.effectiveVisibility
 
     // Run State
     private val _currentRunMoney = androidx.lifecycle.MutableLiveData<Int>(0)
@@ -82,9 +86,10 @@ class MazeViewModel : ViewModel() {
         playerY = 0.5f
         
         // Reset Stamina
-        if (_currentStamina.value == null || _currentStamina.value!! <= 0f) {
-            _currentStamina.value = maxStamina
+        if (RunManager.player.currentStamina <= 0f) {
+            RunManager.player.currentStamina = RunManager.player.maxStamina
         }
+        _currentStamina.value = RunManager.player.currentStamina
         _isGameOver.value = false
         _isLevelComplete.value = false
 
@@ -160,9 +165,14 @@ class MazeViewModel : ViewModel() {
     fun onStepTaken() {
         if (_isGameOver.value == true) return
 
+        // Tick Player Effects
+        RunManager.player.tickEffects()
+
         // Drain Stamina
-        val current = _currentStamina.value ?: 0f
-        val newStamina = current - RunManager.staminaDrainRate
+        val drain = RunManager.player.staminaDrainRate
+        RunManager.player.currentStamina -= drain
+        
+        val newStamina = RunManager.player.currentStamina
         _currentStamina.value = if (newStamina < 0) 0f else newStamina
 
         if (newStamina <= 0) {
@@ -203,7 +213,8 @@ class MazeViewModel : ViewModel() {
                 
                 if (leveledUp) {
                     // Refill Stamina
-                    _currentStamina.value = maxStamina
+                    RunManager.player.currentStamina = RunManager.player.maxStamina
+                    _currentStamina.value = RunManager.player.currentStamina
                     // Show Toast or some indicator? ViewModel shouldn't show Toast directly.
                     // We can use a SingleLiveEvent or just let the UI observe the level change.
                 }
@@ -213,7 +224,8 @@ class MazeViewModel : ViewModel() {
             is com.appsters.unlimitedgames.games.maze.model.MazeItem.PowerUp -> {
                 when (item.type) {
                     com.appsters.unlimitedgames.games.maze.model.PowerUpType.STAMINA_REFILL -> {
-                        _currentStamina.value = maxStamina
+                        RunManager.player.currentStamina = RunManager.player.maxStamina
+                        _currentStamina.value = RunManager.player.currentStamina
                     }
                     else -> {
                         // Implement other powerups later

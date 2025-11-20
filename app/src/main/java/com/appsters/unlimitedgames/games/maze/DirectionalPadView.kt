@@ -18,7 +18,7 @@ import kotlin.math.sqrt
 class DirectionalPadView(context: Context, attrs: AttributeSet?) : View(context, attrs) {
 
     interface OnDirectionalPadListener {
-        fun onDirectionChanged(dx: Int, dy: Int)
+        fun onJoystickMoved(xPercent: Float, yPercent: Float)
     }
 
     var listener: OnDirectionalPadListener? = null
@@ -49,8 +49,10 @@ class DirectionalPadView(context: Context, attrs: AttributeSet?) : View(context,
         center.set(w / 2f, h / 2f)
         thumbPos.set(center)
         val minDim = min(w, h).toFloat()
-        joystickRadius = minDim * 0.4f
-        thumbRadius = minDim * 0.15f
+        // Reduced radii to prevent clipping
+        // Total extent = 0.35 + 0.12 = 0.47 < 0.5
+        joystickRadius = minDim * 0.35f
+        thumbRadius = minDim * 0.12f
     }
 
     override fun onDraw(canvas: Canvas) {
@@ -87,7 +89,7 @@ class DirectionalPadView(context: Context, attrs: AttributeSet?) : View(context,
             MotionEvent.ACTION_CANCEL -> {
                 isTouching = false
                 thumbPos.set(center)
-                listener?.onDirectionChanged(0, 0)
+                listener?.onJoystickMoved(0f, 0f)
                 invalidate()
                 return true
             }
@@ -98,34 +100,12 @@ class DirectionalPadView(context: Context, attrs: AttributeSet?) : View(context,
     private fun updateDirection() {
         val dx = thumbPos.x - center.x
         val dy = thumbPos.y - center.y
-        val distance = sqrt(dx * dx + dy * dy)
+        
+        // Normalize to -1.0 to 1.0 based on joystickRadius
+        // This allows for analog control (variable speed if we want)
+        val xPercent = (dx / joystickRadius).coerceIn(-1f, 1f)
+        val yPercent = (dy / joystickRadius).coerceIn(-1f, 1f)
 
-        // Deadzone
-        if (distance < joystickRadius * 0.2f) {
-            listener?.onDirectionChanged(0, 0)
-            return
-        }
-
-        val angle = Math.toDegrees(atan2(dy.toDouble(), dx.toDouble()))
-        // Map angle to 4 directions
-        // Right: -45 to 45
-        // Down: 45 to 135
-        // Left: 135 to 180, -180 to -135
-        // Up: -135 to -45
-
-        var dX = 0
-        var dY = 0
-
-        if (angle >= -45 && angle < 45) {
-            dX = 1
-        } else if (angle >= 45 && angle < 135) {
-            dY = 1
-        } else if (angle >= 135 || angle < -135) {
-            dX = -1
-        } else if (angle >= -135 && angle < -45) {
-            dY = -1
-        }
-
-        listener?.onDirectionChanged(dX, dY)
+        listener?.onJoystickMoved(xPercent, yPercent)
     }
 }

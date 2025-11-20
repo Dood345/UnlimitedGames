@@ -39,6 +39,12 @@ class MazeViewModel : ViewModel() {
     private val _currentRunXP = androidx.lifecycle.MutableLiveData<Int>(0)
     val currentRunXP: androidx.lifecycle.LiveData<Int> = _currentRunXP
 
+    private val _currentLevel = androidx.lifecycle.MutableLiveData<Int>(1)
+    val currentLevel: androidx.lifecycle.LiveData<Int> = _currentLevel
+
+    private val _xpProgress = androidx.lifecycle.MutableLiveData<Pair<Int, Int>>() // Current, Max
+    val xpProgress: androidx.lifecycle.LiveData<Pair<Int, Int>> = _xpProgress
+
     private val _currentRound = androidx.lifecycle.MutableLiveData<Int>(1)
     val currentRound: androidx.lifecycle.LiveData<Int> = _currentRound
 
@@ -54,6 +60,8 @@ class MazeViewModel : ViewModel() {
         _currentRunMoney.value = RunManager.totalMoney
         _currentRunXP.value = RunManager.totalXP
         _currentRound.value = RunManager.roundNumber
+        _currentLevel.value = RunManager.currentLevel
+        _xpProgress.value = Pair(RunManager.currentLevelXP, RunManager.xpToNextLevel)
     }
 
     fun resetGame(width: Int, height: Int) {
@@ -85,34 +93,67 @@ class MazeViewModel : ViewModel() {
 
     private fun spawnItems(width: Int, height: Int) {
         val m = maze ?: return
-        // Simple spawning logic: Spawn a few items within 10 tiles of start (0,0) but not AT start.
-        // User said: "artifacts that spawn within 10 tiles from the player"
         
-        val numberOfItems = 3 // Configurable
-        var itemsSpawned = 0
-        val attempts = 0
-        val maxAttempts = 20
-
-        while (itemsSpawned < numberOfItems && attempts < maxAttempts) {
-            val rCol = (0 until width).random()
-            val rRow = (0 until height).random()
+        // BFS to find distances from (0,0)
+        val distances = Array(height) { IntArray(width) { -1 } }
+        val queue = java.util.LinkedList<Pair<Int, Int>>()
+        
+        distances[0][0] = 0
+        queue.add(Pair(0, 0))
+        
+        val validSpawnPoints = java.util.ArrayList<Pair<Int, Int>>()
+        
+        while (queue.isNotEmpty()) {
+            val (c, r) = queue.poll() ?: break
+            val dist = distances[r][c]
             
-            // Check distance (Manhattan or Euclidean? Manhattan is easier for tiles)
-            val dist = kotlin.math.abs(rCol - 0) + kotlin.math.abs(rRow - 0)
-            
-            if (dist in 2..10) { // Not at start, but within 10
-                 // Avoid walls? Items are usually inside cells.
-                 // Check if item already exists there
-                 if (m.items.none { it.x == rCol && it.y == rRow }) {
-                     // 50/50 Artifact or PowerUp
-                     if (kotlin.random.Random.nextBoolean()) {
-                         m.items.add(com.appsters.unlimitedgames.games.maze.model.MazeItem.Artifact(rCol, rRow, 10))
-                     } else {
-                         m.items.add(com.appsters.unlimitedgames.games.maze.model.MazeItem.PowerUp(rCol, rRow, com.appsters.unlimitedgames.games.maze.model.PowerUpType.STAMINA_REFILL, 0))
-                     }
-                     itemsSpawned++
-                 }
+            // Collect valid points (10-20 steps away)
+            if (dist in 10..20) {
+                validSpawnPoints.add(Pair(c, r))
             }
+            
+            // Neighbors
+            // Up
+            if (r > 0 && !m.cells[r][c].topWall && distances[r-1][c] == -1) {
+                distances[r-1][c] = dist + 1
+                queue.add(Pair(c, r-1))
+            }
+            // Down
+            if (r < height - 1 && !m.cells[r][c].bottomWall && distances[r+1][c] == -1) {
+                distances[r+1][c] = dist + 1
+                queue.add(Pair(c, r+1))
+            }
+            // Left
+            if (c > 0 && !m.cells[r][c].leftWall && distances[r][c-1] == -1) {
+                distances[r][c-1] = dist + 1
+                queue.add(Pair(c-1, r))
+            }
+            // Right
+            if (c < width - 1 && !m.cells[r][c].rightWall && distances[r][c+1] == -1) {
+                distances[r][c+1] = dist + 1
+                queue.add(Pair(c+1, r))
+            }
+        }
+        
+        // Spawn Items
+        val numberOfItems = 10 // Increased for testing
+        
+        if (validSpawnPoints.isNotEmpty()) {
+            validSpawnPoints.shuffle()
+            
+            for (i in 0 until kotlin.math.min(numberOfItems, validSpawnPoints.size)) {
+                val (c, r) = validSpawnPoints[i]
+                
+                // 50/50 Artifact or PowerUp
+                if (kotlin.random.Random.nextBoolean()) {
+                    m.items.add(com.appsters.unlimitedgames.games.maze.model.MazeItem.Artifact(c, r, 10))
+                } else {
+                    m.items.add(com.appsters.unlimitedgames.games.maze.model.MazeItem.PowerUp(c, r, com.appsters.unlimitedgames.games.maze.model.PowerUpType.STAMINA_REFILL, 0))
+                }
+            }
+        } else {
+            android.util.Log.w("MazeViewModel", "No valid spawn points found within 10-20 steps!")
+            // Fallback?
         }
     }
 
@@ -158,7 +199,15 @@ class MazeViewModel : ViewModel() {
         when (item) {
             is com.appsters.unlimitedgames.games.maze.model.MazeItem.Artifact -> {
                 RunManager.totalMoney += item.value
-                RunManager.totalXP += 10 // Arbitrary XP
+                val leveledUp = RunManager.addXP(10) // 10 XP per artifact
+                
+                if (leveledUp) {
+                    // Refill Stamina
+                    _currentStamina.value = maxStamina
+                    // Show Toast or some indicator? ViewModel shouldn't show Toast directly.
+                    // We can use a SingleLiveEvent or just let the UI observe the level change.
+                }
+                
                 updateRunState()
             }
             is com.appsters.unlimitedgames.games.maze.model.MazeItem.PowerUp -> {

@@ -21,17 +21,50 @@ object RunManager {
         roundNumber = 1
         isRunInProgress = true
         android.util.Log.d("RunManager", "New Run Started. Round: $roundNumber")
-        
+
         // Reset stats to defaults
         maxStamina = GameConfig.BASE_MAX_STAMINA
         staminaDrainRate = GameConfig.BASE_STAMINA_DRAIN
         baseMaxSpeed = GameConfig.BASE_MAX_SPEED
         baseAcceleration = GameConfig.BASE_ACCELERATION
+
+        currentLevelXP = 0
+        xpToNextLevel = GameConfig.XP_PER_LEVEL_BASE
     }
 
     fun nextRound() {
         roundNumber++
         android.util.Log.d("RunManager", "Round incremented to: $roundNumber")
         // Potential difficulty scaling here
+    }
+
+    fun addXP(amount: Int): Boolean {
+        totalXP += amount
+        currentLevelXP += amount
+        return checkLevelUp()
+    }
+
+    // Internal tracker for bar progress
+    var currentLevelXP: Int = 0
+    var xpToNextLevel: Int = GameConfig.XP_PER_LEVEL_BASE
+
+    private fun checkLevelUp(): Boolean {
+        if (currentLevelXP >= xpToNextLevel) {
+            currentLevelXP -= xpToNextLevel
+            currentLevel++
+
+            // Apply Bonus
+            maxStamina += GameConfig.LEVEL_UP_STAMINA_BONUS
+
+            // Calc next threshold
+            xpToNextLevel = (xpToNextLevel * GameConfig.XP_SCALING_FACTOR).toInt()
+
+            android.util.Log.d(
+                "RunManager",
+                "Level Up! New Level: $currentLevel, Max Stamina: $maxStamina"
+            )
+            return true
+        }
+        return false
     }
 }

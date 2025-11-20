@@ -17,6 +17,11 @@ object GameConfig {
     const val COST_UPGRADE_SPEED = 100
     const val COST_UPGRADE_EFFICIENCY = 75
 
+    // XP & Leveling
+    const val XP_PER_LEVEL_BASE = 30
+    const val XP_SCALING_FACTOR = 1.5f // Next level needs 1.5x previous XP
+    const val LEVEL_UP_STAMINA_BONUS = 5f
+
     // Gameplay
     const val MAZE_WIDTH = 15
     const val MAZE_HEIGHT = 15

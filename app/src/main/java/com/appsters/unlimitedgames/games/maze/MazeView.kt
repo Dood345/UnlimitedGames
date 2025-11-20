@@ -24,10 +24,8 @@ class MazeView(context: Context, attrs: AttributeSet?) : View(context, attrs) {
     private var playerVY = 0f
 
     // Input state
-    var isPressingUp = false
-    var isPressingDown = false
-    var isPressingLeft = false
-    var isPressingRight = false
+    var inputX = 0f
+    var inputY = 0f
 
     private var exitCol = 0
     private var exitRow = 0
@@ -123,11 +121,10 @@ class MazeView(context: Context, attrs: AttributeSet?) : View(context, attrs) {
     private fun update() {
         val currentMaze = maze ?: return
 
-        // Apply input
-        if (isPressingUp) playerVY -= acceleration
-        if (isPressingDown) playerVY += acceleration
-        if (isPressingLeft) playerVX -= acceleration
-        if (isPressingRight) playerVX += acceleration
+        // Apply input (Analog)
+        // Deadzone check is done in Joystick, but we can double check
+        if (kotlin.math.abs(inputX) > 0.01f) playerVX += inputX * acceleration
+        if (kotlin.math.abs(inputY) > 0.01f) playerVY += inputY * acceleration
 
         // Clamp to max speed
         val speed = sqrt(playerVX * playerVX + playerVY * playerVY)

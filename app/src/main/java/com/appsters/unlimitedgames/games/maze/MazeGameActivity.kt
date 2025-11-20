@@ -18,6 +18,7 @@ class MazeGameActivity : AppCompatActivity() {
     private lateinit var tvRound: android.widget.TextView
 
     private lateinit var tvStaminaValue: android.widget.TextView
+    private lateinit var tvLevel: android.widget.TextView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -30,6 +31,7 @@ class MazeGameActivity : AppCompatActivity() {
         tvMoney = findViewById(R.id.tv_money)
         tvRound = findViewById(R.id.tv_round)
         tvStaminaValue = findViewById(R.id.tv_stamina_value)
+        tvLevel = findViewById(R.id.tv_level)
 
         viewModel = androidx.lifecycle.ViewModelProvider(this)[MazeViewModel::class.java]
         viewModel.generateMaze(15, 15)
@@ -71,12 +73,18 @@ class MazeGameActivity : AppCompatActivity() {
             android.util.Log.d("MazeGame", "Money Updated: $money")
             tvMoney.text = "Money: $$money"
         }
-        viewModel.currentRunXP.observe(this) { xp ->
-            android.util.Log.d("MazeGame", "XP Updated: $xp")
-            pbXP.progress = xp % 100 // Simple level up logic for now
+        
+        viewModel.xpProgress.observe(this) { (current, max) ->
+            pbXP.max = max
+            pbXP.progress = current
         }
+        
+        viewModel.currentLevel.observe(this) { level ->
+             tvLevel.text = "Level: $level"
+        }
+
         viewModel.currentRound.observe(this) { round ->
-            tvRound.text = "Round: $round"
+             tvRound.text = "Round: $round"
         }
 
         mazeView.onTileChangedListener = {
@@ -86,11 +94,9 @@ class MazeGameActivity : AppCompatActivity() {
         }
 
         dPad.listener = object : DirectionalPadView.OnDirectionalPadListener {
-            override fun onDirectionChanged(dx: Int, dy: Int) {
-                mazeView.isPressingUp = dy == -1
-                mazeView.isPressingDown = dy == 1
-                mazeView.isPressingLeft = dx == -1
-                mazeView.isPressingRight = dx == 1
+            override fun onJoystickMoved(xPercent: Float, yPercent: Float) {
+                mazeView.inputX = xPercent
+                mazeView.inputY = yPercent
             }
         }
     }
@@ -127,8 +133,6 @@ class MazeGameActivity : AppCompatActivity() {
         upgradeFragment.show(supportFragmentManager, "UpgradeFragment")
     }
 
-
-
     override fun onPause() {
         super.onPause()
         viewModel.playerX = mazeView.playerX
@@ -137,10 +141,10 @@ class MazeGameActivity : AppCompatActivity() {
 
     override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
         when (keyCode) {
-            KeyEvent.KEYCODE_DPAD_UP -> mazeView.isPressingUp = true
-            KeyEvent.KEYCODE_DPAD_DOWN -> mazeView.isPressingDown = true
-            KeyEvent.KEYCODE_DPAD_LEFT -> mazeView.isPressingLeft = true
-            KeyEvent.KEYCODE_DPAD_RIGHT -> mazeView.isPressingRight = true
+            KeyEvent.KEYCODE_DPAD_UP -> mazeView.inputY = -1f
+            KeyEvent.KEYCODE_DPAD_DOWN -> mazeView.inputY = 1f
+            KeyEvent.KEYCODE_DPAD_LEFT -> mazeView.inputX = -1f
+            KeyEvent.KEYCODE_DPAD_RIGHT -> mazeView.inputX = 1f
             else -> return super.onKeyDown(keyCode, event)
         }
         return true
@@ -148,10 +152,8 @@ class MazeGameActivity : AppCompatActivity() {
 
     override fun onKeyUp(keyCode: Int, event: KeyEvent?): Boolean {
         when (keyCode) {
-            KeyEvent.KEYCODE_DPAD_UP -> mazeView.isPressingUp = false
-            KeyEvent.KEYCODE_DPAD_DOWN -> mazeView.isPressingDown = false
-            KeyEvent.KEYCODE_DPAD_LEFT -> mazeView.isPressingLeft = false
-            KeyEvent.KEYCODE_DPAD_RIGHT -> mazeView.isPressingRight = false
+            KeyEvent.KEYCODE_DPAD_UP, KeyEvent.KEYCODE_DPAD_DOWN -> mazeView.inputY = 0f
+            KeyEvent.KEYCODE_DPAD_LEFT, KeyEvent.KEYCODE_DPAD_RIGHT -> mazeView.inputX = 0f
             else -> return super.onKeyUp(keyCode, event)
         }
         return true

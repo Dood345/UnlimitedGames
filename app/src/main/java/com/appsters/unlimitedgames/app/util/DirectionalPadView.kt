@@ -1,4 +1,4 @@
-package com.appsters.unlimitedgames.games.maze
+package com.appsters.unlimitedgames.app.util
 
 import android.content.Context
 import android.graphics.Canvas
@@ -9,10 +9,7 @@ import android.view.MotionEvent
 import android.view.View
 import androidx.core.content.ContextCompat
 import com.appsters.unlimitedgames.R
-import kotlin.math.atan2
-import kotlin.math.cos
 import kotlin.math.min
-import kotlin.math.sin
 import kotlin.math.sqrt
 
 class DirectionalPadView(context: Context, attrs: AttributeSet?) : View(context, attrs) {
@@ -59,7 +56,7 @@ class DirectionalPadView(context: Context, attrs: AttributeSet?) : View(context,
         super.onDraw(canvas)
         // Draw Base
         canvas.drawCircle(center.x, center.y, joystickRadius, basePaint)
-        
+
         // Draw Thumb
         canvas.drawCircle(thumbPos.x, thumbPos.y, thumbRadius, thumbPaint)
     }
@@ -100,7 +97,7 @@ class DirectionalPadView(context: Context, attrs: AttributeSet?) : View(context,
     private fun updateDirection() {
         val dx = thumbPos.x - center.x
         val dy = thumbPos.y - center.y
-        
+
         // Normalize to -1.0 to 1.0 based on joystickRadius
         // This allows for analog control (variable speed if we want)
         val xPercent = (dx / joystickRadius).coerceIn(-1f, 1f)

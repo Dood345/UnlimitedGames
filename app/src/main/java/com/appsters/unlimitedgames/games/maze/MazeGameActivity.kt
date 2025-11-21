@@ -5,7 +5,9 @@ import android.view.KeyEvent
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.fragment.NavHostFragment
 import com.appsters.unlimitedgames.R
+import com.appsters.unlimitedgames.app.util.DirectionalPadView
 import com.appsters.unlimitedgames.games.maze.controller.RunManager
+import com.appsters.unlimitedgames.games.maze.view.MazeView
 
 import nl.dionsegijn.konfetti.xml.KonfettiView
 import nl.dionsegijn.konfetti.core.Party

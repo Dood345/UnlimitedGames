@@ -1,13 +1,20 @@
-package com.appsters.unlimitedgames.games.maze
+package com.appsters.unlimitedgames.games.maze.view
 
 import android.content.Context
 import android.graphics.Canvas
+import android.graphics.Color
 import android.graphics.Paint
+import android.graphics.PointF
+import android.graphics.RadialGradient
+import android.graphics.Shader
 import android.util.AttributeSet
 import android.view.View
 import androidx.core.content.ContextCompat
 import com.appsters.unlimitedgames.R
 import com.appsters.unlimitedgames.games.maze.model.Maze
+import com.appsters.unlimitedgames.games.maze.model.MazeItem
+import com.appsters.unlimitedgames.games.maze.model.PowerUpType
+import java.util.LinkedList
 import kotlin.math.abs
 import kotlin.math.sqrt
 
@@ -46,13 +53,13 @@ class MazeView(context: Context, attrs: AttributeSet?) : View(context, attrs) {
     private val FRICTION = 0.94f
 
     private var lastFrameTime = 0L
-    
+
     private val gameLoop = object : Runnable {
         override fun run() {
             val now = System.currentTimeMillis()
             val dt = if (lastFrameTime > 0) now - lastFrameTime else 16L
             lastFrameTime = now
-            
+
             update(dt)
             invalidate()
             postOnAnimation(this)
@@ -116,7 +123,7 @@ class MazeView(context: Context, attrs: AttributeSet?) : View(context, attrs) {
 
     // Visual Mechanics
     var visibilityRadius = 4 // In tiles
-    private val trailPoints = java.util.LinkedList<android.graphics.PointF>()
+    private val trailPoints = LinkedList<PointF>()
     private val maxTrailLength = 20
     private val trailPaint = Paint().apply {
         color = ContextCompat.getColor(context, R.color.maze_player_color)
@@ -124,12 +131,12 @@ class MazeView(context: Context, attrs: AttributeSet?) : View(context, attrs) {
         style = Paint.Style.STROKE
         strokeCap = Paint.Cap.ROUND
     }
-    private val artifactPaint = Paint().apply { color = android.graphics.Color.YELLOW }
-    private val xpPaint = Paint().apply { color = android.graphics.Color.parseColor("#00FFFF") } // Cyan for XP
-    private val speedPaint = Paint().apply { color = android.graphics.Color.RED }
-    private val visionPaint = Paint().apply { color = android.graphics.Color.MAGENTA } // Purple-ish
-    private val staminaPaint = Paint().apply { color = android.graphics.Color.GREEN }
-    private val fogPaint = Paint().apply { color = android.graphics.Color.BLACK } // Fog color
+    private val artifactPaint = Paint().apply { color = Color.YELLOW }
+    private val xpPaint = Paint().apply { color = Color.parseColor("#00FFFF") } // Cyan for XP
+    private val speedPaint = Paint().apply { color = Color.RED }
+    private val visionPaint = Paint().apply { color = Color.MAGENTA } // Purple-ish
+    private val staminaPaint = Paint().apply { color = Color.GREEN }
+    private val fogPaint = Paint().apply { color = Color.BLACK } // Fog color
     private val vignettePaint = Paint()
 
     private fun update(dt: Long) {
@@ -138,8 +145,8 @@ class MazeView(context: Context, attrs: AttributeSet?) : View(context, attrs) {
 
         // Apply input (Analog)
         // Deadzone check is done in Joystick, but we can double check
-        if (kotlin.math.abs(inputX) > 0.01f) playerVX += inputX * acceleration
-        if (kotlin.math.abs(inputY) > 0.01f) playerVY += inputY * acceleration
+        if (abs(inputX) > 0.01f) playerVX += inputX * acceleration
+        if (abs(inputY) > 0.01f) playerVY += inputY * acceleration
 
         // Clamp to max speed
         val speed = sqrt(playerVX * playerVX + playerVY * playerVY)
@@ -158,7 +165,7 @@ class MazeView(context: Context, attrs: AttributeSet?) : View(context, attrs) {
 
         // Update Trail
         if (speed > 0.01f) {
-            trailPoints.add(android.graphics.PointF(playerX, playerY))
+            trailPoints.add(PointF(playerX, playerY))
             if (trailPoints.size > maxTrailLength) {
                 trailPoints.removeFirst()
             }
@@ -335,17 +342,17 @@ class MazeView(context: Context, attrs: AttributeSet?) : View(context, attrs) {
                     val cx = (item.x + 0.5f) * cellSize
                     val cy = (item.y + 0.5f) * cellSize
                     val paint = when (item) {
-                        is com.appsters.unlimitedgames.games.maze.model.MazeItem.Artifact -> artifactPaint
-                        is com.appsters.unlimitedgames.games.maze.model.MazeItem.XpOrb -> xpPaint
-                        is com.appsters.unlimitedgames.games.maze.model.MazeItem.PowerUp -> {
+                        is MazeItem.Artifact -> artifactPaint
+                        is MazeItem.XpOrb -> xpPaint
+                        is MazeItem.PowerUp -> {
                             when (item.type) {
-                                com.appsters.unlimitedgames.games.maze.model.PowerUpType.STAMINA_REFILL -> staminaPaint
-                                com.appsters.unlimitedgames.games.maze.model.PowerUpType.SPEED_BOOST -> speedPaint
-                                com.appsters.unlimitedgames.games.maze.model.PowerUpType.VISION_EXPAND -> visionPaint
+                                PowerUpType.STAMINA_REFILL -> staminaPaint
+                                PowerUpType.SPEED_BOOST -> speedPaint
+                                PowerUpType.VISION_EXPAND -> visionPaint
                             }
                         }
                     }
-                    
+
                     canvas.drawRect(cx - cellSize/4, cy - cellSize/4, cx + cellSize/4, cy + cellSize/4, paint)
                 }
             }
@@ -375,12 +382,12 @@ class MazeView(context: Context, attrs: AttributeSet?) : View(context, attrs) {
             // Draw Vignette
             // Radius tracks player vision: Vision Radius - 2
             val vignetteRadius = (visibilityRadius + 0f).coerceAtLeast(1.0f) * cellSize
-            val gradient = android.graphics.RadialGradient(
+            val gradient = RadialGradient(
                 playerDrawX, playerDrawY,
                 vignetteRadius,
-                intArrayOf(android.graphics.Color.TRANSPARENT, android.graphics.Color.parseColor("#CC000000")),
+                intArrayOf(Color.TRANSPARENT, Color.parseColor("#CC000000")),
                 floatArrayOf(0.3f, 1.0f),
-                android.graphics.Shader.TileMode.CLAMP
+                Shader.TileMode.CLAMP
             )
             vignettePaint.shader = gradient
             // Draw rect covering the whole screen (relative to translated canvas)

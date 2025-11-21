@@ -14,7 +14,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModelProvider
 import com.appsters.unlimitedgames.R
-import com.appsters.unlimitedgames.app.ui.util.TypewriterView
+import com.appsters.unlimitedgames.app.util.TypewriterView
 import com.appsters.unlimitedgames.games.sudoku.model.Score
 import com.appsters.unlimitedgames.games.sudoku.repository.SudokuRepository
 import com.appsters.unlimitedgames.games.sudoku.view.SudokuBoardView

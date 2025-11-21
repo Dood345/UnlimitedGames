@@ -39,7 +39,7 @@ class Maze(val width: Int, val height: Int) {
                 current.isVisited = true
                 visitedCount++
             } else if (stack.isNotEmpty()) {
-                current = stack.removeLast()
+                current = stack.removeAt(stack.lastIndex)
             }
         }
     }

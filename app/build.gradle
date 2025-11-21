@@ -58,6 +58,8 @@ dependencies {
     implementation libs.firebase.auth
     implementation libs.material
     implementation libs.play.services.mlkit.barcode.scanning
+    implementation libs.konfetti.xml
+    implementation libs.konfetti.core
     testImplementation libs.junit
     androidTestImplementation libs.androidx.junit
     androidTestImplementation libs.androidx.espresso.core

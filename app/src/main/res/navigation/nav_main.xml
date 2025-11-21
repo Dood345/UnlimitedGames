@@ -31,6 +31,9 @@
         <action
             android:id="@+id/action_homeFragment_to_NFLQuizFragment"
             app:destination="@id/NFLQuizFragment" />
+        <action
+            android:id="@+id/action_homeFragment_to_mazeMenuFragment"
+            app:destination="@id/mazeMenuFragment" />
     </fragment>
 
     <fragment
@@ -73,16 +76,23 @@
         android:label="Poker"
         tools:layout="@layout/fragment_poker" />
 
+<!--    unused, handled by home fragment-->
     <fragment
         android:id="@+id/sudokuFragment"
-        android:name="com.appsters.unlimitedgames.games.sudoku.SudokuFragment"
+        android:name="com.appsters.unlimitedgames.games.sudoku.SudokuMenuFragment"
         android:label="Sudoku"
-        tools:layout="@layout/fragment_sudoku" />
+        tools:layout="@layout/fragment_sudoku_menu" />
 
     <fragment
         android:id="@+id/NFLQuizFragment"
         android:name="com.appsters.unlimitedgames.games.nflquiz.NFLQuizFragment"
         android:label="NFL Quiz"
         tools:layout="@layout/fragment_nfl_quiz" />
+
+    <fragment
+        android:id="@+id/mazeMenuFragment"
+        android:name="com.appsters.unlimitedgames.games.maze.MazeMenuFragment"
+        android:label="Maze"
+        tools:layout="@layout/fragment_maze_menu" />
 
 </navigation>

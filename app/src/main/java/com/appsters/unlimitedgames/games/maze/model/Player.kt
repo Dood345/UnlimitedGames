@@ -14,7 +14,7 @@ class Player {
     var currentStamina: Float = maxStamina
     var skillPoints: Int = 0
     var isWallSmashUnlocked: Boolean = false
-    private val activeEffects = mutableListOf<ActiveEffect>()
+    val activeEffects = mutableListOf<ActiveEffect>()
 
     data class ActiveEffect(val type: PowerUpType, var remainingDuration: Long)
 
@@ -54,26 +54,19 @@ class Player {
     }
 
     fun addEffect(effect: MazeItem.PowerUp) {
-        // Check if effect of same type exists
-        val existing = activeEffects.find { it.type == effect.type }
-        if (existing != null) {
-            // Extend duration (Max of current remaining or new duration? Or just add?)
-            // Let's just reset to max duration for simplicity
-            existing.remainingDuration = kotlin.math.max(existing.remainingDuration, effect.durationMs)
-        } else {
-            activeEffects.add(ActiveEffect(effect.type, effect.durationMs))
-        }
+        // Allow stacking of effects (e.g. multiple vision boosts)
+        activeEffects.add(ActiveEffect(effect.type, effect.durationMs))
     }
 
     fun clearEffects() {
         activeEffects.clear()
     }
 
-    fun tickEffects() {
+    fun tickEffects(dt: Long) {
         val iterator = activeEffects.iterator()
         while (iterator.hasNext()) {
             val effect = iterator.next()
-            effect.remainingDuration -= 16 // Approx 60 FPS (16ms per frame)
+            effect.remainingDuration -= dt
             if (effect.remainingDuration <= 0) {
                 iterator.remove()
             }

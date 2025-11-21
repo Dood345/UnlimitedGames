@@ -45,9 +45,15 @@ class MazeView(context: Context, attrs: AttributeSet?) : View(context, attrs) {
     var acceleration = 0.02f
     private val FRICTION = 0.94f
 
+    private var lastFrameTime = 0L
+    
     private val gameLoop = object : Runnable {
         override fun run() {
-            update()
+            val now = System.currentTimeMillis()
+            val dt = if (lastFrameTime > 0) now - lastFrameTime else 16L
+            lastFrameTime = now
+            
+            update(dt)
             invalidate()
             postOnAnimation(this)
         }
@@ -71,6 +77,7 @@ class MazeView(context: Context, attrs: AttributeSet?) : View(context, attrs) {
         lastRow = playerY.toInt()
 
         removeCallbacks(gameLoop)
+        lastFrameTime = 0L
         postOnAnimation(gameLoop)
 
         invalidate()
@@ -86,6 +93,7 @@ class MazeView(context: Context, attrs: AttributeSet?) : View(context, attrs) {
         super.onAttachedToWindow()
         if (maze != null) {
             removeCallbacks(gameLoop)
+            lastFrameTime = 0L
             postOnAnimation(gameLoop)
         }
     }
@@ -101,6 +109,7 @@ class MazeView(context: Context, attrs: AttributeSet?) : View(context, attrs) {
 
     // Listener for tile changes (steps)
     var onTileChangedListener: (() -> Unit)? = null
+    var onUpdateListener: ((dt: Long) -> Unit)? = null
     var onWallCollisionListener: ((col: Int, row: Int, wallType: Int) -> Unit)? = null // 0=Top, 1=Bottom, 2=Left, 3=Right
     private var lastCol = 0
     private var lastRow = 0
@@ -123,7 +132,8 @@ class MazeView(context: Context, attrs: AttributeSet?) : View(context, attrs) {
     private val fogPaint = Paint().apply { color = android.graphics.Color.BLACK } // Fog color
     private val vignettePaint = Paint()
 
-    private fun update() {
+    private fun update(dt: Long) {
+        onUpdateListener?.invoke(dt)
         val currentMaze = maze ?: return
 
         // Apply input (Analog)

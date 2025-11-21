@@ -42,7 +42,17 @@ class MazeGameActivity : AppCompatActivity() {
         konfettiView = findViewById(R.id.konfettiView)
 
         viewModel = androidx.lifecycle.ViewModelProvider(this)[MazeViewModel::class.java]
-        viewModel.generateMaze(15, 15)
+
+        if (intent.getBooleanExtra("EXTRA_CONTINUE_RUN", false)) {
+            val savedState = RunManager.loadGame(this)
+            if (savedState != null) {
+                viewModel.restoreMazeState(savedState)
+            } else {
+                viewModel.generateMaze(15, 15)
+            }
+        } else {
+            viewModel.generateMaze(15, 15)
+        }
 
         // Sync physics
         mazeView.maxSpeed = viewModel.currentMaxSpeed
@@ -106,6 +116,10 @@ class MazeGameActivity : AppCompatActivity() {
             viewModel.playerY = mazeView.playerY
             viewModel.onStepTaken()
         }
+        
+        mazeView.onUpdateListener = { dt ->
+            viewModel.onGameUpdate(dt)
+        }
 
         dPad.listener = object : DirectionalPadView.OnDirectionalPadListener {
             override fun onJoystickMoved(xPercent: Float, yPercent: Float) {
@@ -117,11 +131,7 @@ class MazeGameActivity : AppCompatActivity() {
         val fabWallSmash: com.google.android.material.floatingactionbutton.FloatingActionButton = findViewById(R.id.fab_wall_smash)
         
         // Wall Smash Logic
-        if (com.appsters.unlimitedgames.games.maze.RunManager.player.isWallSmashUnlocked) {
-            fabWallSmash.visibility = android.view.View.VISIBLE
-        } else {
-            fabWallSmash.visibility = android.view.View.GONE
-        }
+        updateSkillUI()
         
         fabWallSmash.setOnClickListener {
             viewModel.activateWallSmash()
@@ -174,10 +184,17 @@ class MazeGameActivity : AppCompatActivity() {
             // Re-apply maze to view
             viewModel.maze?.let {
                 mazeView.setMaze(it)
+                mazeView.setMaze(it)
                 mazeView.setPlayerPosition(viewModel.playerX, viewModel.playerY)
             }
+            
+            // Update UI for new skills
+            updateSkillUI()
         }
         upgradeFragment.onMainMenuListener = {
+            if (!isGameOver) {
+                com.appsters.unlimitedgames.games.maze.RunManager.nextRound()
+            }
             finish()
         }
         upgradeFragment.show(supportFragmentManager, "UpgradeFragment")
@@ -187,6 +204,14 @@ class MazeGameActivity : AppCompatActivity() {
         super.onPause()
         viewModel.playerX = mazeView.playerX
         viewModel.playerY = mazeView.playerY
+        
+        // Save Game
+        // We save even if finishing (Back button), unless it's a game over which handles its own state.
+        // RunManager.isRunInProgress should be the source of truth.
+        if (RunManager.isRunInProgress) {
+             val mazeState = if (viewModel.isLevelComplete.value == true) null else viewModel.serializeMazeState()
+             RunManager.saveGame(this, mazeState)
+        }
     }
 
     override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
@@ -220,5 +245,14 @@ class MazeGameActivity : AppCompatActivity() {
             position = Position.Relative(0.5, 0.3)
         )
         konfettiView.start(party)
+    }
+
+    private fun updateSkillUI() {
+        val fabWallSmash: com.google.android.material.floatingactionbutton.FloatingActionButton = findViewById(R.id.fab_wall_smash)
+        if (com.appsters.unlimitedgames.games.maze.RunManager.player.isWallSmashUnlocked) {
+            fabWallSmash.visibility = android.view.View.VISIBLE
+        } else {
+            fabWallSmash.visibility = android.view.View.GONE
+        }
     }
 }

@@ -161,7 +161,7 @@ class MazeViewModel : ViewModel() {
                     m.items.add(com.appsters.unlimitedgames.games.maze.model.MazeItem.XpOrb(c, r, 15))
                 } else { // 30% PowerUp
                     val type = com.appsters.unlimitedgames.games.maze.model.PowerUpType.values().random()
-                    val duration = if (type == com.appsters.unlimitedgames.games.maze.model.PowerUpType.STAMINA_REFILL) 0L else 10000L // 10 seconds
+                    val duration = if (type == com.appsters.unlimitedgames.games.maze.model.PowerUpType.STAMINA_REFILL) 0L else 15000L // 15 seconds
                     m.items.add(com.appsters.unlimitedgames.games.maze.model.MazeItem.PowerUp(c, r, type, duration))
                 }
             }
@@ -173,9 +173,9 @@ class MazeViewModel : ViewModel() {
     fun onStepTaken() {
         if (_isGameOver.value == true) return
 
-        // Tick Player Effects
-        RunManager.player.tickEffects()
-        _currentVisibility.value = RunManager.player.effectiveVisibility
+        // Tick Player Effects - Moved to onGameUpdate
+        // RunManager.player.tickEffects()
+        // _currentVisibility.value = RunManager.player.effectiveVisibility
 
         // Drain Stamina
         val drain = RunManager.player.staminaDrainRate
@@ -212,6 +212,13 @@ class MazeViewModel : ViewModel() {
         } else {
             // android.util.Log.d("MazeViewModel", "Not Exit: ($pCol, $pRow) vs (${m.width - 1}, ${m.height - 1})")
         }
+    }
+    
+    fun onGameUpdate(dt: Long) {
+        if (_isGameOver.value == true) return
+        
+        RunManager.player.tickEffects(dt)
+        _currentVisibility.value = RunManager.player.effectiveVisibility
     }
 
     // Skills
@@ -286,5 +293,138 @@ class MazeViewModel : ViewModel() {
                 }
             }
         }
+    }
+    fun serializeMazeState(): org.json.JSONObject {
+        val root = org.json.JSONObject()
+        val m = maze ?: return root
+
+        // Player Pos
+        root.put("playerX", playerX.toDouble())
+        root.put("playerY", playerY.toDouble())
+
+        // Maze Dimensions
+        root.put("width", m.width)
+        root.put("height", m.height)
+
+        // Cells
+        val cellsArray = org.json.JSONArray()
+        for (r in 0 until m.height) {
+            val rowArray = org.json.JSONArray()
+            for (c in 0 until m.width) {
+                val cell = m.cells[r][c]
+                val cellObj = org.json.JSONObject()
+                // Bitmask for walls: Top(1), Bottom(2), Left(4), Right(8)
+                var walls = 0
+                if (cell.topWall) walls = walls or 1
+                if (cell.bottomWall) walls = walls or 2
+                if (cell.leftWall) walls = walls or 4
+                if (cell.rightWall) walls = walls or 8
+                
+                cellObj.put("w", walls)
+                if (cell.isVisited) cellObj.put("v", true)
+                if (cell.isRevealed) cellObj.put("r", true)
+                rowArray.put(cellObj)
+            }
+            cellsArray.put(rowArray)
+        }
+        root.put("cells", cellsArray)
+
+        // Items
+        val itemsArray = org.json.JSONArray()
+        for (item in m.items) {
+            val itemObj = org.json.JSONObject()
+            itemObj.put("x", item.x)
+            itemObj.put("y", item.y)
+            
+            when (item) {
+                is com.appsters.unlimitedgames.games.maze.model.MazeItem.Artifact -> {
+                    itemObj.put("type", "artifact")
+                    itemObj.put("val", item.value)
+                }
+                is com.appsters.unlimitedgames.games.maze.model.MazeItem.XpOrb -> {
+                    itemObj.put("type", "xp")
+                    itemObj.put("val", item.xpValue)
+                }
+                is com.appsters.unlimitedgames.games.maze.model.MazeItem.PowerUp -> {
+                    itemObj.put("type", "powerup")
+                    itemObj.put("ptype", item.type.name)
+                    itemObj.put("dur", item.durationMs)
+                }
+            }
+            itemsArray.put(itemObj)
+        }
+        root.put("items", itemsArray)
+
+        return root
+    }
+
+    fun restoreMazeState(json: org.json.JSONObject) {
+        val width = json.optInt("width", 15)
+        val height = json.optInt("height", 15)
+        
+        val newMaze = Maze(width, height)
+        
+        // Restore Cells
+        val cellsArray = json.optJSONArray("cells")
+        if (cellsArray != null) {
+            for (r in 0 until height) {
+                val rowArray = cellsArray.optJSONArray(r) ?: continue
+                for (c in 0 until width) {
+                    val cellObj = rowArray.optJSONObject(c) ?: continue
+                    val cell = newMaze.cells[r][c]
+                    
+                    val walls = cellObj.optInt("w", 15)
+                    cell.topWall = (walls and 1) != 0
+                    cell.bottomWall = (walls and 2) != 0
+                    cell.leftWall = (walls and 4) != 0
+                    cell.rightWall = (walls and 8) != 0
+                    
+                    cell.isVisited = cellObj.optBoolean("v", false)
+                    cell.isRevealed = cellObj.optBoolean("r", false)
+                }
+            }
+        }
+        
+        // Restore Items
+        newMaze.items.clear()
+        val itemsArray = json.optJSONArray("items")
+        if (itemsArray != null) {
+            for (i in 0 until itemsArray.length()) {
+                val itemObj = itemsArray.optJSONObject(i) ?: continue
+                val x = itemObj.optInt("x")
+                val y = itemObj.optInt("y")
+                val type = itemObj.optString("type")
+                
+                when (type) {
+                    "artifact" -> {
+                        newMaze.items.add(com.appsters.unlimitedgames.games.maze.model.MazeItem.Artifact(x, y, itemObj.optInt("val")))
+                    }
+                    "xp" -> {
+                        newMaze.items.add(com.appsters.unlimitedgames.games.maze.model.MazeItem.XpOrb(x, y, itemObj.optInt("val")))
+                    }
+                    "powerup" -> {
+                        val pTypeName = itemObj.optString("ptype")
+                        val duration = itemObj.optLong("dur")
+                        try {
+                            val pType = com.appsters.unlimitedgames.games.maze.model.PowerUpType.valueOf(pTypeName)
+                            newMaze.items.add(com.appsters.unlimitedgames.games.maze.model.MazeItem.PowerUp(x, y, pType, duration))
+                        } catch (e: Exception) {
+                            // Ignore invalid enum
+                        }
+                    }
+                }
+            }
+        }
+        
+        maze = newMaze
+        
+        // Restore Player Pos
+        playerX = json.optDouble("playerX", 0.5).toFloat()
+        playerY = json.optDouble("playerY", 0.5).toFloat()
+        
+        // Sync UI
+        _currentStamina.value = RunManager.player.currentStamina
+        _currentVisibility.value = RunManager.player.effectiveVisibility
+        updateRunState()
     }
 }

@@ -52,11 +52,16 @@ class SudokuMenuFragment : Fragment() {
 
     private fun checkSavedGame(difficulty: Difficulty) {
         val resumeButton = view?.findViewById<Button>(R.id.btn_resume_game)
-        if (repository.hasSavedGame(difficulty)) {
+        val savedState = repository.getSavedGameState(difficulty)
+
+        if (savedState != null) {
+            val mode = if (savedState.isRanked) "Ranked" else "Free Play"
+            resumeButton?.text = "Resume Game ($mode)"
             resumeButton?.isEnabled = true
             resumeButton?.alpha = 1.0f
             resumeButton?.setOnClickListener { resumeGame(difficulty) }
         } else {
+            resumeButton?.text = "Resume Game"
             resumeButton?.isEnabled = false
             resumeButton?.alpha = 0.5f
             resumeButton?.setOnClickListener(null)

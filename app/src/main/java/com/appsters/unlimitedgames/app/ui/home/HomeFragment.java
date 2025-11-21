@@ -15,6 +15,7 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import com.appsters.unlimitedgames.app.data.GameDataSource;
 import com.appsters.unlimitedgames.app.data.model.Game;
 import com.appsters.unlimitedgames.databinding.FragmentHomeBinding;
+import com.appsters.unlimitedgames.games.sudoku.SudokuActivity;
 import com.appsters.unlimitedgames.games.whackamole.WhackAMoleTitleActivity;
 
 /**
@@ -82,6 +83,9 @@ public class HomeFragment extends Fragment implements GameAdapter.OnItemClickLis
     public void onItemClick(Game game) {
         if ("Whack-a-Mole".equals(game.getTitle())) {
             Intent intent = new Intent(getActivity(), WhackAMoleTitleActivity.class);
+            startActivity(intent);
+        } else if ("Sudoku".equals(game.getTitle())) {
+            Intent intent = new Intent(getActivity(), SudokuActivity.class);
             startActivity(intent);
         } else {
             NavHostFragment.findNavController(this).navigate(game.getActionId());

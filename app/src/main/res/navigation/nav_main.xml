@@ -31,6 +31,9 @@
         <action
             android:id="@+id/action_homeFragment_to_NFLQuizFragment"
             app:destination="@id/NFLQuizFragment" />
+        <action
+            android:id="@+id/action_homeFragment_to_mazeMenuFragment"
+            app:destination="@id/mazeMenuFragment" />
     </fragment>
 
     <fragment
@@ -84,5 +87,11 @@
         android:name="com.appsters.unlimitedgames.games.nflquiz.NFLQuizFragment"
         android:label="NFL Quiz"
         tools:layout="@layout/fragment_nfl_quiz" />
+
+    <fragment
+        android:id="@+id/mazeMenuFragment"
+        android:name="com.appsters.unlimitedgames.games.maze.MazeMenuFragment"
+        android:label="Maze"
+        tools:layout="@layout/fragment_maze_menu" />
 
 </navigation>

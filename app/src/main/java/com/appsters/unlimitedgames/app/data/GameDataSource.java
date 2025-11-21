@@ -42,7 +42,7 @@ public class GameDataSource {
                         "Sudoku",
                         "",
                         R.id.action_homeFragment_to_sudokuFragment,
-                        R.drawable.ic_launcher_background));
+                        R.drawable.ic_sudoku));
         games.add(
                 new Game(
                         "4",
@@ -59,6 +59,14 @@ public class GameDataSource {
                         "",
                         0,
                         R.drawable.mole_transparent));
+        games.add(
+                new Game(
+                        "6",
+                        GameType.PUZZLE,
+                        "Maze",
+                        "",
+                        R.id.action_homeFragment_to_mazeMenuFragment,
+                        R.drawable.ic_maze));
         return games;
     }
 }

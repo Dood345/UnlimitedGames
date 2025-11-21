@@ -137,7 +137,7 @@ public class EditProfileFragment extends Fragment {
      * If confirmed, it proceeds to show the password prompt.
      */
     private void showDeleteConfirmationDialog() {
-        new MaterialAlertDialogBuilder(requireContext(), R.style.AlertDialogTheme)
+        new MaterialAlertDialogBuilder(requireContext(), R.style.DeleteDialogueTheme)
                 .setTitle("Delete Account")
                 .setMessage("Are you sure you want to delete your account? This action is irreversible.")
                 .setNegativeButton("Cancel", null)
@@ -166,7 +166,7 @@ public class EditProfileFragment extends Fragment {
 
         container.addView(input);
 
-        new MaterialAlertDialogBuilder(requireContext(), R.style.AlertDialogTheme)
+        new MaterialAlertDialogBuilder(requireContext(), R.style.DeleteDialogueTheme)
                 .setTitle("Confirm Deletion")
                 .setView(container)
                 .setNegativeButton("Cancel", null)

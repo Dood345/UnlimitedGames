@@ -42,7 +42,7 @@ public class GameDataSource {
                         "Sudoku",
                         "",
                         R.id.action_homeFragment_to_sudokuFragment,
-                        R.drawable.ic_launcher_background));
+                        R.drawable.ic_sudoku));
         games.add(
                 new Game(
                         "4",

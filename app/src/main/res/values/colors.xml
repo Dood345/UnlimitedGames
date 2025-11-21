@@ -12,6 +12,7 @@
     <color name="deleteCancel"> #FF333333 </color>
     <color name="blue"> #FF0000FF </color>
     <color name="green"> #FF008000 </color>
+    <color name="cyan">#89F5F5</color>
 
     <!--  WhackAMole  -->
     <color name="mole_red"> #FF8B0000 </color>

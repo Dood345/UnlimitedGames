@@ -14,7 +14,9 @@ data class Cell(
     val col: Int,
     var value: Int = 0,           // 0 means empty
     var isFixed: Boolean = false, // True if part of initial puzzle
-    var notes: MutableSet<Int> = mutableSetOf() // For pencil marks (1-9)
+    @Deprecated("Use impossibleNumbers instead")
+    var notes: MutableSet<Int> = mutableSetOf(), // For pencil marks (1-9)
+    var impossibleNumbers: MutableSet<Int> = mutableSetOf() // For marking numbers as impossible
 ) {
     /**
      * Checks if the cell is empty (contains a 0).

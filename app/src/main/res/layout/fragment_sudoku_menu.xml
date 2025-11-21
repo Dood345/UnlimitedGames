@@ -24,19 +24,7 @@
                 android:textSize="48sp"
                 android:textStyle="bold" />
 
-            <!-- Resume Game Section -->
-            <Button
-                android:id="@+id/btn_resume_game"
-                android:layout_width="match_parent"
-                android:layout_height="60dp"
-                android:layout_marginBottom="24dp"
-                android:text="Resume Game"
-                android:textSize="18sp"
-                android:visibility="gone"
-                tools:visibility="visible" />
-
             <!-- Difficulty Selection -->
-
             <RadioGroup
                 android:id="@+id/rg_difficulty"
                 android:layout_width="match_parent"
@@ -105,14 +93,13 @@
             </RadioGroup>
 
             <!-- Mode Selection -->
-
             <RadioGroup
                 android:id="@+id/rg_mode"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="24dp"
-                android:orientation="horizontal"
-                android:gravity="center_horizontal">
+                android:gravity="center_horizontal"
+                android:orientation="horizontal">
 
                 <RadioButton
                     android:id="@+id/rb_ranked"
@@ -134,11 +121,18 @@
                 android:id="@+id/btn_start_game"
                 android:layout_width="match_parent"
                 android:layout_height="60dp"
-                android:layout_marginBottom="32dp"
+                android:layout_marginBottom="16dp"
                 android:text="Start New Game"
                 android:textSize="18sp" />
 
-            <!-- Divider -->
+            <!-- Resume Game Section -->
+            <Button
+                android:id="@+id/btn_resume_game"
+                android:layout_width="match_parent"
+                android:layout_height="60dp"
+                android:layout_marginBottom="32dp"
+                android:text="Resume Game"
+                android:textSize="18sp" />
 
             <!-- Color Picker Section -->
             <TextView

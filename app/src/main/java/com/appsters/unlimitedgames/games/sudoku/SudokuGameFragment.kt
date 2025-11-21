@@ -8,7 +8,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.TextView
-import android.widget.ToggleButton
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
@@ -24,11 +23,6 @@ import nl.dionsegijn.konfetti.core.emitter.Emitter
 import nl.dionsegijn.konfetti.xml.KonfettiView
 import java.util.concurrent.TimeUnit
 
-/**
- * A [Fragment] that displays the main Sudoku game screen.
- * This fragment contains the Sudoku board, timer, and number input controls.
- * It communicates with a [SudokuViewModel] to manage the game state.
- */
 class SudokuGameFragment : Fragment(), SudokuBoardView.OnCellSelectedListener {
 
     private lateinit var viewModel: SudokuViewModel
@@ -38,7 +32,6 @@ class SudokuGameFragment : Fragment(), SudokuBoardView.OnCellSelectedListener {
     private lateinit var sudokuBoardView: SudokuBoardView
     private lateinit var timerTextView: TextView
     private lateinit var numberButtons: List<Button>
-    private lateinit var noteToggleButton: ToggleButton
     private lateinit var konfettiView: KonfettiView
 
     companion object {
@@ -47,9 +40,6 @@ class SudokuGameFragment : Fragment(), SudokuBoardView.OnCellSelectedListener {
         private const val ARG_IS_RANKED = "is_ranked"
         private const val ARG_SHOULD_RESUME = "should_resume"
 
-        /**
-         * Creates a new instance of the fragment with the specified difficulty and color.
-         */
         fun newInstance(
             difficulty: SudokuMenuFragment.Difficulty,
             colorRes: Int,
@@ -105,11 +95,10 @@ class SudokuGameFragment : Fragment(), SudokuBoardView.OnCellSelectedListener {
 
         val shouldResume = arguments?.getBoolean(ARG_SHOULD_RESUME, false) ?: false
         if (shouldResume) {
-            val savedState = SudokuRepository(requireContext()).getSavedGameState()
+            val savedState = SudokuRepository(requireContext()).getSavedGameState(difficulty)
             if (savedState != null) {
                 viewModel.resumeGame(savedState)
             } else {
-                // Fallback if save is missing for some reason
                 viewModel.startNewGame(difficulty, isRanked)
             }
         } else {
@@ -117,9 +106,6 @@ class SudokuGameFragment : Fragment(), SudokuBoardView.OnCellSelectedListener {
         }
     }
 
-    /**
-     * Sets up click listeners for all the number and control buttons.
-     */
     private fun setupButtonClickListeners(view: View) {
         numberButtons = listOf(
             view.findViewById(R.id.btn_number_1),
@@ -135,17 +121,15 @@ class SudokuGameFragment : Fragment(), SudokuBoardView.OnCellSelectedListener {
 
         numberButtons.forEachIndexed { index, button ->
             button.setOnClickListener { viewModel.enterValue(index + 1) }
+            button.setOnLongClickListener {
+                viewModel.toggleImpossibleNumber(index + 1)
+                true
+            }
         }
 
         view.findViewById<Button>(R.id.btn_clear)?.setOnClickListener { viewModel.clearCell() }
-        
-        noteToggleButton = view.findViewById(R.id.btn_note_toggle)
-        noteToggleButton.setOnClickListener { viewModel.toggleNoteMode() }
     }
 
-    /**
-     * Observes [LiveData] from the [SudokuViewModel] to update the UI.
-     */
     private fun observeViewModel() {
         viewModel.gameState.observe(viewLifecycleOwner) { gameState ->
             sudokuBoardView.setBoard(gameState.board)
@@ -159,6 +143,10 @@ class SudokuGameFragment : Fragment(), SudokuBoardView.OnCellSelectedListener {
             sudokuBoardView.setSelectedCell(cell)
         }
 
+        viewModel.impossibleNumbers.observe(viewLifecycleOwner) { impossibleNumbers ->
+            updateNumberButtonColors(impossibleNumbers)
+        }
+
         viewModel.invalidMoveEvent.observe(viewLifecycleOwner) { number ->
             flashButton(numberButtons[number - 1])
         }
@@ -167,26 +155,27 @@ class SudokuGameFragment : Fragment(), SudokuBoardView.OnCellSelectedListener {
             showConfetti()
             showAnimatedCompletionDialog(score)
         }
+    }
 
-        viewModel.isNoteMode.observe(viewLifecycleOwner) { isNoteMode ->
-            noteToggleButton.isChecked = isNoteMode
+    private fun updateNumberButtonColors(impossibleNumbers: Set<Int>) {
+        numberButtons.forEachIndexed { index, button ->
+            val number = index + 1
+            if (impossibleNumbers.contains(number)) {
+                button.backgroundTintList = ColorStateList.valueOf(Color.RED)
+            } else {
+                button.backgroundTintList = ColorStateList.valueOf(ContextCompat.getColor(requireContext(), R.color.purple_500))
+            }
         }
     }
 
-    /**
-     * Animates a button with a red flash to indicate an invalid move.
-     */
     private fun flashButton(button: Button) {
         val originalTint = button.backgroundTintList
         button.backgroundTintList = ColorStateList.valueOf(Color.RED)
         button.postDelayed({
             button.backgroundTintList = originalTint
-        }, 300) // Restore after 0.3 seconds
+        }, 300)
     }
 
-    /**
-     * Triggers a burst of confetti to celebrate solving the puzzle.
-     */
     private fun showConfetti() {
         val party = Party(
             speed = 0f,
@@ -200,9 +189,6 @@ class SudokuGameFragment : Fragment(), SudokuBoardView.OnCellSelectedListener {
         konfettiView.start(party)
     }
 
-    /**
-     * Displays a dialog with the final score, animated with a typewriter effect.
-     */
     private fun showAnimatedCompletionDialog(score: Score) {
         val dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_animated_text, null)
         val typewriterView = dialogView.findViewById<TypewriterView>(R.id.typewriter_text)
@@ -222,9 +208,6 @@ class SudokuGameFragment : Fragment(), SudokuBoardView.OnCellSelectedListener {
         dialog.show()
     }
 
-    /**
-     * Called when a cell on the board is selected by the user.
-     */
     override fun onCellSelected(row: Int, col: Int) {
         viewModel.onCellSelected(row, col)
     }

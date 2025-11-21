@@ -141,8 +141,8 @@ class SudokuBoardView @JvmOverloads constructor(
 
         drawSelectedAndRelatedCells(canvas)
         drawGrid(canvas)
-        drawNotes(canvas)
         drawNumbers(canvas)
+        //drawNotes(canvas)
     }
 
     /**
@@ -224,25 +224,34 @@ class SudokuBoardView @JvmOverloads constructor(
     }
 
     /**
-     * Draws the pencil marks (notes) inside the cells.
+     * Draws the little numbers inside the cells as notes.
      */
+    @Deprecated("Use impossibleNumbers and don't display instead")
     private fun drawNotes(canvas: Canvas) {
-        board?.cells?.forEach { row ->
-            row.forEach { cell ->
-                if (cell.isEmpty() && cell.notes.isNotEmpty()) {
-                    val cellLeft = cell.col * cellSize
-                    val cellTop = cell.row * cellSize
-                    val noteSize = cellSize / 3f
+        val cellSize = width / 9f
+        val notePaint = Paint().apply {
+            style = Paint.Style.FILL
+            color = ContextCompat.getColor(context, playerColor)
+            textSize = cellSize / 4f
+            textAlign = Paint.Align.CENTER
+            typeface = android.graphics.Typeface.DEFAULT_BOLD
+        }
 
-                    for (note in 1..9) {
-                        if (cell.notes.contains(note)) {
-                            val rowInCell = (note - 1) / 3
-                            val colInCell = (note - 1) % 3
-                            val x = cellLeft + colInCell * noteSize + noteSize / 2
-                            val y = cellTop + rowInCell * noteSize + noteSize / 2 + noteTextPaint.textSize / 3 // Adjustment for vertical centering
+        val fontMetrics = notePaint.fontMetrics
 
-                            canvas.drawText(note.toString(), x, y, noteTextPaint)
-                        }
+        for (r in 0 until 9) {
+            for (c in 0 until 9) {
+                val cell = board?.getCell(r, c) ?: continue
+                if (cell.value == 0 && cell.notes.isNotEmpty()) {
+                    // Draw impossible numbers in a 3x3 grid within the cell
+                    for (number in cell.notes) {
+                        val rowInCell = (number - 1) / 3
+                        val colInCell = (number - 1) % 3
+                        
+                        val x = c * cellSize + (colInCell * cellSize / 3) + (cellSize / 6)
+                        val y = r * cellSize + (rowInCell * cellSize / 3) + (cellSize / 6) - (fontMetrics.ascent + fontMetrics.descent) / 2
+
+                        canvas.drawText(number.toString(), x, y, notePaint)
                     }
                 }
             }

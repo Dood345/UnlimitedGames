@@ -76,28 +76,6 @@ data class Board(
         
         return true
     }
-
-    /**
-     * Clears the given number from the notes of all cells in the same row, column, and box.
-     */
-    fun clearNotes(row: Int, col: Int, number: Int) {
-        // Clear from row
-        for (c in 0 until 9) {
-            getCell(row, c).notes.remove(number)
-        }
-        // Clear from column
-        for (r in 0 until 9) {
-            getCell(r, col).notes.remove(number)
-        }
-        // Clear from box
-        val boxRow = (row / 3) * 3
-        val boxCol = (col / 3) * 3
-        for (r in boxRow until boxRow + 3) {
-            for (c in boxCol until boxCol + 3) {
-                getCell(r, c).notes.remove(number)
-            }
-        }
-    }
     
     /**
      * Checks if the entire board is solved correctly.

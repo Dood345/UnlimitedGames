@@ -1,6 +1,6 @@
 package com.appsters.unlimitedgames.games.maze.model
 
-import com.appsters.unlimitedgames.games.maze.GameConfig
+import com.appsters.unlimitedgames.games.maze.controller.GameConfig
 
 class Player {
     // Base Stats

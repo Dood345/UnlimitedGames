@@ -1,4 +1,12 @@
-package com.appsters.unlimitedgames.games.maze
+package com.appsters.unlimitedgames.games.maze.controller
+
+import android.content.Context
+import android.util.Log
+import com.appsters.unlimitedgames.games.maze.model.Player
+import com.appsters.unlimitedgames.games.maze.model.PowerUpType
+import org.json.JSONArray
+import org.json.JSONObject
+import java.io.File
 
 object RunManager {
     // Run State
@@ -9,7 +17,7 @@ object RunManager {
     var isRunInProgress: Boolean = false
 
     // Player Instance
-    val player = com.appsters.unlimitedgames.games.maze.model.Player()
+    val player = Player()
 
     fun startNewRun() {
         totalMoney = 0
@@ -17,7 +25,7 @@ object RunManager {
         currentLevel = 1
         roundNumber = 1
         isRunInProgress = true
-        android.util.Log.d("RunManager", "New Run Started. Round: $roundNumber")
+        Log.d("RunManager", "New Run Started. Round: $roundNumber")
 
         // Reset player stats
         player.reset()
@@ -28,7 +36,7 @@ object RunManager {
 
     fun nextRound() {
         roundNumber++
-        android.util.Log.d("RunManager", "Round incremented to: $roundNumber")
+        Log.d("RunManager", "Round incremented to: $roundNumber")
         // Potential difficulty scaling here
     }
 
@@ -44,12 +52,12 @@ object RunManager {
 
     private const val SAVE_FILE_NAME = "maze_save.json"
 
-    fun saveGame(context: android.content.Context, mazeState: org.json.JSONObject?) {
+    fun saveGame(context: Context, mazeState: JSONObject?) {
         try {
-            val root = org.json.JSONObject()
-            
+            val root = JSONObject()
+
             // 1. Save Run Stats
-            val runStats = org.json.JSONObject()
+            val runStats = JSONObject()
             runStats.put("totalMoney", totalMoney)
             runStats.put("totalXP", totalXP)
             runStats.put("currentLevel", currentLevel)
@@ -59,22 +67,22 @@ object RunManager {
             root.put("run_stats", runStats)
 
             // 2. Save Player Stats
-            val playerStats = org.json.JSONObject()
+            val playerStats = JSONObject()
             playerStats.put("maxStamina", player.maxStamina)
             playerStats.put("currentStamina", player.currentStamina)
             playerStats.put("skillPoints", player.skillPoints)
             playerStats.put("isWallSmashUnlocked", player.isWallSmashUnlocked)
-            
+
             // Save Active Effects
-            val effectsArray = org.json.JSONArray()
+            val effectsArray = JSONArray()
             for (effect in player.activeEffects) {
-                val effectObj = org.json.JSONObject()
+                val effectObj = JSONObject()
                 effectObj.put("type", effect.type.name)
                 effectObj.put("duration", effect.remainingDuration)
                 effectsArray.put(effectObj)
             }
             playerStats.put("active_effects", effectsArray)
-            
+
             root.put("player_stats", playerStats)
 
             // 3. Save Maze State (passed from ViewModel)
@@ -83,22 +91,22 @@ object RunManager {
             }
 
             // Write to file
-            val file = java.io.File(context.filesDir, SAVE_FILE_NAME)
+            val file = File(context.filesDir, SAVE_FILE_NAME)
             file.writeText(root.toString())
-            android.util.Log.d("RunManager", "Game saved to ${file.absolutePath}")
+            Log.d("RunManager", "Game saved to ${file.absolutePath}")
 
         } catch (e: Exception) {
-            android.util.Log.e("RunManager", "Error saving game", e)
+            Log.e("RunManager", "Error saving game", e)
         }
     }
 
-    fun loadGame(context: android.content.Context): org.json.JSONObject? {
+    fun loadGame(context: Context): JSONObject? {
         try {
-            val file = java.io.File(context.filesDir, SAVE_FILE_NAME)
+            val file = File(context.filesDir, SAVE_FILE_NAME)
             if (!file.exists()) return null
 
             val jsonString = file.readText()
-            val root = org.json.JSONObject(jsonString)
+            val root = JSONObject(jsonString)
 
             // 1. Restore Run Stats
             if (root.has("run_stats")) {
@@ -119,7 +127,7 @@ object RunManager {
                 player.currentStamina = playerStats.optDouble("currentStamina", 100.0).toFloat()
                 player.skillPoints = playerStats.optInt("skillPoints", 0)
                 player.isWallSmashUnlocked = playerStats.optBoolean("isWallSmashUnlocked", false)
-                
+
                 // Restore Active Effects
                 player.activeEffects.clear()
                 val effectsArray = playerStats.optJSONArray("active_effects")
@@ -129,8 +137,8 @@ object RunManager {
                         val typeName = effectObj.optString("type")
                         val duration = effectObj.optLong("duration")
                         try {
-                            val type = com.appsters.unlimitedgames.games.maze.model.PowerUpType.valueOf(typeName)
-                            player.activeEffects.add(com.appsters.unlimitedgames.games.maze.model.Player.ActiveEffect(type, duration))
+                            val type = PowerUpType.valueOf(typeName)
+                            player.activeEffects.add(Player.ActiveEffect(type, duration))
                         } catch (e: Exception) {
                             // Ignore invalid enum
                         }
@@ -142,25 +150,25 @@ object RunManager {
             return root.optJSONObject("maze_state")
 
         } catch (e: Exception) {
-            android.util.Log.e("RunManager", "Error loading game", e)
+            Log.e("RunManager", "Error loading game", e)
             return null
         }
     }
 
-    fun hasSavedGame(context: android.content.Context): Boolean {
-        val file = java.io.File(context.filesDir, SAVE_FILE_NAME)
+    fun hasSavedGame(context: Context): Boolean {
+        val file = File(context.filesDir, SAVE_FILE_NAME)
         return file.exists()
     }
 
-    fun clearSavedGame(context: android.content.Context) {
+    fun clearSavedGame(context: Context) {
         try {
-            val file = java.io.File(context.filesDir, SAVE_FILE_NAME)
+            val file = File(context.filesDir, SAVE_FILE_NAME)
             if (file.exists()) {
                 file.delete()
             }
             isRunInProgress = false
         } catch (e: Exception) {
-            android.util.Log.e("RunManager", "Error clearing save", e)
+            Log.e("RunManager", "Error clearing save", e)
         }
     }
 
@@ -176,7 +184,7 @@ object RunManager {
             // Calc next threshold
             xpToNextLevel = (xpToNextLevel * GameConfig.XP_SCALING_FACTOR).toInt()
 
-            android.util.Log.d(
+            Log.d(
                 "RunManager",
                 "Level Up! New Level: $currentLevel, Max Stamina: ${player.maxStamina}, SP: ${player.skillPoints}"
             )

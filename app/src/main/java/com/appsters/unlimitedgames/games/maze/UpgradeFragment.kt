@@ -8,6 +8,8 @@ import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.DialogFragment
+import com.appsters.unlimitedgames.games.maze.controller.GameConfig
+import com.appsters.unlimitedgames.games.maze.controller.RunManager
 
 class UpgradeFragment : DialogFragment() {
 

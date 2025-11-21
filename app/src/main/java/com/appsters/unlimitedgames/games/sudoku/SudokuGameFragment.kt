@@ -8,6 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.TextView
+import android.widget.ToggleButton
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
@@ -37,12 +38,14 @@ class SudokuGameFragment : Fragment(), SudokuBoardView.OnCellSelectedListener {
     private lateinit var sudokuBoardView: SudokuBoardView
     private lateinit var timerTextView: TextView
     private lateinit var numberButtons: List<Button>
+    private lateinit var noteToggleButton: ToggleButton
     private lateinit var konfettiView: KonfettiView
 
     companion object {
         private const val ARG_DIFFICULTY = "difficulty"
         private const val ARG_COLOR = "color"
         private const val ARG_IS_RANKED = "is_ranked"
+        private const val ARG_SHOULD_RESUME = "should_resume"
 
         /**
          * Creates a new instance of the fragment with the specified difficulty and color.
@@ -50,13 +53,15 @@ class SudokuGameFragment : Fragment(), SudokuBoardView.OnCellSelectedListener {
         fun newInstance(
             difficulty: SudokuMenuFragment.Difficulty,
             colorRes: Int,
-            isRanked: Boolean = true
+            isRanked: Boolean = true,
+            shouldResume: Boolean = false
         ): SudokuGameFragment {
             return SudokuGameFragment().apply {
                 arguments = Bundle().apply {
                     putString(ARG_DIFFICULTY, difficulty.name)
                     putInt(ARG_COLOR, colorRes)
                     putBoolean(ARG_IS_RANKED, isRanked)
+                    putBoolean(ARG_SHOULD_RESUME, shouldResume)
                 }
             }
         }
@@ -98,7 +103,18 @@ class SudokuGameFragment : Fragment(), SudokuBoardView.OnCellSelectedListener {
         setupButtonClickListeners(view)
         observeViewModel()
 
-        viewModel.startNewGame(difficulty, isRanked)
+        val shouldResume = arguments?.getBoolean(ARG_SHOULD_RESUME, false) ?: false
+        if (shouldResume) {
+            val savedState = SudokuRepository(requireContext()).getSavedGameState()
+            if (savedState != null) {
+                viewModel.resumeGame(savedState)
+            } else {
+                // Fallback if save is missing for some reason
+                viewModel.startNewGame(difficulty, isRanked)
+            }
+        } else {
+            viewModel.startNewGame(difficulty, isRanked)
+        }
     }
 
     /**
@@ -122,6 +138,9 @@ class SudokuGameFragment : Fragment(), SudokuBoardView.OnCellSelectedListener {
         }
 
         view.findViewById<Button>(R.id.btn_clear)?.setOnClickListener { viewModel.clearCell() }
+        
+        noteToggleButton = view.findViewById(R.id.btn_note_toggle)
+        noteToggleButton.setOnClickListener { viewModel.toggleNoteMode() }
     }
 
     /**
@@ -147,6 +166,10 @@ class SudokuGameFragment : Fragment(), SudokuBoardView.OnCellSelectedListener {
         viewModel.gameCompletedEvent.observe(viewLifecycleOwner) { score ->
             showConfetti()
             showAnimatedCompletionDialog(score)
+        }
+
+        viewModel.isNoteMode.observe(viewLifecycleOwner) { isNoteMode ->
+            noteToggleButton.isChecked = isNoteMode
         }
     }
 
@@ -204,5 +227,15 @@ class SudokuGameFragment : Fragment(), SudokuBoardView.OnCellSelectedListener {
      */
     override fun onCellSelected(row: Int, col: Int) {
         viewModel.onCellSelected(row, col)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        viewModel.resumeTimer()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        viewModel.saveGame()
     }
 }

@@ -33,7 +33,9 @@ class SudokuBoardView @JvmOverloads constructor(
     private val textPaint: Paint
     private val fixedTextPaint: Paint
     private val selectedCellPaint: Paint
+
     private val relatedCellPaint: Paint
+    private val noteTextPaint: Paint
 
     private var cellSize = 0f
     private val textBounds = Rect()
@@ -79,6 +81,12 @@ class SudokuBoardView @JvmOverloads constructor(
         relatedCellPaint = Paint().apply {
             style = Paint.Style.FILL
             color = relatedCellColor
+        }
+
+        noteTextPaint = Paint().apply {
+            color = textColor
+            textSize = 24f
+            textAlign = Paint.Align.CENTER
         }
     }
 
@@ -133,6 +141,7 @@ class SudokuBoardView @JvmOverloads constructor(
 
         drawSelectedAndRelatedCells(canvas)
         drawGrid(canvas)
+        drawNotes(canvas)
         drawNumbers(canvas)
     }
 
@@ -209,6 +218,32 @@ class SudokuBoardView @JvmOverloads constructor(
                         cell.row * cellSize + cellSize / 2 + textHeight / 2,
                         paint
                     )
+                }
+            }
+        }
+    }
+
+    /**
+     * Draws the pencil marks (notes) inside the cells.
+     */
+    private fun drawNotes(canvas: Canvas) {
+        board?.cells?.forEach { row ->
+            row.forEach { cell ->
+                if (cell.isEmpty() && cell.notes.isNotEmpty()) {
+                    val cellLeft = cell.col * cellSize
+                    val cellTop = cell.row * cellSize
+                    val noteSize = cellSize / 3f
+
+                    for (note in 1..9) {
+                        if (cell.notes.contains(note)) {
+                            val rowInCell = (note - 1) / 3
+                            val colInCell = (note - 1) % 3
+                            val x = cellLeft + colInCell * noteSize + noteSize / 2
+                            val y = cellTop + rowInCell * noteSize + noteSize / 2 + noteTextPaint.textSize / 3 // Adjustment for vertical centering
+
+                            canvas.drawText(note.toString(), x, y, noteTextPaint)
+                        }
+                    }
                 }
             }
         }

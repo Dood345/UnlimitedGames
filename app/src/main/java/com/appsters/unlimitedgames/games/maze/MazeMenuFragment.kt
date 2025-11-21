@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import android.widget.Button
 import androidx.fragment.app.Fragment
 import com.appsters.unlimitedgames.R
+import com.appsters.unlimitedgames.games.maze.controller.RunManager
 
 class MazeMenuFragment : Fragment() {
 

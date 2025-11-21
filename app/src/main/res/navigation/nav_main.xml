@@ -26,9 +26,6 @@
             android:id="@+id/action_homeFragment_to_pokerFragment"
             app:destination="@id/pokerFragment" />
         <action
-            android:id="@+id/action_homeFragment_to_sudokuFragment"
-            app:destination="@id/sudokuFragment" />
-        <action
             android:id="@+id/action_homeFragment_to_NFLQuizFragment"
             app:destination="@id/NFLQuizFragment" />
         <action
@@ -75,13 +72,6 @@
         android:name="com.appsters.unlimitedgames.games.poker.PokerFragment"
         android:label="Poker"
         tools:layout="@layout/fragment_poker" />
-
-<!--    unused, handled by home fragment-->
-    <fragment
-        android:id="@+id/sudokuFragment"
-        android:name="com.appsters.unlimitedgames.games.sudoku.SudokuMenuFragment"
-        android:label="Sudoku"
-        tools:layout="@layout/fragment_sudoku_menu" />
 
     <fragment
         android:id="@+id/NFLQuizFragment"

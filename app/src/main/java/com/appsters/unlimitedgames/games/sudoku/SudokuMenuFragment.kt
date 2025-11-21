@@ -7,6 +7,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.ProgressBar
+import android.widget.RadioButton
+import android.widget.RadioGroup
 import androidx.fragment.app.Fragment
 import com.appsters.unlimitedgames.R
 import com.appsters.unlimitedgames.games.sudoku.repository.SudokuRepository
@@ -44,37 +46,46 @@ class SudokuMenuFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         loadingIndicator = view.findViewById(R.id.loading_indicator)
-        setupDifficultyButtons(view)
+        setupMenuUI(view)
         setupColorPicker(view)
     }
 
-    private fun setupDifficultyButtons(view: View) {
-        val easyButton = view.findViewById<Button>(R.id.btn_easy)
-        val easyFreeButton = view.findViewById<Button>(R.id.btn_easy_free)
-        val mediumButton = view.findViewById<Button>(R.id.btn_medium)
-        val mediumFreeButton = view.findViewById<Button>(R.id.btn_medium_free)
-        val hardButton = view.findViewById<Button>(R.id.btn_hard)
-        val hardFreeButton = view.findViewById<Button>(R.id.btn_hard_free)
-        val expertButton = view.findViewById<Button>(R.id.btn_expert)
-        val expertFreeButton = view.findViewById<Button>(R.id.btn_expert_free)
+    override fun onResume() {
+        super.onResume()
+        checkSavedGame()
+    }
 
-        easyButton.text = "Easy (HS: ${repository.getHighScore(Difficulty.EASY)})"
-        easyFreeButton.text = "Easy"
-        mediumButton.text = "Medium (HS: ${repository.getHighScore(Difficulty.MEDIUM)})"
-        mediumFreeButton.text = "Medium"
-        hardButton.text = "Hard (HS: ${repository.getHighScore(Difficulty.HARD)})"
-        hardFreeButton.text = "Hard"
-        expertButton.text = "Expert (HS: ${repository.getHighScore(Difficulty.EXPERT)})"
-        expertFreeButton.text = "Expert"
+    private fun checkSavedGame() {
+        val resumeButton = view?.findViewById<Button>(R.id.btn_resume_game)
+        if (repository.hasSavedGame()) {
+            resumeButton?.visibility = View.VISIBLE
+            resumeButton?.setOnClickListener { resumeGame() }
+        } else {
+            resumeButton?.visibility = View.GONE
+        }
+    }
 
-        easyButton.setOnClickListener { startGame(Difficulty.EASY, true) }
-        easyFreeButton.setOnClickListener { startGame(Difficulty.EASY, false) }
-        mediumButton.setOnClickListener { startGame(Difficulty.MEDIUM, true) }
-        mediumFreeButton.setOnClickListener { startGame(Difficulty.MEDIUM, false) }
-        hardButton.setOnClickListener { startGame(Difficulty.HARD, true) }
-        hardFreeButton.setOnClickListener { startGame(Difficulty.HARD, false) }
-        expertButton.setOnClickListener { startGame(Difficulty.EXPERT, true) }
-        expertFreeButton.setOnClickListener { startGame(Difficulty.EXPERT, false) }
+    private fun setupMenuUI(view: View) {
+        val rgDifficulty = view.findViewById<RadioGroup>(R.id.rg_difficulty)
+        val rgMode = view.findViewById<RadioGroup>(R.id.rg_mode)
+        val btnStart = view.findViewById<Button>(R.id.btn_start_game)
+
+        // Update difficulty texts with high scores
+        view.findViewById<RadioButton>(R.id.rb_easy).text = "Easy (HS: ${repository.getHighScore(Difficulty.EASY)})"
+        view.findViewById<RadioButton>(R.id.rb_medium).text = "Medium (HS: ${repository.getHighScore(Difficulty.MEDIUM)})"
+        view.findViewById<RadioButton>(R.id.rb_hard).text = "Hard (HS: ${repository.getHighScore(Difficulty.HARD)})"
+        view.findViewById<RadioButton>(R.id.rb_expert).text = "Expert (HS: ${repository.getHighScore(Difficulty.EXPERT)})"
+
+        btnStart.setOnClickListener {
+            val difficulty = when (rgDifficulty.checkedRadioButtonId) {
+                R.id.rb_medium -> Difficulty.MEDIUM
+                R.id.rb_hard -> Difficulty.HARD
+                R.id.rb_expert -> Difficulty.EXPERT
+                else -> Difficulty.EASY
+            }
+            val isRanked = rgMode.checkedRadioButtonId == R.id.rb_ranked
+            startGame(difficulty, isRanked)
+        }
     }
 
     private fun setupColorPicker(view: View) {
@@ -125,15 +136,53 @@ class SudokuMenuFragment : Fragment() {
      * @param difficulty The selected difficulty for the new game.
      * @param isRanked Whether the game should be ranked or not.
      */
-    private fun startGame(difficulty: Difficulty, isRanked: Boolean) {
+    private fun resumeGame() {
+        val savedState = repository.getSavedGameState() ?: return
         loadingIndicator.visibility = View.VISIBLE
+        
+        // We need to pass the saved state to the fragment. 
+        // Since SudokuGameFragment.newInstance only takes difficulty/color, 
+        // we might need to modify it or handle it differently.
+        // For now, let's use the existing factory/ViewModel logic in the fragment to load it?
+        // Actually, better to pass a flag or just let the fragment check for saved game?
+        // No, the user explicitly clicked "Resume".
+        
+        // Let's modify start game to accept an optional state or just launch the fragment 
+        // and let the fragment ask the repository if it should load a saved game?
+        // But we want to be explicit.
+        
+        // Let's just launch the fragment with the saved difficulty/color
+        // and then tell the ViewModel to load the saved state.
+        // But we can't easily tell the ViewModel from here without a shared ViewModel or passing arguments.
+        
+        // Simplest approach: Pass a "resume" flag to the fragment.
+        
         val colorRes = when (selectedColor) {
             Color.BLUE -> R.color.blue
             Color.RED -> R.color.red
             Color.GREEN -> R.color.green
             else -> R.color.sudoku_board_text_color
         }
-        val fragment = SudokuGameFragment.newInstance(difficulty, colorRes, isRanked)
+        
+        val fragment = SudokuGameFragment.newInstance(savedState.difficulty, colorRes, savedState.isRanked, true)
+        parentFragmentManager.beginTransaction()
+            .replace(R.id.fragment_container, fragment)
+            .addToBackStack(null)
+            .commit()
+    }
+
+    private fun startGame(difficulty: Difficulty, isRanked: Boolean) {
+        loadingIndicator.visibility = View.VISIBLE
+        // Clear any previous saved game when starting a new one
+        repository.clearSavedGame()
+        
+        val colorRes = when (selectedColor) {
+            Color.BLUE -> R.color.blue
+            Color.RED -> R.color.red
+            Color.GREEN -> R.color.green
+            else -> R.color.sudoku_board_text_color
+        }
+        val fragment = SudokuGameFragment.newInstance(difficulty, colorRes, isRanked, false)
         parentFragmentManager.beginTransaction()
             .replace(R.id.fragment_container, fragment)
             .addToBackStack(null)

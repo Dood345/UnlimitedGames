@@ -41,6 +41,10 @@ class SudokuViewModel(private val repository: SudokuRepository) : ViewModel() {
     /** LiveData event that triggers when the puzzle is successfully solved. It holds the final [Score]. */
     val gameCompletedEvent: LiveData<Score> = _gameCompletedEvent
 
+    private val _isNoteMode = MutableLiveData<Boolean>(false)
+    /** LiveData indicating if the user is currently in "Note Mode" (pencil marks). */
+    val isNoteMode: LiveData<Boolean> = _isNoteMode
+
     private lateinit var sudokuTimer: SudokuTimer
 
     /**
@@ -64,8 +68,53 @@ class SudokuViewModel(private val repository: SudokuRepository) : ViewModel() {
         }
     }
 
+    /**
+     * Resumes a previously saved game.
+     */
+    fun resumeGame(gameState: GameState) {
+        _gameState.postValue(gameState)
+        _selectedCell.postValue(null)
+        startTimer(gameState)
+    }
+
+    /**
+     * Saves the current game state to the repository.
+     */
+    fun saveGame() {
+        _gameState.value?.let { currentState ->
+            currentState.isPaused = true
+            repository.saveGameState(currentState)
+            pauseTimer()
+        }
+    }
+
     fun isRankedGame(): Boolean {
         return _gameState.value?.isRanked ?: false
+    }
+
+    /**
+     * Toggles the Note Mode on or off.
+     */
+    fun toggleNoteMode() {
+        _isNoteMode.value = !(_isNoteMode.value ?: false)
+    }
+
+    /**
+     * Pauses the game timer.
+     */
+    fun pauseTimer() {
+        if (::sudokuTimer.isInitialized) {
+            sudokuTimer.pause()
+        }
+    }
+
+    /**
+     * Resumes the game timer.
+     */
+    fun resumeTimer() {
+        if (::sudokuTimer.isInitialized) {
+            sudokuTimer.resume()
+        }
     }
 
     /**
@@ -77,6 +126,7 @@ class SudokuViewModel(private val repository: SudokuRepository) : ViewModel() {
             gameState.elapsedTime = elapsedTime
             _timer.postValue(gameState.getFormattedTime())
         }
+        sudokuTimer.setElapsedTime(gameState.elapsedTime)
         sudokuTimer.start()
     }
 
@@ -107,24 +157,38 @@ class SudokuViewModel(private val repository: SudokuRepository) : ViewModel() {
 
         val currentGameState = _gameState.value!!
 
-        if (currentBoard.isValid(selected.row, selected.col, number)) {
-            currentBoard.setCell(selected.row, selected.col, number)
-            if (currentBoard.isSolved()) {
-                currentGameState.isCompleted = true
-                sudokuTimer.pause()
-                currentGameState.getScore()?.let { finalScore ->
-                    repository.saveHighScore(finalScore)
-                    _gameCompletedEvent.postValue(finalScore)
-                }
+        if (_isNoteMode.value == true) {
+            // Toggle note
+            if (selected.notes.contains(number)) {
+                selected.notes.remove(number)
+            } else {
+                selected.notes.add(number)
             }
+            _gameState.postValue(currentGameState)
         } else {
-            if (isRankedGame()) {
-                currentGameState.mistakes++
-            }
-            _invalidMoveEvent.postValue(number)
-        }
+            // Normal number entry
+            if (currentBoard.isValid(selected.row, selected.col, number)) {
+                currentBoard.setCell(selected.row, selected.col, number)
+                // Clear notes in the row, col, and box that match this number
+                currentBoard.clearNotes(selected.row, selected.col, number)
 
-        _gameState.postValue(currentGameState)
+                if (currentBoard.isSolved()) {
+                    currentGameState.isCompleted = true
+                    sudokuTimer.pause()
+                    currentGameState.getScore()?.let { finalScore ->
+                        repository.saveHighScore(finalScore)
+                        repository.clearSavedGame() // Clear saved game on completion
+                        _gameCompletedEvent.postValue(finalScore)
+                    }
+                }
+            } else {
+                if (isRankedGame()) {
+                    currentGameState.mistakes++
+                }
+                _invalidMoveEvent.postValue(number)
+            }
+            _gameState.postValue(currentGameState)
+        }
     }
 
     /**
@@ -140,6 +204,7 @@ class SudokuViewModel(private val repository: SudokuRepository) : ViewModel() {
 
         // Set the cell's value back to 0
         currentBoard.setCell(selected.row, selected.col, 0)
+        selected.notes.clear() // Also clear notes
 
         // Post the updated state to the UI
         _gameState.postValue(currentGameState)
@@ -151,9 +216,7 @@ class SudokuViewModel(private val repository: SudokuRepository) : ViewModel() {
      */
     override fun onCleared() {
         super.onCleared()
-        if (::sudokuTimer.isInitialized) {
-            sudokuTimer.pause()
-        }
+        pauseTimer()
     }
 }
 

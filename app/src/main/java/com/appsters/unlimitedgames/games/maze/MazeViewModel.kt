@@ -1,6 +1,7 @@
 package com.appsters.unlimitedgames.games.maze
 
 import androidx.lifecycle.ViewModel
+import com.appsters.unlimitedgames.games.maze.controller.RunManager
 import com.appsters.unlimitedgames.games.maze.model.Maze
 
 class MazeViewModel : ViewModel() {

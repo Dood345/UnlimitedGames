@@ -16,6 +16,7 @@ class SudokuRepository(context: Context) {
     companion object {
         private const val HIGH_SCORE_KEY_PREFIX = "high_score_"
         private const val LAST_COLOR_KEY = "last_color"
+        private const val SAVED_GAME_STATE_KEY = "saved_game_state"
     }
 
     /**
@@ -52,5 +53,40 @@ class SudokuRepository(context: Context) {
      */
     fun getLastColor(): Int {
         return prefs.getInt(LAST_COLOR_KEY, Color.BLACK)
+    }
+
+    /**
+     * Saves the current game state to SharedPreferences.
+     */
+    fun saveGameState(gameState: com.appsters.unlimitedgames.games.sudoku.model.GameState) {
+        val json = com.google.gson.Gson().toJson(gameState)
+        prefs.edit().putString(SAVED_GAME_STATE_KEY, json).apply()
+    }
+
+    /**
+     * Retrieves the saved game state from SharedPreferences.
+     * @return The saved [GameState], or null if no game is saved.
+     */
+    fun getSavedGameState(): com.appsters.unlimitedgames.games.sudoku.model.GameState? {
+        val json = prefs.getString(SAVED_GAME_STATE_KEY, null) ?: return null
+        return try {
+            com.google.gson.Gson().fromJson(json, com.appsters.unlimitedgames.games.sudoku.model.GameState::class.java)
+        } catch (e: Exception) {
+            null
+        }
+    }
+
+    /**
+     * Checks if there is a saved game state.
+     */
+    fun hasSavedGame(): Boolean {
+        return prefs.contains(SAVED_GAME_STATE_KEY)
+    }
+
+    /**
+     * Clears the saved game state.
+     */
+    fun clearSavedGame() {
+        prefs.edit().remove(SAVED_GAME_STATE_KEY).apply()
     }
 }

@@ -1,4 +1,4 @@
-package com.appsters.unlimitedgames.games.maze
+package com.appsters.unlimitedgames.games.maze.controller
 
 object GameConfig {
     // Base Stats

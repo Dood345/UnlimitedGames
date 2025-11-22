@@ -23,6 +23,11 @@ import nl.dionsegijn.konfetti.core.emitter.Emitter
 import nl.dionsegijn.konfetti.xml.KonfettiView
 import java.util.concurrent.TimeUnit
 
+/**
+ * The main game fragment for Sudoku.
+ * This fragment displays the game board, controls (number buttons, clear), and the timer.
+ * It handles user interaction with the board and communicates with the [SudokuViewModel].
+ */
 class SudokuGameFragment : Fragment(), SudokuBoardView.OnCellSelectedListener {
 
     private lateinit var viewModel: SudokuViewModel
@@ -40,6 +45,15 @@ class SudokuGameFragment : Fragment(), SudokuBoardView.OnCellSelectedListener {
         private const val ARG_IS_RANKED = "is_ranked"
         private const val ARG_SHOULD_RESUME = "should_resume"
 
+        /**
+         * Creates a new instance of the Sudoku game fragment.
+         *
+         * @param difficulty The difficulty level of the game.
+         * @param colorRes The resource ID of the color to use for player input.
+         * @param isRanked Whether this is a ranked game (affects scoring).
+         * @param shouldResume Whether to resume a saved game or start a new one.
+         * @return A new instance of [SudokuGameFragment].
+         */
         fun newInstance(
             difficulty: SudokuMenuFragment.Difficulty,
             colorRes: Int,
@@ -211,6 +225,10 @@ class SudokuGameFragment : Fragment(), SudokuBoardView.OnCellSelectedListener {
         dialog.show()
     }
 
+    /**
+     * Called when a cell on the Sudoku board is selected by the user.
+     * Delegates the selection logic to the ViewModel.
+     */
     override fun onCellSelected(row: Int, col: Int) {
         viewModel.onCellSelected(row, col)
     }

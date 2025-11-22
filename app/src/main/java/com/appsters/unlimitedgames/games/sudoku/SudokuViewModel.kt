@@ -13,6 +13,11 @@ import com.appsters.unlimitedgames.games.sudoku.repository.SudokuRepository
 import com.appsters.unlimitedgames.games.sudoku.util.SudokuTimer
 import kotlinx.coroutines.launch
 
+/**
+ * The ViewModel for the Sudoku game.
+ * Manages the game state, business logic, timer, and communication with the repository.
+ * It exposes LiveData objects for the UI to observe.
+ */
 class SudokuViewModel(private val repository: SudokuRepository) : ViewModel() {
 
     private val _gameState = MutableLiveData<GameState>()
@@ -35,6 +40,13 @@ class SudokuViewModel(private val repository: SudokuRepository) : ViewModel() {
 
     private lateinit var sudokuTimer: SudokuTimer
 
+    /**
+     * Starts a new game with the specified parameters.
+     * Generates a new puzzle on a background thread.
+     *
+     * @param difficulty The difficulty level.
+     * @param isRanked Whether the game is ranked.
+     */
     fun startNewGame(difficulty: SudokuMenuFragment.Difficulty, isRanked: Boolean = true) {
         viewModelScope.launch {
             val board = PuzzleGenerator.generate(difficulty)
@@ -50,6 +62,11 @@ class SudokuViewModel(private val repository: SudokuRepository) : ViewModel() {
         }
     }
 
+    /**
+     * Resumes an existing game state.
+     *
+     * @param gameState The saved game state to resume.
+     */
     fun resumeGame(gameState: GameState) {
         _gameState.postValue(gameState)
         _selectedCell.postValue(null)
@@ -57,6 +74,10 @@ class SudokuViewModel(private val repository: SudokuRepository) : ViewModel() {
         startTimer(gameState)
     }
 
+    /**
+     * Saves the current game state to the repository.
+     * Does nothing if the game is already completed.
+     */
     fun saveGame() {
         _gameState.value?.let { currentState ->
             if (currentState.isCompleted) return
@@ -66,6 +87,10 @@ class SudokuViewModel(private val repository: SudokuRepository) : ViewModel() {
         }
     }
 
+    /**
+     * Explicitly deletes the saved game from the repository.
+     * Typically called when the user finishes a game and returns to the menu.
+     */
     fun deleteSavedGame() {
         _gameState.value?.let { currentState ->
             repository.clearSavedGame(currentState.difficulty)
@@ -76,6 +101,10 @@ class SudokuViewModel(private val repository: SudokuRepository) : ViewModel() {
         return _gameState.value?.isRanked ?: false
     }
 
+    /**
+     * Toggles the "impossible" status of a number for the selected cell.
+     * Used for marking numbers that the user believes cannot go in the cell.
+     */
     fun toggleImpossibleNumber(number: Int) {
         val selected = _selectedCell.value ?: return
         val currentGameState = _gameState.value!!
@@ -112,6 +141,10 @@ class SudokuViewModel(private val repository: SudokuRepository) : ViewModel() {
         sudokuTimer.start()
     }
 
+    /**
+     * Handles the selection of a cell on the board.
+     * Updates the selected cell state and exposes its impossible numbers.
+     */
     fun onCellSelected(row: Int, col: Int) {
         val currentBoard = _gameState.value?.board ?: return
         val cell = currentBoard.getCell(row, col)
@@ -119,6 +152,12 @@ class SudokuViewModel(private val repository: SudokuRepository) : ViewModel() {
         _impossibleNumbers.postValue(cell.impossibleNumbers)
     }
 
+    /**
+     * Attempts to enter a number into the selected cell.
+     * Validates the move, updates the board, checks for completion, and handles scoring.
+     *
+     * @param number The number to enter (1-9).
+     */
     fun enterValue(number: Int) {
         val selected = _selectedCell.value ?: return
         val currentBoard = _gameState.value?.board ?: return
@@ -150,6 +189,10 @@ class SudokuViewModel(private val repository: SudokuRepository) : ViewModel() {
         _gameState.postValue(currentGameState)
     }
 
+    /**
+     * Clears the value of the currently selected cell.
+     * Only works if the cell is not fixed (part of the initial puzzle).
+     */
     fun clearCell() {
         val selected = _selectedCell.value ?: return
         val currentBoard = _gameState.value?.board ?: return

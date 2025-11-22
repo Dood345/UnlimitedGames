@@ -13,6 +13,11 @@ import androidx.fragment.app.Fragment
 import com.appsters.unlimitedgames.R
 import com.appsters.unlimitedgames.games.sudoku.repository.SudokuRepository
 
+/**
+ * The main menu fragment for the Sudoku game.
+ * Allows the user to select difficulty, game mode (Ranked/Free Play), and player color.
+ * It also displays high scores and handles resuming saved games.
+ */
 class SudokuMenuFragment : Fragment() {
 
     private var selectedColor: Int = Color.BLACK
@@ -174,6 +179,12 @@ class SudokuMenuFragment : Fragment() {
             .commit()
     }
 
+    /**
+     * Represents the difficulty levels of the Sudoku game.
+     *
+     * @property multiplier The score multiplier for this difficulty.
+     * @property givens The number of pre-filled cells (clues) provided at the start.
+     */
     enum class Difficulty(val multiplier: Double, val givens: Int) {
         EASY(1.0, 45),
         MEDIUM(1.5, 35),

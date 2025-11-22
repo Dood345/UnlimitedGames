@@ -165,7 +165,6 @@ class SudokuViewModel(private val repository: SudokuRepository) : ViewModel() {
         if (selected.isFixed) return
 
         val currentGameState = _gameState.value!!
-
         if (currentBoard.isValid(selected.row, selected.col, number)) {
             currentBoard.setCell(selected.row, selected.col, number)
             selected.impossibleNumbers.clear()
@@ -175,10 +174,12 @@ class SudokuViewModel(private val repository: SudokuRepository) : ViewModel() {
                 currentGameState.isCompleted = true
                 sudokuTimer.pause()
                 repository.saveGameState(currentGameState, currentGameState.difficulty)
-                currentGameState.getScore()?.let { finalScore ->
+                
+                val finalScore = currentGameState.getScore()
+                if (currentGameState.isRanked) {
                     repository.saveHighScore(finalScore)
-                    _gameCompletedEvent.postValue(finalScore)
                 }
+                _gameCompletedEvent.postValue(finalScore)
             }
         } else {
             if (isRankedGame()) {

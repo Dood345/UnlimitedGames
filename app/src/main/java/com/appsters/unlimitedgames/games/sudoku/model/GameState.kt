@@ -38,18 +38,14 @@ data class GameState(
     }
 
     /**
-     * Creates a [Score] object from the current game state if the game is ranked.
-     * Returns null if the game is not ranked.
+     * Creates a [Score] object from the current game state.
      */
-    fun getScore(): Score? {
-        return if (isRanked) {
-            Score(
-                difficulty = difficulty,
-                timeInSeconds = elapsedTime / 1000,
-                mistakes = mistakes
-            )
-        } else {
-            null
-        }
+    fun getScore(): Score {
+        return Score(
+            difficulty = difficulty,
+            timeInSeconds = elapsedTime / 1000,
+            mistakes = mistakes,
+            isRanked = isRanked
+        )
     }
 }

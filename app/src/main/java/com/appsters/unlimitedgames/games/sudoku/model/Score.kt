@@ -17,6 +17,7 @@ data class Score(
     val difficulty: SudokuMenuFragment.Difficulty,
     val timeInSeconds: Long,
     val mistakes: Int,
+    val isRanked: Boolean,
     val timestamp: Long = System.currentTimeMillis()
 ) {
     /**
@@ -27,6 +28,7 @@ data class Score(
      * @return The calculated score, with a minimum of 0.
      */
     fun calculateScore(): Int {
+        if (!isRanked) return 0
         val timeScore = 10000 - timeInSeconds.toInt()
         val mistakePenalty = mistakes * 50
         val finalScore = (timeScore - mistakePenalty) * difficulty.multiplier
@@ -51,6 +53,10 @@ data class Score(
      * @return A formatted string explaining the score calculation.
      */
     fun getScoreBreakdown(): String {
+        if (!isRanked) {
+            return Quotes.list.random()
+        }
+
         val timeScore = 10000 - timeInSeconds.toInt()
         val mistakePenalty = mistakes * 50
         val finalScore = (timeScore - mistakePenalty) * difficulty.multiplier

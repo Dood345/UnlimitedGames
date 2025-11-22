@@ -68,22 +68,63 @@ class MazeView(context: Context, attrs: AttributeSet?) : View(context, attrs) {
 
     private var rewindPath: LinkedList<PointF>? = null
     private var onRewindFinished: (() -> Unit)? = null
+    // Rewind Physics
+    private val REWIND_SMOOTHING = 0.2f // 0.1 = very loose/slow, 0.9 = very tight/fast
+    private val CORNER_CUT_DIST = 0.8f  // Distance to target before switching to next (Rounds the corner)
+    private val END_SNAP_DIST = 0.1f   // How close to get to the absolute final point before stopping
 
     private val rewindLoop = object : Runnable {
         override fun run() {
-            rewindPath?.let { path ->
-                if (path.isNotEmpty()) {
-                    val point = path.removeLast()
-                    setPlayerPosition(point.x, point.y)
-                    trailPoints.add(PointF(playerX, playerY))
-                    if (trailPoints.size > maxTrailLength) {
-                        trailPoints.removeFirst()
+            val path = rewindPath ?: return
+
+            if (path.isNotEmpty()) {
+                // 1. Look at the next target (Don't remove it yet!)
+                val target = path.last()
+
+                // 2. Calculate distance to target
+                val dx = target.x - playerX
+                val dy = target.y - playerY
+                val dist = sqrt(dx * dx + dy * dy)
+
+                // 3. Interpolate Player Position (Smooth movement)
+                // This creates the "slide" effect instead of snapping
+                playerX += dx * REWIND_SMOOTHING
+                playerY += dy * REWIND_SMOOTHING
+
+                // 4. Corner Cutting Logic
+                // If we are close enough to the target...
+                val isLastPoint = path.size == 1
+                val threshold = if (isLastPoint) END_SNAP_DIST else CORNER_CUT_DIST
+
+                if (dist < threshold) {
+                    // We reached the "vicinity" of the point.
+                    // Pop it from the list so the NEXT frame aims at the NEXT point.
+                    // Doing this early (CORNER_CUT_DIST) rounds the corner.
+                    path.removeLast()
+                    
+                    // If it was the last point, ensure we snap exactly to it to finish cleanly
+                    if (isLastPoint) {
+                        setPlayerPosition(target.x, target.y)
                     }
-                    postOnAnimationDelayed(this, 20) // Adjust delay for rewind speed
+                }
+
+                // 5. Update Visuals
+                trailPoints.add(PointF(playerX, playerY))
+                if (trailPoints.size > maxTrailLength) {
+                    trailPoints.removeFirst()
+                }
+                invalidate() // Redraw
+                
+                // Keep loop going
+                if (path.isNotEmpty()) {
+                    postOnAnimation(this) // Using default frame timing for smoother visual flow
                 } else {
                     onRewindFinished?.invoke()
                     onRewindFinished = null
                 }
+            } else {
+                onRewindFinished?.invoke()
+                onRewindFinished = null
             }
         }
     }

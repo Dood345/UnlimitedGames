@@ -96,7 +96,7 @@ class SudokuGameFragment : Fragment(), SudokuBoardView.OnCellSelectedListener {
         val shouldResume = arguments?.getBoolean(ARG_SHOULD_RESUME, false) ?: false
         if (shouldResume) {
             val savedState = SudokuRepository(requireContext()).getSavedGameState(difficulty)
-            if (savedState != null) {
+            if (savedState != null && !savedState.isCompleted) {
                 viewModel.resumeGame(savedState)
             } else {
                 viewModel.startNewGame(difficulty, isRanked)
@@ -153,7 +153,9 @@ class SudokuGameFragment : Fragment(), SudokuBoardView.OnCellSelectedListener {
 
         viewModel.gameCompletedEvent.observe(viewLifecycleOwner) { score ->
             showConfetti()
-            showAnimatedCompletionDialog(score)
+            android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
+                showAnimatedCompletionDialog(score)
+            }, 1000)
         }
     }
 
@@ -197,6 +199,7 @@ class SudokuGameFragment : Fragment(), SudokuBoardView.OnCellSelectedListener {
             .setTitle("Puzzle Solved!")
             .setView(dialogView)
             .setPositiveButton("Awesome!") { _, _ ->
+                viewModel.deleteSavedGame()
                 parentFragmentManager.popBackStack()
             }
             .setCancelable(false)

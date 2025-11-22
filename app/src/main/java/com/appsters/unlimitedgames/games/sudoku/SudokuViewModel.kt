@@ -59,9 +59,16 @@ class SudokuViewModel(private val repository: SudokuRepository) : ViewModel() {
 
     fun saveGame() {
         _gameState.value?.let { currentState ->
+            if (currentState.isCompleted) return
             currentState.isPaused = true
             repository.saveGameState(currentState, currentState.difficulty)
             pauseTimer()
+        }
+    }
+
+    fun deleteSavedGame() {
+        _gameState.value?.let { currentState ->
+            repository.clearSavedGame(currentState.difficulty)
         }
     }
 
@@ -128,9 +135,9 @@ class SudokuViewModel(private val repository: SudokuRepository) : ViewModel() {
             if (currentBoard.isSolved()) {
                 currentGameState.isCompleted = true
                 sudokuTimer.pause()
+                repository.saveGameState(currentGameState, currentGameState.difficulty)
                 currentGameState.getScore()?.let { finalScore ->
                     repository.saveHighScore(finalScore)
-                    repository.clearSavedGame(currentGameState.difficulty)
                     _gameCompletedEvent.postValue(finalScore)
                 }
             }

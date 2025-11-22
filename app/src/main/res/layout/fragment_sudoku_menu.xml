@@ -97,7 +97,7 @@
                 android:id="@+id/rg_mode"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="24dp"
+                android:layout_marginBottom="15dp"
                 android:gravity="center_horizontal"
                 android:orientation="horizontal">
 
@@ -107,13 +107,15 @@
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="24dp"
                     android:checked="true"
-                    android:text="Ranked" />
+                    android:text="Ranked"
+                    android:textSize="16sp" />
 
                 <RadioButton
                     android:id="@+id/rb_free_play"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Free Play" />
+                    android:text="Free Play"
+                    android:textSize="16sp" />
             </RadioGroup>
 
             <!-- Start Game Button -->
@@ -121,7 +123,7 @@
                 android:id="@+id/btn_start_game"
                 android:layout_width="match_parent"
                 android:layout_height="60dp"
-                android:layout_marginBottom="16dp"
+                android:layout_marginBottom="1dp"
                 android:text="Start New Game"
                 android:textSize="18sp" />
 
@@ -130,7 +132,7 @@
                 android:id="@+id/btn_resume_game"
                 android:layout_width="match_parent"
                 android:layout_height="60dp"
-                android:layout_marginBottom="32dp"
+                android:layout_marginBottom="12dp"
                 android:text="Resume Game"
                 android:textSize="18sp" />
 

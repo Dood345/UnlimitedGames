@@ -17,7 +17,6 @@ data class Score(
     val difficulty: SudokuMenuFragment.Difficulty,
     val timeInSeconds: Long,
     val mistakes: Int,
-    val hintsUsed: Int,
     val timestamp: Long = System.currentTimeMillis()
 ) {
     /**
@@ -30,8 +29,7 @@ data class Score(
     fun calculateScore(): Int {
         val timeScore = 10000 - timeInSeconds.toInt()
         val mistakePenalty = mistakes * 50
-        val hintPenalty = hintsUsed * 100
-        val finalScore = (timeScore - mistakePenalty - hintPenalty) * difficulty.multiplier
+        val finalScore = (timeScore - mistakePenalty) * difficulty.multiplier
 
         //can be negative now
         return finalScore.toInt()
@@ -55,9 +53,8 @@ data class Score(
     fun getScoreBreakdown(): String {
         val timeScore = 10000 - timeInSeconds.toInt()
         val mistakePenalty = mistakes * 50
-        val hintPenalty = hintsUsed * 100           //may be used later
-        val finalScore = (timeScore - mistakePenalty - hintPenalty) * difficulty.multiplier
-        val difficultyBonus = finalScore.toInt() - timeScore - mistakePenalty
+        val finalScore = (timeScore - mistakePenalty) * difficulty.multiplier
+        val difficultyBonus = finalScore.toInt() - timeScore + mistakePenalty
 
 
         fun formatLine(label: String, value: Any): String {

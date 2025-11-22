@@ -15,7 +15,6 @@ import com.appsters.unlimitedgames.games.sudoku.SudokuMenuFragment
  * @property isPaused `true` if the game is currently paused.
  * @property isCompleted `true` if the puzzle has been successfully solved.
  * @property mistakes The number of incorrect moves the player has made.
- * @property hintsUsed The number of hints the player has used.
  * @property isRanked `true` if the game is a ranked match.
  */
 data class GameState(
@@ -26,7 +25,6 @@ data class GameState(
     var isPaused: Boolean = false,
     var isCompleted: Boolean = false,
     var mistakes: Int = 0,
-    var hintsUsed: Int = 0,
     val isRanked: Boolean = true
 ) {
     /**
@@ -48,8 +46,7 @@ data class GameState(
             Score(
                 difficulty = difficulty,
                 timeInSeconds = elapsedTime / 1000,
-                mistakes = mistakes,
-                hintsUsed = hintsUsed
+                mistakes = mistakes
             )
         } else {
             null

@@ -28,4 +28,5 @@
     <!-- Directional Pad Colors -->
     <color name="d_pad_inactive_color">#FF555555</color>
     <color name="d_pad_active_color">#FF888888</color>
+    <color name="lessWhite">#242424</color>
 </resources>

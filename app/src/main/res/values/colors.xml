@@ -38,4 +38,5 @@
     <!-- Directional Pad Colors -->
     <color name="d_pad_inactive_color">#FFCCCCCC</color>
     <color name="d_pad_active_color">#FF888888</color>
+    <color name="lessWhite">#E1E1E1</color>
 </resources>

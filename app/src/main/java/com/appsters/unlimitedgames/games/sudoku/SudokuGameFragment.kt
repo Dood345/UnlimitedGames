@@ -179,7 +179,7 @@ class SudokuGameFragment : Fragment(), SudokuBoardView.OnCellSelectedListener {
             if (impossibleNumbers.contains(number)) {
                 button.backgroundTintList = ColorStateList.valueOf(Color.RED)
             } else {
-                button.backgroundTintList = ColorStateList.valueOf(ContextCompat.getColor(requireContext(), R.color.purple_500))
+                button.backgroundTintList = ColorStateList.valueOf(ContextCompat.getColor(requireContext(), R.color.sudoku_board_line_color))
             }
         }
     }

@@ -1,5 +1,6 @@
 package com.appsters.unlimitedgames.games.maze
 
+import android.graphics.PointF
 import androidx.lifecycle.ViewModel
 import com.appsters.unlimitedgames.games.maze.controller.RunManager
 import com.appsters.unlimitedgames.games.maze.model.Maze
@@ -12,6 +13,7 @@ class MazeViewModel : ViewModel() {
     // Player State
     var playerX: Float = 0.5f
     var playerY: Float = 0.5f
+    val playerPath = mutableListOf<PointF>()
 
     // Stamina
     private val _currentStamina = androidx.lifecycle.MutableLiveData<Float>()
@@ -87,6 +89,8 @@ class MazeViewModel : ViewModel() {
         // Reset player position
         playerX = 0.5f
         playerY = 0.5f
+        playerPath.clear()
+        playerPath.add(PointF(playerX, playerY))
         
         // Reset Stamina
         if (RunManager.player.currentStamina <= 0f) {
@@ -173,6 +177,8 @@ class MazeViewModel : ViewModel() {
 
     fun onStepTaken() {
         if (_isGameOver.value == true) return
+
+        playerPath.add(PointF(playerX, playerY))
 
         // Tick Player Effects - Moved to onGameUpdate
         // RunManager.player.tickEffects()

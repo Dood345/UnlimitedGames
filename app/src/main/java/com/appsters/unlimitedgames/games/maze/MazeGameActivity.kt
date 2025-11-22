@@ -79,7 +79,14 @@ class MazeGameActivity : AppCompatActivity() {
             if (isComplete) {
                 triggerConfetti()
                 mazeView.stopGame()
-                showUpgradeScreen(false)
+
+                // Add a delay before starting the rewind
+                android.os.Handler(mainLooper).postDelayed({
+                    mazeView.rewindPlayer(viewModel.playerPath) {
+                        // This will be called when the rewind animation is finished
+                        showUpgradeScreen(false)
+                    }
+                }, 1000) // 1 second delay
             }
         }
 

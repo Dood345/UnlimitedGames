@@ -66,6 +66,28 @@ class MazeView(context: Context, attrs: AttributeSet?) : View(context, attrs) {
         }
     }
 
+    private var rewindPath: LinkedList<PointF>? = null
+    private var onRewindFinished: (() -> Unit)? = null
+
+    private val rewindLoop = object : Runnable {
+        override fun run() {
+            rewindPath?.let { path ->
+                if (path.isNotEmpty()) {
+                    val point = path.removeLast()
+                    setPlayerPosition(point.x, point.y)
+                    trailPoints.add(PointF(playerX, playerY))
+                    if (trailPoints.size > maxTrailLength) {
+                        trailPoints.removeFirst()
+                    }
+                    postOnAnimationDelayed(this, 20) // Adjust delay for rewind speed
+                } else {
+                    onRewindFinished?.invoke()
+                    onRewindFinished = null
+                }
+            }
+        }
+    }
+
     init {
         wallPaint.color = ContextCompat.getColor(context, R.color.maze_wall_color)
         playerPaint.color = ContextCompat.getColor(context, R.color.maze_player_color)
@@ -108,10 +130,19 @@ class MazeView(context: Context, attrs: AttributeSet?) : View(context, attrs) {
     override fun onDetachedFromWindow() {
         super.onDetachedFromWindow()
         removeCallbacks(gameLoop)
+        removeCallbacks(rewindLoop)
     }
 
     fun stopGame() {
         removeCallbacks(gameLoop)
+    }
+
+    fun rewindPlayer(path: List<PointF>, onFinished: () -> Unit) {
+        stopGame()
+        rewindPath = LinkedList(path)
+        onRewindFinished = onFinished
+        trailPoints.clear()
+        postOnAnimation(rewindLoop)
     }
 
     // Listener for tile changes (steps)

@@ -14,6 +14,7 @@
         android:layout_height="wrap_content"
         app:cardCornerRadius="8dp"
         app:cardElevation="4dp"
+        app:cardBackgroundColor="?attr/colorSurface"
         app:cardUseCompatPadding="true">
 
         <androidx.constraintlayout.widget.ConstraintLayout
@@ -38,6 +39,7 @@
                 android:layout_marginTop="8dp"
                 android:text="@={gameTitle}"
                 android:textAppearance="?attr/textAppearanceBody1"
+                android:textColor="?attr/colorOnSurface"
                 app:layout_constraintTop_toBottomOf="@id/game_image"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent" />

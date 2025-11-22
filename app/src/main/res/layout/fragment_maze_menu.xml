@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
+    tools:context=".games.maze.MazeMenuFragment">
+
+    <TextView
+        android:id="@+id/tv_maze_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Maze Game"
+        android:textSize="34sp"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toTopOf="@+id/btn_start_maze"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/btn_start_maze"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Continue Run"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tv_maze_title"
+        app:layout_constraintVertical_bias="0.4" />
+
+    <Button
+        android:id="@+id/btn_new_run"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="New Run"
+        android:backgroundTint="#F44336"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/btn_start_maze"
+        android:layout_marginTop="16dp"/>
+
+    <TextView
+        android:id="@+id/tv_last_run_stats"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Last Run: Round 0 - $0"
+        android:textColor="@color/maze_wall_color"
+        android:textSize="16sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/btn_new_run"
+        android:layout_marginTop="32dp"/>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

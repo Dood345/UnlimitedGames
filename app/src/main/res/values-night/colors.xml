@@ -20,4 +20,12 @@
     <color name="sudoku_board_fixed_text_color"> #FFCCCCCC </color>
     <color name="sudoku_board_selected_cell_color">#545454</color>
     <color name="sudoku_board_related_cell_color">#353535</color>
+
+    <!-- Maze Colors -->
+    <color name="maze_wall_color">@color/white</color>
+    <color name="maze_player_color">@color/red</color>
+    <color name="maze_exit_color">@color/green</color>
+    <!-- Directional Pad Colors -->
+    <color name="d_pad_inactive_color">#FF555555</color>
+    <color name="d_pad_active_color">#FF888888</color>
 </resources>

@@ -31,6 +31,10 @@
         <activity
             android:name=".games.whackamole.WhackAMoleGameActivity"
             android:theme="@style/Theme.UnlimitedGames" />
+        <activity
+            android:name=".games.sudoku.SudokuActivity"
+            android:screenOrientation="portrait"
+            android:exported="false" />
     </application>
 
 </manifest>

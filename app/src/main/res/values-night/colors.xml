@@ -1,21 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="purple_200">#FFBB86FC</color>
-    <color name="purple_500">#FF6200EE</color>
-    <color name="purple_700">#FF3700B3</color>
-    <color name="teal_200">#FF03DAC5</color>
-    <color name="teal_700">#FF018786</color>
-    <color name="black">#FF000000</color>
-    <color name="white">#FFFFFFFF</color>
-    <color name="dark_gray">#FF333333</color>
-    <color name="red">#FFFF0000</color>
-    <color name="deleteCancel">#FFFFFFFF</color>
+    <color name="purple_200"> #FFBB86FC </color>
+    <color name="purple_500"> #FF6200EE </color>
+    <color name="purple_700"> #FF3700B3 </color>
+    <color name="teal_200"> #FF03DAC5 </color>
+    <color name="teal_700"> #FF018786 </color>
+    <color name="black"> #FF000000 </color>
+    <color name="white"> #FFFFFFFF </color>
+    <color name="dark_gray"> #FF333333 </color>
+    <color name="red">#FF7171</color>
+    <color name="deleteCancel"> #FFFFFFFF </color>
+    <color name="blue"> #69A2FF </color>
+    <color name="green"> #00FF00 </color>
 
-    <!--  WhackAMole  -->
-    <color name="mole_red">#FF8B0000</color>
-    <color name="mole_blue">#FF0000FF</color>
-    <color name="mole_green">#FF008000</color>
-    <color name="mole_yellow">#FFFFEB3B</color>
-    <color name="mole_purple">#FF8A2BE2</color>
-    <color name="button_pink">#D58883</color>
+    <!-- Sudoku Colors -->
+    <color name="color_selector"> #00FFFF </color>
+    <color name="sudoku_board_line_color"> #FFFFFFFF </color>
+    <color name="sudoku_board_text_color"> #FFFFFFFF </color>
+    <color name="sudoku_board_fixed_text_color"> #FFCCCCCC </color>
+    <color name="sudoku_board_selected_cell_color">#545454</color>
+    <color name="sudoku_board_related_cell_color">#353535</color>
 </resources>

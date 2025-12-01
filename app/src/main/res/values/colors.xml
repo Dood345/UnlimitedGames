@@ -9,7 +9,7 @@
     <color name="white"> #FFFFFFFF </color>
     <color name="dark_gray"> #FF333333 </color>
     <color name="red"> #FFFF0000 </color>
-    <color name="deleteCancel"> #FF333333 </color>
+    <color name="generalText"> #FF333333 </color>
     <color name="blue"> #FF0000FF </color>
     <color name="green"> #FF008000 </color>
     <color name="cyan">#89F5F5</color>

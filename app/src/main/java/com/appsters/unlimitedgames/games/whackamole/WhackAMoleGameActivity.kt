@@ -170,7 +170,7 @@ class WhackAMoleGameActivity : AppCompatActivity() {
             "Game Over! Score: $finalScore\nHigh Score: $highScore"
         }
 
-        androidx.appcompat.app.AlertDialog.Builder(this)
+        androidx.appcompat.app.AlertDialog.Builder(this, R.style.DialogueTheme)
             .setTitle("Game Over")
             .setMessage(message)
             .setCancelable(false)

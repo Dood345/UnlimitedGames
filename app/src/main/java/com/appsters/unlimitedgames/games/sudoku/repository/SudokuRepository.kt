@@ -16,6 +16,7 @@ class SudokuRepository(context: Context) {
     companion object {
         private const val HIGH_SCORE_KEY_PREFIX = "high_score_"
         private const val LAST_COLOR_KEY = "last_color"
+        private const val SAVED_GAME_STATE_KEY = "saved_game_state"
     }
 
     /**
@@ -52,5 +53,44 @@ class SudokuRepository(context: Context) {
      */
     fun getLastColor(): Int {
         return prefs.getInt(LAST_COLOR_KEY, Color.BLACK)
+    }
+
+    /**
+     * Saves the current game state to SharedPreferences.
+     */
+    fun saveGameState(gameState: com.appsters.unlimitedgames.games.sudoku.model.GameState, difficulty: SudokuMenuFragment.Difficulty) {
+        val json = com.google.gson.Gson().toJson(gameState)
+        val key = SAVED_GAME_STATE_KEY + "_" + difficulty.name
+        prefs.edit().putString(key, json).apply()
+    }
+
+    /**
+     * Retrieves the saved game state from SharedPreferences.
+     * @return The saved [GameState], or null if no game is saved.
+     */
+    fun getSavedGameState(difficulty: SudokuMenuFragment.Difficulty): com.appsters.unlimitedgames.games.sudoku.model.GameState? {
+        val key = SAVED_GAME_STATE_KEY + "_" + difficulty.name
+        val json = prefs.getString(key, null) ?: return null
+        return try {
+            com.google.gson.Gson().fromJson(json, com.appsters.unlimitedgames.games.sudoku.model.GameState::class.java)
+        } catch (e: Exception) {
+            null
+        }
+    }
+
+    /**
+     * Checks if there is a saved game state.
+     */
+    fun hasSavedGame(difficulty: SudokuMenuFragment.Difficulty): Boolean {
+        val key = SAVED_GAME_STATE_KEY + "_" + difficulty.name
+        return prefs.contains(key)
+    }
+
+    /**
+     * Clears the saved game state.
+     */
+    fun clearSavedGame(difficulty: SudokuMenuFragment.Difficulty) {
+        val key = SAVED_GAME_STATE_KEY + "_" + difficulty.name
+        prefs.edit().remove(key).apply()
     }
 }

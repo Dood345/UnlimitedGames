@@ -17,7 +17,7 @@ data class Score(
     val difficulty: SudokuMenuFragment.Difficulty,
     val timeInSeconds: Long,
     val mistakes: Int,
-    val hintsUsed: Int,
+    val isRanked: Boolean,
     val timestamp: Long = System.currentTimeMillis()
 ) {
     /**
@@ -28,12 +28,13 @@ data class Score(
      * @return The calculated score, with a minimum of 0.
      */
     fun calculateScore(): Int {
-        val baseScore = 10000 - timeInSeconds.toInt()
-        val difficultyScore = (baseScore * difficulty.multiplier).toInt()
+        if (!isRanked) return 0
+        val timeScore = 10000 - timeInSeconds.toInt()
         val mistakePenalty = mistakes * 50
-        val hintPenalty = hintsUsed * 100
-        
-        return maxOf(0, difficultyScore - mistakePenalty - hintPenalty)
+        val finalScore = (timeScore - mistakePenalty) * difficulty.multiplier
+
+        //can be negative now
+        return finalScore.toInt()
     }
     
     /**
@@ -52,10 +53,15 @@ data class Score(
      * @return A formatted string explaining the score calculation.
      */
     fun getScoreBreakdown(): String {
+        if (!isRanked) {
+            return Quotes.list.random()
+        }
+
         val timeScore = 10000 - timeInSeconds.toInt()
-        val difficultyBonus = (timeScore * (difficulty.multiplier - 1)).toInt()
         val mistakePenalty = mistakes * 50
-        val hintPenalty = hintsUsed * 100       //may be used down the road
+        val finalScore = (timeScore - mistakePenalty) * difficulty.multiplier
+        val difficultyBonus = finalScore.toInt() - timeScore + mistakePenalty
+
 
         fun formatLine(label: String, value: Any): String {
             val valueStr = value.toString()
@@ -68,8 +74,8 @@ data class Score(
 
         return """
             ${formatLine("Time Bonus", timeScore)}
+            ${formatLine("Mistake Penalty (${mistakes}x50)", "-$mistakePenalty")}
             ${formatLine("Difficulty Bonus (x${difficulty.multiplier})", "+$difficultyBonus")}
-            ${formatLine("Mistake Penalty ($mistakes)", "-$mistakePenalty")}
             $separator
             ${formatLine("Total Score", calculateScore())}
         """.trimIndent()

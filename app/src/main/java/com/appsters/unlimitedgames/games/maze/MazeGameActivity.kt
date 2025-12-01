@@ -5,6 +5,9 @@ import android.view.KeyEvent
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.fragment.NavHostFragment
 import com.appsters.unlimitedgames.R
+import com.appsters.unlimitedgames.app.util.DirectionalPadView
+import com.appsters.unlimitedgames.games.maze.controller.RunManager
+import com.appsters.unlimitedgames.games.maze.view.MazeView
 
 import nl.dionsegijn.konfetti.xml.KonfettiView
 import nl.dionsegijn.konfetti.core.Party
@@ -171,10 +174,10 @@ class MazeGameActivity : AppCompatActivity() {
         upgradeFragment.onNextLevelListener = {
             if (isGameOver) {
                 // New Run
-                com.appsters.unlimitedgames.games.maze.RunManager.startNewRun()
+                RunManager.startNewRun()
             } else {
                 // Next Level
-                com.appsters.unlimitedgames.games.maze.RunManager.nextRound()
+                RunManager.nextRound()
             }
             
             viewModel.resetGame(15, 15)
@@ -193,7 +196,7 @@ class MazeGameActivity : AppCompatActivity() {
         }
         upgradeFragment.onMainMenuListener = {
             if (!isGameOver) {
-                com.appsters.unlimitedgames.games.maze.RunManager.nextRound()
+                RunManager.nextRound()
             }
             finish()
         }
@@ -249,7 +252,7 @@ class MazeGameActivity : AppCompatActivity() {
 
     private fun updateSkillUI() {
         val fabWallSmash: com.google.android.material.floatingactionbutton.FloatingActionButton = findViewById(R.id.fab_wall_smash)
-        if (com.appsters.unlimitedgames.games.maze.RunManager.player.isWallSmashUnlocked) {
+        if (RunManager.player.isWallSmashUnlocked) {
             fabWallSmash.visibility = android.view.View.VISIBLE
         } else {
             fabWallSmash.visibility = android.view.View.GONE

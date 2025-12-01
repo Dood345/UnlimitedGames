@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -23,129 +24,117 @@
                 android:textSize="48sp"
                 android:textStyle="bold" />
 
-            <!-- Header Row -->
-            <LinearLayout
-                android:layout_width="wrap_content"
+            <!-- Difficulty Selection -->
+            <RadioGroup
+                android:id="@+id/rg_difficulty"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="12dp"
-                android:orientation="horizontal">
+                android:layout_marginBottom="16dp"
+                android:orientation="vertical">
 
-                <TextView
-                    android:layout_width="220dp"
+                <RadioButton
+                    android:id="@+id/rb_easy"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:text="Ranked Games"
-                    android:textSize="16sp"
+                    android:layout_marginBottom="8dp"
+                    android:background="@drawable/selector_difficulty_background"
+                    android:button="@null"
+                    android:fontFamily="@font/workbench"
+                    android:padding="16dp"
+                    android:text="Easy"
+                    android:textAlignment="center"
+                    android:textColor="@color/black"
+                    android:textSize="18sp"
                     android:textStyle="bold" />
 
-                <TextView
-                    android:layout_width="120dp"
+                <RadioButton
+                    android:id="@+id/rb_medium"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="12dp"
-                    android:gravity="center"
+                    android:layout_marginBottom="8dp"
+                    android:background="@drawable/selector_difficulty_background"
+                    android:button="@null"
+                    android:fontFamily="@font/workbench"
+                    android:padding="16dp"
+                    android:text="Medium"
+                    android:textAlignment="center"
+                    android:textColor="@color/black"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+
+                <RadioButton
+                    android:id="@+id/rb_hard"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp"
+                    android:background="@drawable/selector_difficulty_background"
+                    android:button="@null"
+                    android:fontFamily="@font/workbench"
+                    android:padding="16dp"
+                    android:text="Hard"
+                    android:textAlignment="center"
+                    android:textColor="@color/black"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+
+                <RadioButton
+                    android:id="@+id/rb_expert"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/selector_difficulty_background"
+                    android:button="@null"
+                    android:fontFamily="@font/workbench"
+                    android:padding="16dp"
+                    android:text="Expert"
+                    android:textAlignment="center"
+                    android:textColor="@color/black"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+            </RadioGroup>
+
+            <!-- Mode Selection -->
+            <RadioGroup
+                android:id="@+id/rg_mode"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="15dp"
+                android:gravity="center_horizontal"
+                android:orientation="horizontal">
+
+                <RadioButton
+                    android:id="@+id/rb_ranked"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="24dp"
+                    android:checked="true"
+                    android:text="Ranked"
+                    android:textSize="16sp" />
+
+                <RadioButton
+                    android:id="@+id/rb_free_play"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
                     android:text="Free Play"
-                    android:textSize="16sp"
-                    android:textStyle="bold" />
-            </LinearLayout>
+                    android:textSize="16sp" />
+            </RadioGroup>
 
-            <!-- Easy Row -->
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+            <!-- Start Game Button -->
+            <Button
+                android:id="@+id/btn_start_game"
+                android:layout_width="match_parent"
+                android:layout_height="60dp"
+                android:layout_marginBottom="1dp"
+                android:text="Start New Game"
+                android:textSize="18sp" />
+
+            <!-- Resume Game Section -->
+            <Button
+                android:id="@+id/btn_resume_game"
+                android:layout_width="match_parent"
+                android:layout_height="60dp"
                 android:layout_marginBottom="12dp"
-                android:orientation="horizontal">
-
-                <Button
-                    android:id="@+id/btn_easy"
-                    android:layout_width="220dp"
-                    android:layout_height="60dp"
-                    android:text="Easy"
-                    android:textSize="16sp" />
-
-                <Button
-                    android:id="@+id/btn_easy_free"
-                    android:layout_width="120dp"
-                    android:layout_height="60dp"
-                    android:layout_marginStart="12dp"
-                    android:text="Easy"
-                    android:textSize="16sp" />
-            </LinearLayout>
-
-            <!-- Medium Row -->
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="12dp"
-                android:orientation="horizontal">
-
-                <Button
-                    android:id="@+id/btn_medium"
-                    android:layout_width="220dp"
-                    android:layout_height="60dp"
-                    android:text="Medium"
-                    android:textSize="16sp" />
-
-                <Button
-                    android:id="@+id/btn_medium_free"
-                    android:layout_width="120dp"
-                    android:layout_height="60dp"
-                    android:layout_marginStart="12dp"
-                    android:text="Medium"
-                    android:textSize="16sp" />
-            </LinearLayout>
-
-            <!-- Hard Row -->
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="12dp"
-                android:orientation="horizontal">
-
-                <Button
-                    android:id="@+id/btn_hard"
-                    android:layout_width="220dp"
-                    android:layout_height="60dp"
-                    android:text="Hard"
-                    android:textSize="16sp" />
-
-                <Button
-                    android:id="@+id/btn_hard_free"
-                    android:layout_width="120dp"
-                    android:layout_height="60dp"
-                    android:layout_marginStart="12dp"
-                    android:text="Hard"
-                    android:textSize="16sp" />
-            </LinearLayout>
-
-            <!-- Expert Row -->
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="32dp"
-                android:orientation="horizontal">
-
-                <Button
-                    android:id="@+id/btn_expert"
-                    android:layout_width="220dp"
-                    android:layout_height="60dp"
-                    android:text="Expert"
-                    android:textSize="16sp" />
-
-                <Button
-                    android:id="@+id/btn_expert_free"
-                    android:layout_width="120dp"
-                    android:layout_height="60dp"
-                    android:layout_marginStart="12dp"
-                    android:text="Expert"
-                    android:textSize="16sp" />
-            </LinearLayout>
-
-            <!-- Divider -->
-            <View
-                android:layout_width="312dp"
-                android:layout_height="1dp"
-                android:layout_marginVertical="8dp"
-                android:background="#CCCCCC" />
+                android:text="Resume Game"
+                android:textSize="18sp" />
 
             <!-- Color Picker Section -->
             <TextView

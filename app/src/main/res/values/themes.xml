@@ -22,7 +22,7 @@
         <item name="android:textColor">@color/red</item>
     </style>
     <style name="AlertDialog.ButtonCancel" parent="Widget.MaterialComponents.Button.OutlinedButton">
-        <item name="android:textColor">@color/deleteCancel</item>
+        <item name="android:textColor">@color/generalText</item>
     </style>
 
     <!-- Sudoku dialogue theming -->
@@ -31,5 +31,17 @@
     </style>
     <style name="AlertDialog.ButtonAwesome" parent="Widget.MaterialComponents.Button.OutlinedButton">
         <item name="android:textColor">@color/sudoku_board_fixed_text_color</item>
+    </style>
+
+    <!-- General dialogue theming -->
+    <style name="DialogueTheme" parent="Theme.MaterialComponents.DayNight.Dialog.Alert">
+        <item name="buttonBarPositiveButtonStyle">@style/AlertDialog.ButtonPos</item>
+        <item name="buttonBarNegativeButtonStyle">@style/AlertDialog.ButtonNeg</item>
+    </style>
+    <style name="AlertDialog.ButtonPos" parent="Widget.MaterialComponents.Button.OutlinedButton">
+        <item name="android:textColor">@color/red</item>
+    </style>
+    <style name="AlertDialog.ButtonNeg" parent="Widget.MaterialComponents.Button.OutlinedButton">
+        <item name="android:textColor">@color/generalText</item>
     </style>
 </resources>

@@ -9,7 +9,7 @@
     <color name="white"> #FFFFFFFF </color>
     <color name="dark_gray"> #FF333333 </color>
     <color name="red">#FF7171</color>
-    <color name="deleteCancel"> #FFFFFFFF </color>
+    <color name="generalText"> #FFFFFFFF </color>
     <color name="blue"> #69A2FF </color>
     <color name="green"> #00FF00 </color>
 
@@ -28,4 +28,5 @@
     <!-- Directional Pad Colors -->
     <color name="d_pad_inactive_color">#FF555555</color>
     <color name="d_pad_active_color">#FF888888</color>
+    <color name="lessWhite">#242424</color>
 </resources>

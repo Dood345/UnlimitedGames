@@ -14,7 +14,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModelProvider
 import com.appsters.unlimitedgames.R
-import com.appsters.unlimitedgames.app.ui.util.TypewriterView
+import com.appsters.unlimitedgames.app.util.TypewriterView
 import com.appsters.unlimitedgames.games.sudoku.model.Score
 import com.appsters.unlimitedgames.games.sudoku.repository.SudokuRepository
 import com.appsters.unlimitedgames.games.sudoku.view.SudokuBoardView
@@ -24,9 +24,9 @@ import nl.dionsegijn.konfetti.xml.KonfettiView
 import java.util.concurrent.TimeUnit
 
 /**
- * A [Fragment] that displays the main Sudoku game screen.
- * This fragment contains the Sudoku board, timer, and number input controls.
- * It communicates with a [SudokuViewModel] to manage the game state.
+ * The main game fragment for Sudoku.
+ * This fragment displays the game board, controls (number buttons, clear), and the timer.
+ * It handles user interaction with the board and communicates with the [SudokuViewModel].
  */
 class SudokuGameFragment : Fragment(), SudokuBoardView.OnCellSelectedListener {
 
@@ -43,20 +43,29 @@ class SudokuGameFragment : Fragment(), SudokuBoardView.OnCellSelectedListener {
         private const val ARG_DIFFICULTY = "difficulty"
         private const val ARG_COLOR = "color"
         private const val ARG_IS_RANKED = "is_ranked"
+        private const val ARG_SHOULD_RESUME = "should_resume"
 
         /**
-         * Creates a new instance of the fragment with the specified difficulty and color.
+         * Creates a new instance of the Sudoku game fragment.
+         *
+         * @param difficulty The difficulty level of the game.
+         * @param colorRes The resource ID of the color to use for player input.
+         * @param isRanked Whether this is a ranked game (affects scoring).
+         * @param shouldResume Whether to resume a saved game or start a new one.
+         * @return A new instance of [SudokuGameFragment].
          */
         fun newInstance(
             difficulty: SudokuMenuFragment.Difficulty,
             colorRes: Int,
-            isRanked: Boolean = true
+            isRanked: Boolean = true,
+            shouldResume: Boolean = false
         ): SudokuGameFragment {
             return SudokuGameFragment().apply {
                 arguments = Bundle().apply {
                     putString(ARG_DIFFICULTY, difficulty.name)
                     putInt(ARG_COLOR, colorRes)
                     putBoolean(ARG_IS_RANKED, isRanked)
+                    putBoolean(ARG_SHOULD_RESUME, shouldResume)
                 }
             }
         }
@@ -98,12 +107,19 @@ class SudokuGameFragment : Fragment(), SudokuBoardView.OnCellSelectedListener {
         setupButtonClickListeners(view)
         observeViewModel()
 
-        viewModel.startNewGame(difficulty, isRanked)
+        val shouldResume = arguments?.getBoolean(ARG_SHOULD_RESUME, false) ?: false
+        if (shouldResume) {
+            val savedState = SudokuRepository(requireContext()).getSavedGameState(difficulty)
+            if (savedState != null && !savedState.isCompleted) {
+                viewModel.resumeGame(savedState)
+            } else {
+                viewModel.startNewGame(difficulty, isRanked)
+            }
+        } else {
+            viewModel.startNewGame(difficulty, isRanked)
+        }
     }
 
-    /**
-     * Sets up click listeners for all the number and control buttons.
-     */
     private fun setupButtonClickListeners(view: View) {
         numberButtons = listOf(
             view.findViewById(R.id.btn_number_1),
@@ -119,14 +135,15 @@ class SudokuGameFragment : Fragment(), SudokuBoardView.OnCellSelectedListener {
 
         numberButtons.forEachIndexed { index, button ->
             button.setOnClickListener { viewModel.enterValue(index + 1) }
+            button.setOnLongClickListener {
+                viewModel.toggleImpossibleNumber(index + 1)
+                true
+            }
         }
 
         view.findViewById<Button>(R.id.btn_clear)?.setOnClickListener { viewModel.clearCell() }
     }
 
-    /**
-     * Observes [LiveData] from the [SudokuViewModel] to update the UI.
-     */
     private fun observeViewModel() {
         viewModel.gameState.observe(viewLifecycleOwner) { gameState ->
             sudokuBoardView.setBoard(gameState.board)
@@ -140,30 +157,41 @@ class SudokuGameFragment : Fragment(), SudokuBoardView.OnCellSelectedListener {
             sudokuBoardView.setSelectedCell(cell)
         }
 
+        viewModel.impossibleNumbers.observe(viewLifecycleOwner) { impossibleNumbers ->
+            updateNumberButtonColors(impossibleNumbers)
+        }
+
         viewModel.invalidMoveEvent.observe(viewLifecycleOwner) { number ->
             flashButton(numberButtons[number - 1])
         }
 
         viewModel.gameCompletedEvent.observe(viewLifecycleOwner) { score ->
             showConfetti()
-            showAnimatedCompletionDialog(score)
+            android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
+                showAnimatedCompletionDialog(score)
+            }, 1000)
         }
     }
 
-    /**
-     * Animates a button with a red flash to indicate an invalid move.
-     */
+    private fun updateNumberButtonColors(impossibleNumbers: Set<Int>) {
+        numberButtons.forEachIndexed { index, button ->
+            val number = index + 1
+            if (impossibleNumbers.contains(number)) {
+                button.backgroundTintList = ColorStateList.valueOf(Color.RED)
+            } else {
+                button.backgroundTintList = ColorStateList.valueOf(ContextCompat.getColor(requireContext(), R.color.sudoku_board_line_color))
+            }
+        }
+    }
+
     private fun flashButton(button: Button) {
         val originalTint = button.backgroundTintList
         button.backgroundTintList = ColorStateList.valueOf(Color.RED)
         button.postDelayed({
             button.backgroundTintList = originalTint
-        }, 300) // Restore after 0.3 seconds
+        }, 300)
     }
 
-    /**
-     * Triggers a burst of confetti to celebrate solving the puzzle.
-     */
     private fun showConfetti() {
         val party = Party(
             speed = 0f,
@@ -177,9 +205,6 @@ class SudokuGameFragment : Fragment(), SudokuBoardView.OnCellSelectedListener {
         konfettiView.start(party)
     }
 
-    /**
-     * Displays a dialog with the final score, animated with a typewriter effect.
-     */
     private fun showAnimatedCompletionDialog(score: Score) {
         val dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_animated_text, null)
         val typewriterView = dialogView.findViewById<TypewriterView>(R.id.typewriter_text)
@@ -188,6 +213,7 @@ class SudokuGameFragment : Fragment(), SudokuBoardView.OnCellSelectedListener {
             .setTitle("Puzzle Solved!")
             .setView(dialogView)
             .setPositiveButton("Awesome!") { _, _ ->
+                viewModel.deleteSavedGame()
                 parentFragmentManager.popBackStack()
             }
             .setCancelable(false)
@@ -200,9 +226,20 @@ class SudokuGameFragment : Fragment(), SudokuBoardView.OnCellSelectedListener {
     }
 
     /**
-     * Called when a cell on the board is selected by the user.
+     * Called when a cell on the Sudoku board is selected by the user.
+     * Delegates the selection logic to the ViewModel.
      */
     override fun onCellSelected(row: Int, col: Int) {
         viewModel.onCellSelected(row, col)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        viewModel.resumeTimer()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        viewModel.saveGame()
     }
 }

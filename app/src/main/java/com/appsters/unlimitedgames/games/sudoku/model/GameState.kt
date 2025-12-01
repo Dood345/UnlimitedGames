@@ -2,6 +2,8 @@ package com.appsters.unlimitedgames.games.sudoku.model
 
 import com.appsters.unlimitedgames.games.sudoku.SudokuMenuFragment
 
+
+
 /**
  * Represents the complete state of a Sudoku game at any given time.
  * This includes the board, difficulty, timer, and player progress.
@@ -13,7 +15,6 @@ import com.appsters.unlimitedgames.games.sudoku.SudokuMenuFragment
  * @property isPaused `true` if the game is currently paused.
  * @property isCompleted `true` if the puzzle has been successfully solved.
  * @property mistakes The number of incorrect moves the player has made.
- * @property hintsUsed The number of hints the player has used.
  * @property isRanked `true` if the game is a ranked match.
  */
 data class GameState(
@@ -24,7 +25,6 @@ data class GameState(
     var isPaused: Boolean = false,
     var isCompleted: Boolean = false,
     var mistakes: Int = 0,
-    var hintsUsed: Int = 0,
     val isRanked: Boolean = true
 ) {
     /**
@@ -38,19 +38,14 @@ data class GameState(
     }
 
     /**
-     * Creates a [Score] object from the current game state if the game is ranked.
-     * Returns null if the game is not ranked.
+     * Creates a [Score] object from the current game state.
      */
-    fun getScore(): Score? {
-        return if (isRanked) {
-            Score(
-                difficulty = difficulty,
-                timeInSeconds = elapsedTime / 1000,
-                mistakes = mistakes,
-                hintsUsed = hintsUsed
-            )
-        } else {
-            null
-        }
+    fun getScore(): Score {
+        return Score(
+            difficulty = difficulty,
+            timeInSeconds = elapsedTime / 1000,
+            mistakes = mistakes,
+            isRanked = isRanked
+        )
     }
 }

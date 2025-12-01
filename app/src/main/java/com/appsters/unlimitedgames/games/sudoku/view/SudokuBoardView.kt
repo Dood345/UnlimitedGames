@@ -33,7 +33,9 @@ class SudokuBoardView @JvmOverloads constructor(
     private val textPaint: Paint
     private val fixedTextPaint: Paint
     private val selectedCellPaint: Paint
+
     private val relatedCellPaint: Paint
+    private val noteTextPaint: Paint
 
     private var cellSize = 0f
     private val textBounds = Rect()
@@ -79,6 +81,12 @@ class SudokuBoardView @JvmOverloads constructor(
         relatedCellPaint = Paint().apply {
             style = Paint.Style.FILL
             color = relatedCellColor
+        }
+
+        noteTextPaint = Paint().apply {
+            color = textColor
+            textSize = 24f
+            textAlign = Paint.Align.CENTER
         }
     }
 
@@ -134,6 +142,7 @@ class SudokuBoardView @JvmOverloads constructor(
         drawSelectedAndRelatedCells(canvas)
         drawGrid(canvas)
         drawNumbers(canvas)
+        //drawNotes(canvas)
     }
 
     /**
@@ -209,6 +218,41 @@ class SudokuBoardView @JvmOverloads constructor(
                         cell.row * cellSize + cellSize / 2 + textHeight / 2,
                         paint
                     )
+                }
+            }
+        }
+    }
+
+    /**
+     * Draws the little numbers inside the cells as notes.
+     */
+    @Deprecated("Use impossibleNumbers and don't display instead")
+    private fun drawNotes(canvas: Canvas) {
+        val cellSize = width / 9f
+        val notePaint = Paint().apply {
+            style = Paint.Style.FILL
+            color = ContextCompat.getColor(context, playerColor)
+            textSize = cellSize / 4f
+            textAlign = Paint.Align.CENTER
+            typeface = android.graphics.Typeface.DEFAULT_BOLD
+        }
+
+        val fontMetrics = notePaint.fontMetrics
+
+        for (r in 0 until 9) {
+            for (c in 0 until 9) {
+                val cell = board?.getCell(r, c) ?: continue
+                if (cell.value == 0 && cell.notes.isNotEmpty()) {
+                    // Draw impossible numbers in a 3x3 grid within the cell
+                    for (number in cell.notes) {
+                        val rowInCell = (number - 1) / 3
+                        val colInCell = (number - 1) % 3
+                        
+                        val x = c * cellSize + (colInCell * cellSize / 3) + (cellSize / 6)
+                        val y = r * cellSize + (rowInCell * cellSize / 3) + (cellSize / 6) - (fontMetrics.ascent + fontMetrics.descent) / 2
+
+                        canvas.drawText(number.toString(), x, y, notePaint)
+                    }
                 }
             }
         }

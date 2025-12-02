@@ -172,6 +172,19 @@ object RunManager {
         }
     }
 
+    fun clearAllData(context: Context) {
+        clearSavedGame(context)
+        // Reset static state
+        totalMoney = 0
+        totalXP = 0
+        currentLevel = 1
+        roundNumber = 1
+        isRunInProgress = false
+        currentLevelXP = 0
+        xpToNextLevel = GameConfig.XP_PER_LEVEL_BASE
+        player.reset()
+    }
+
     private fun checkLevelUp(): Boolean {
         if (currentLevelXP >= xpToNextLevel) {
             currentLevelXP -= xpToNextLevel

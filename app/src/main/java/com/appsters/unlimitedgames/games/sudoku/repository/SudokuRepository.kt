@@ -4,6 +4,7 @@ import android.content.Context
 import android.graphics.Color
 import com.appsters.unlimitedgames.games.sudoku.SudokuMenuFragment
 import com.appsters.unlimitedgames.games.sudoku.model.Score
+import androidx.core.content.edit
 
 /**
  * A repository for handling Sudoku game data, such as high scores and user preferences.
@@ -28,7 +29,7 @@ class SudokuRepository(context: Context) {
         val currentHighScore = prefs.getInt(key, 0)
 
         if (newScoreValue > currentHighScore) {
-            prefs.edit().putInt(key, newScoreValue).apply()
+            prefs.edit { putInt(key, newScoreValue) }
         }
     }
 
@@ -44,7 +45,7 @@ class SudokuRepository(context: Context) {
      * Saves the last color selected by the player.
      */
     fun saveLastColor(color: Int) {
-        prefs.edit().putInt(LAST_COLOR_KEY, color).apply()
+        prefs.edit { putInt(LAST_COLOR_KEY, color) }
     }
 
     /**
@@ -61,12 +62,12 @@ class SudokuRepository(context: Context) {
     fun saveGameState(gameState: com.appsters.unlimitedgames.games.sudoku.model.GameState, difficulty: SudokuMenuFragment.Difficulty) {
         val json = com.google.gson.Gson().toJson(gameState)
         val key = SAVED_GAME_STATE_KEY + "_" + difficulty.name
-        prefs.edit().putString(key, json).apply()
+        prefs.edit { putString(key, json) }
     }
 
     /**
      * Retrieves the saved game state from SharedPreferences.
-     * @return The saved [GameState], or null if no game is saved.
+     * @return The saved [com.appsters.unlimitedgames.games.sudoku.model.GameState], or null if no game is saved.
      */
     fun getSavedGameState(difficulty: SudokuMenuFragment.Difficulty): com.appsters.unlimitedgames.games.sudoku.model.GameState? {
         val key = SAVED_GAME_STATE_KEY + "_" + difficulty.name
@@ -91,6 +92,13 @@ class SudokuRepository(context: Context) {
      */
     fun clearSavedGame(difficulty: SudokuMenuFragment.Difficulty) {
         val key = SAVED_GAME_STATE_KEY + "_" + difficulty.name
-        prefs.edit().remove(key).apply()
+        prefs.edit { remove(key) }
+    }
+
+    /**
+     * Clears all Sudoku data including high scores and saved games.
+     */
+    fun clearAllData() {
+        prefs.edit { clear() }
     }
 }

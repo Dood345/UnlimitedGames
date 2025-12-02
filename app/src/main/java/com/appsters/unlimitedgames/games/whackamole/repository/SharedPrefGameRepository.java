@@ -50,4 +50,10 @@ public class SharedPrefGameRepository implements GameRepository {
                 .apply();
         highScore.setValue(score);
     }
+
+    @Override
+    public void clearData() {
+        prefs.edit().remove(KEY_HIGH_SCORE).apply();
+        highScore.setValue(0);
+    }
 }

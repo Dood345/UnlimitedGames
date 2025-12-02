@@ -69,4 +69,23 @@ public class GameDataSource {
                                                 R.drawable.ic_maze));
                 return games;
         }
+
+        /**
+         * Clears all game data for all games.
+         *
+         * @param context The application context.
+         */
+        public static void clearAllGameData(android.content.Context context) {
+                // Clear Sudoku Data
+                new com.appsters.unlimitedgames.games.sudoku.repository.SudokuRepository(context).clearAllData();
+
+                // Clear Maze Data
+                com.appsters.unlimitedgames.games.maze.controller.RunManager.INSTANCE.clearAllData(context);
+
+                // Clear Whack-a-Mole Data
+                android.content.SharedPreferences whackPrefs = context.getSharedPreferences("WhackAMolePrefs",
+                                android.content.Context.MODE_PRIVATE);
+                new com.appsters.unlimitedgames.games.whackamole.repository.SharedPrefGameRepository(whackPrefs)
+                                .clearData();
+        }
 }

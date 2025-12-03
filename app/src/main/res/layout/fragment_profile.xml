@@ -102,18 +102,14 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/btn_edit_profile" />
 
-            <!-- High Scores List -->
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/rv_high_scores"
-                android:layout_width="0dp"
+            <TextView
+                android:id="@+id/tv_2048_high_score"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:nestedScrollingEnabled="false"
-                app:layout_constraintEnd_toEndOf="parent"
+                android:text="2048 High Score: 0"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/tv_high_scores_title"
-                tools:itemCount="5"
-                tools:listitem="@layout/item_high_score" />
+                app:layout_constraintTop_toBottomOf="@id/tv_high_scores_title" />
 
             <!-- Privacy Setting -->
             <TextView
@@ -125,7 +121,7 @@
                 android:textSize="18sp"
                 android:textStyle="bold"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/rv_high_scores" />
+                app:layout_constraintTop_toBottomOf="@id/tv_2048_high_score" />
 
             <Spinner
                 android:id="@+id/spinner_privacy"

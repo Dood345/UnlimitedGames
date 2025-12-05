@@ -24,4 +24,9 @@ public interface GameRepository {
      * @param score the new high score to save
      */
     void saveHighScore(int score);
+
+    /**
+     * Clears all game data.
+     */
+    void clearData();
 }

@@ -26,11 +26,11 @@
             android:id="@+id/action_homeFragment_to_pokerFragment"
             app:destination="@id/pokerFragment" />
         <action
-            android:id="@+id/action_homeFragment_to_sudokuFragment"
-            app:destination="@id/sudokuFragment" />
-        <action
             android:id="@+id/action_homeFragment_to_NFLQuizFragment"
             app:destination="@id/NFLQuizFragment" />
+        <action
+            android:id="@+id/action_homeFragment_to_mazeMenuFragment"
+            app:destination="@id/mazeMenuFragment" />
     </fragment>
 
     <fragment
@@ -74,15 +74,15 @@
         tools:layout="@layout/fragment_poker" />
 
     <fragment
-        android:id="@+id/sudokuFragment"
-        android:name="com.appsters.unlimitedgames.games.sudoku.SudokuFragment"
-        android:label="Sudoku"
-        tools:layout="@layout/fragment_sudoku" />
-
-    <fragment
         android:id="@+id/NFLQuizFragment"
         android:name="com.appsters.unlimitedgames.games.nflquiz.NFLQuizFragment"
         android:label="NFL Quiz"
         tools:layout="@layout/fragment_nfl_quiz" />
+
+    <fragment
+        android:id="@+id/mazeMenuFragment"
+        android:name="com.appsters.unlimitedgames.games.maze.MazeMenuFragment"
+        android:label="Maze"
+        tools:layout="@layout/fragment_maze_menu" />
 
 </navigation>

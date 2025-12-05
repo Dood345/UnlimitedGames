@@ -20,9 +20,12 @@ import com.appsters.unlimitedgames.app.ui.auth.AuthViewModel;
 import com.appsters.unlimitedgames.app.ui.auth.AuthState;
 
 /**
- * The main activity of the application, serving as the primary entry point and navigation host.
- * This activity manages the overall application layout, including the toolbar and bottom navigation.
- * It observes the authentication state to dynamically switch between the main application content
+ * The main activity of the application, serving as the primary entry point and
+ * navigation host.
+ * This activity manages the overall application layout, including the toolbar
+ * and bottom navigation.
+ * It observes the authentication state to dynamically switch between the main
+ * application content
  * ({@code nav_main}) and the authentication flow ({@code nav_auth}).
  */
 public class MainActivity extends AppCompatActivity {
@@ -33,13 +36,18 @@ public class MainActivity extends AppCompatActivity {
     private AppBarConfiguration appBarConfiguration;
 
     /**
-     * Called when the activity is first created. This method initializes the view binding, sets up
-     * the action bar, and configures the navigation controller with top-level destinations.
-     * It also sets up an observer to monitor the authentication state and adjust the UI accordingly.
+     * Called when the activity is first created. This method initializes the view
+     * binding, sets up
+     * the action bar, and configures the navigation controller with top-level
+     * destinations.
+     * It also sets up an observer to monitor the authentication state and adjust
+     * the UI accordingly.
      *
      * @param savedInstanceState If the activity is being re-initialized after
-     *                           previously being shut down then this Bundle contains the data it most
-     *                           recently supplied in {@link #onSaveInstanceState}. Otherwise, it is null.
+     *                           previously being shut down then this Bundle
+     *                           contains the data it most
+     *                           recently supplied in {@link #onSaveInstanceState}.
+     *                           Otherwise, it is null.
      */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,7 +67,8 @@ public class MainActivity extends AppCompatActivity {
             navController = navHostFragment.getNavController();
 
             // Define top-level destinations for the AppBarConfiguration
-            appBarConfiguration = new AppBarConfiguration.Builder(R.id.homeFragment, R.id.friendsFragment, R.id.leaderboardFragment, R.id.profileFragment)
+            appBarConfiguration = new AppBarConfiguration.Builder(R.id.homeFragment, R.id.friendsFragment,
+                    R.id.leaderboardFragment, R.id.profileFragment)
                     .build();
 
             // Set up the toolbar with NavController and AppBarConfiguration
@@ -82,18 +91,22 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
-     * Handles changes in the user's authentication state. It updates the navigation graph and the
-     * visibility of UI components like the toolbar and bottom navigation based on whether the user
+     * Handles changes in the user's authentication state. It updates the navigation
+     * graph and the
+     * visibility of UI components like the toolbar and bottom navigation based on
+     * whether the user
      * is authenticated, unauthenticated, or in a loading state.
      *
-     * @param authState The current authentication state (e.g., AUTHENTICATED, UNAUTHENTICATED).
+     * @param authState The current authentication state (e.g., AUTHENTICATED,
+     *                  UNAUTHENTICATED).
      */
     private void handleAuthState(AuthState authState) {
         switch (authState) {
             case LOADING:
                 // Hide UI elements during the loading process
                 binding.bottomNav.setVisibility(View.GONE);
-                if (getSupportActionBar() != null) getSupportActionBar().hide();
+                if (getSupportActionBar() != null)
+                    getSupportActionBar().hide();
                 break;
 
             case AUTHENTICATED:
@@ -102,8 +115,12 @@ public class MainActivity extends AppCompatActivity {
                     navController.setGraph(R.navigation.nav_main);
                 }
                 binding.bottomNav.setVisibility(View.VISIBLE);
-                if (getSupportActionBar() != null) getSupportActionBar().show();
+                if (getSupportActionBar() != null)
+                    getSupportActionBar().show();
                 setupBottomNavigation();
+
+                // Ensure Home is selected and highlighted
+                binding.bottomNav.setSelectedItemId(R.id.homeFragment);
                 break;
 
             case UNAUTHENTICATED:
@@ -112,7 +129,11 @@ public class MainActivity extends AppCompatActivity {
                     navController.setGraph(R.navigation.nav_auth);
                 }
                 binding.bottomNav.setVisibility(View.GONE);
-                if (getSupportActionBar() != null) getSupportActionBar().hide();
+                if (getSupportActionBar() != null)
+                    getSupportActionBar().hide();
+
+                // Clear all game data on logout
+                com.appsters.unlimitedgames.app.data.GameDataSource.clearAllGameData(this);
                 break;
 
             case ERROR:
@@ -123,9 +144,12 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
-     * Sets up the listener for the bottom navigation view. This custom listener handles clicks on
-     * navigation items, ensuring that selecting an item either navigates to the destination or,
-     * if already in that destination's back stack, pops back to the root of that tab.
+     * Sets up the listener for the bottom navigation view. This custom listener
+     * handles clicks on
+     * navigation items, ensuring that selecting an item either navigates to the
+     * destination or,
+     * if already in that destination's back stack, pops back to the root of that
+     * tab.
      */
     private void setupBottomNavigation() {
         binding.bottomNav.setOnItemSelectedListener(item -> {
@@ -161,7 +185,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
-     * Handles the Up button navigation. This is delegated to the NavController to ensure proper
+     * Handles the Up button navigation. This is delegated to the NavController to
+     * ensure proper
      * hierarchical navigation within the app.
      *
      * @return {@code true} if navigation was successful, {@code false} otherwise.
@@ -172,8 +197,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
-     * Called when the activity is being destroyed. This is the final call that the activity
-     * receives. It cleans up resources by setting the view binding to null to prevent memory leaks.
+     * Called when the activity is being destroyed. This is the final call that the
+     * activity
+     * receives. It cleans up resources by setting the view binding to null to
+     * prevent memory leaks.
      */
     @Override
     protected void onDestroy() {

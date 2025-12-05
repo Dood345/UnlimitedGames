@@ -1,21 +1,42 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="purple_200">#FFBB86FC</color>
-    <color name="purple_500">#FF6200EE</color>
-    <color name="purple_700">#FF3700B3</color>
-    <color name="teal_200">#FF03DAC5</color>
-    <color name="teal_700">#FF018786</color>
-    <color name="black">#FF000000</color>
-    <color name="white">#FFFFFFFF</color>
-    <color name="dark_gray">#FF333333</color>
-    <color name="red">#FFFF0000</color>
-    <color name="deleteCancel">#FF333333</color>
+    <color name="purple_200"> #FFBB86FC </color>
+    <color name="purple_500"> #FF6200EE </color>
+    <color name="purple_700"> #FF3700B3 </color>
+    <color name="teal_200"> #FF03DAC5 </color>
+    <color name="teal_700"> #FF018786 </color>
+    <color name="black"> #FF000000 </color>
+    <color name="white"> #FFFFFFFF </color>
+    <color name="dark_gray"> #FF333333 </color>
+    <color name="red"> #FFFF0000 </color>
+    <color name="generalText"> #FF333333 </color>
+    <color name="blue"> #FF0000FF </color>
+    <color name="green"> #FF008000 </color>
+    <color name="cyan">#89F5F5</color>
 
     <!--  WhackAMole  -->
-    <color name="mole_red">#FF8B0000</color>
-    <color name="mole_blue">#FF0000FF</color>
-    <color name="mole_green">#FF008000</color>
-    <color name="mole_yellow">#FFFFEB3B</color>
-    <color name="mole_purple">#FF8A2BE2</color>
-    <color name="button_pink">#D58883</color>
+    <color name="mole_red"> #FF8B0000 </color>
+    <color name="mole_blue"> #FF0000FF </color>
+    <color name="mole_green"> #FF008000 </color>
+    <color name="mole_yellow"> #FFFFEB3B </color>
+    <color name="mole_purple"> #FF8A2BE2 </color>
+    <color name="button_pink"> #D58883 </color>
+
+    <!-- Sudoku Colors -->
+    <color name="color_selector">#00FFFF</color>
+    <color name="sudoku_board_line_color"> #FF000000 </color>
+    <color name="sudoku_board_text_color"> #FF000000 </color>
+    <color name="sudoku_board_fixed_text_color"> #FF333333 </color>
+    <color name="sudoku_board_selected_cell_color"> #a7EEEEEE </color>
+    <color name="sudoku_board_related_cell_color"> #a7BDBDBD </color>
+
+    <!-- Maze Colors -->
+    <color name="maze_wall_color">@color/black</color>
+    <color name="maze_player_color">@color/red</color>
+    <color name="maze_exit_color">@color/green</color>
+
+    <!-- Directional Pad Colors -->
+    <color name="d_pad_inactive_color">#FFCCCCCC</color>
+    <color name="d_pad_active_color">#FF888888</color>
+    <color name="lessWhite">#E1E1E1</color>
 </resources>

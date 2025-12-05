@@ -26,7 +26,7 @@ public class GameDataSource {
                                                 "2048",
                                                 "",
                                                 R.id.action_homeFragment_to_game2048Fragment,
-                                                R.drawable.ic_launcher_background));
+                                                R.drawable.game2048_logo));
                 games.add(
                                 new Game(
                                                 "2",

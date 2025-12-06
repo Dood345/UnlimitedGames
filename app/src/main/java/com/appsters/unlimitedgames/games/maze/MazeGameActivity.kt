@@ -78,8 +78,10 @@ class MazeGameActivity : AppCompatActivity() {
         viewModel.isLevelComplete.observe(this) { isComplete ->
             if (isComplete) {
                 triggerConfetti()
-                mazeView.stopGame()
-                showUpgradeScreen(false)
+                mazeView.startRewind {
+                    mazeView.stopGame()
+                    showUpgradeScreen(false)
+                }
             }
         }
 

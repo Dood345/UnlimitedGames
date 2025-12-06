@@ -82,6 +82,10 @@ class MazeView(context: Context, attrs: AttributeSet?) : View(context, attrs) {
         exitRow = maze.height - 1
         lastCol = playerX.toInt()
         lastRow = playerY.toInt()
+        
+        replayBuffer.clear()
+        isRewinding = false
+        onRewindComplete = null
 
         removeCallbacks(gameLoop)
         lastFrameTime = 0L
@@ -139,7 +143,18 @@ class MazeView(context: Context, attrs: AttributeSet?) : View(context, attrs) {
     private val fogPaint = Paint().apply { color = Color.BLACK } // Fog color
     private val vignettePaint = Paint()
 
+    // Rewind State
+    private val replayBuffer = ArrayList<PointF>()
+    private var isRewinding = false
+    private var onRewindComplete: (() -> Unit)? = null
+    private var rewindSpeedMultiplier = 3 // How many frames to skip/process per tick
+
     private fun update(dt: Long) {
+        if (isRewinding) {
+            updateRewind()
+            return
+        }
+
         onUpdateListener?.invoke(dt)
         val currentMaze = maze ?: return
 
@@ -162,6 +177,21 @@ class MazeView(context: Context, attrs: AttributeSet?) : View(context, attrs) {
         // Stop movement if velocity is very low
         if (abs(playerVX) < 0.001f) playerVX = 0f
         if (abs(playerVY) < 0.001f) playerVY = 0f
+
+        // Record Path for Rewind
+        if (speed > 0.001f || replayBuffer.isEmpty()) {
+            // Only record if moving or if it's the first point
+            // We can optimize by only adding if distance > threshold
+            if (replayBuffer.isEmpty()) {
+                replayBuffer.add(PointF(playerX, playerY))
+            } else {
+                val last = replayBuffer.last()
+                val distSq = (playerX - last.x) * (playerX - last.x) + (playerY - last.y) * (playerY - last.y)
+                if (distSq > 0.0001f) { // Small threshold
+                    replayBuffer.add(PointF(playerX, playerY))
+                }
+            }
+        }
 
         // Update Trail
         if (speed > 0.01f) {
@@ -288,10 +318,51 @@ class MazeView(context: Context, attrs: AttributeSet?) : View(context, attrs) {
 
         // Win condition
         if (playerX.toInt() == exitCol && playerY.toInt() == exitRow) {
-            removeCallbacks(gameLoop) // Stop game
+            // Don't stop game loop here, let Activity handle it via listener
+            // removeCallbacks(gameLoop)
         }
     }
 
+    fun startRewind(onComplete: () -> Unit) {
+        if (replayBuffer.isEmpty()) {
+            onComplete()
+            return
+        }
+        isRewinding = true
+        onRewindComplete = onComplete
+
+        // Ensure loop is running
+        removeCallbacks(gameLoop)
+        postOnAnimation(gameLoop)
+    }
+
+    private fun updateRewind() {
+        if (replayBuffer.isEmpty()) {
+            isRewinding = false
+            onRewindComplete?.invoke()
+            onRewindComplete = null
+            return
+        }
+
+        // Process multiple points for speed
+        for (i in 0 until rewindSpeedMultiplier) {
+            if (replayBuffer.isNotEmpty()) {
+                val point = replayBuffer.removeAt(replayBuffer.size - 1)
+                playerX = point.x
+                playerY = point.y
+
+                // Add to trail for visual effect (reverse trail?)
+                // Or just keep existing trail logic?
+                // Let's add to trail so it looks like we are moving
+                trailPoints.add(PointF(playerX, playerY))
+                if (trailPoints.size > maxTrailLength) {
+                    trailPoints.removeFirst()
+                }
+            } else {
+                break
+            }
+        }
+    }
 
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)

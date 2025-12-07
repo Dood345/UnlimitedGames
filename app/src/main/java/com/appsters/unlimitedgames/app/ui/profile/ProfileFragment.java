@@ -29,6 +29,7 @@ import com.appsters.unlimitedgames.R;
 import com.appsters.unlimitedgames.app.data.model.User;
 import com.appsters.unlimitedgames.databinding.FragmentProfileBinding;
 import com.appsters.unlimitedgames.app.ui.auth.AuthViewModel;
+import com.appsters.unlimitedgames.app.ui.auth.AuthViewModelFactory;
 import com.appsters.unlimitedgames.app.util.ImageHelper;
 import com.appsters.unlimitedgames.app.util.Privacy;
 
@@ -51,8 +52,8 @@ public class ProfileFragment extends Fragment {
                 }
             });
 
-    private final ActivityResultLauncher<Intent> imagePickerLauncher =
-            registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
+    private final ActivityResultLauncher<Intent> imagePickerLauncher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(), result -> {
                 if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
                     Uri imageUri = result.getData().getData();
                     if (imageUri != null) {
@@ -63,7 +64,7 @@ public class ProfileFragment extends Fragment {
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
-                             @Nullable Bundle savedInstanceState) {
+            @Nullable Bundle savedInstanceState) {
         binding = FragmentProfileBinding.inflate(inflater, container, false);
         return binding.getRoot();
     }
@@ -74,7 +75,8 @@ public class ProfileFragment extends Fragment {
 
         viewModel = new ViewModelProvider(requireActivity()).get(ProfileViewModel.class);
         viewModel.resetFlags();
-        authViewModel = new ViewModelProvider(requireActivity()).get(AuthViewModel.class);
+        AuthViewModelFactory factory = new AuthViewModelFactory(requireActivity().getApplication());
+        authViewModel = new ViewModelProvider(requireActivity(), factory).get(AuthViewModel.class);
         navController = Navigation.findNavController(view);
         binding.setViewModel(viewModel);
         binding.setLifecycleOwner(getViewLifecycleOwner());
@@ -90,8 +92,7 @@ public class ProfileFragment extends Fragment {
         ArrayAdapter<Privacy> adapter = new ArrayAdapter<>(
                 requireContext(),
                 android.R.layout.simple_spinner_item,
-                Privacy.values()
-        );
+                Privacy.values());
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         binding.spinnerPrivacy.setAdapter(adapter);
 
@@ -235,8 +236,7 @@ public class ProfileFragment extends Fragment {
 
         int size = (int) (120 * getResources().getDisplayMetrics().density);
         binding.profileImage.setImageBitmap(
-                ImageHelper.createInitialsAvatar(initials, color, size)
-        );
+                ImageHelper.createInitialsAvatar(initials, color, size));
     }
 
     @Override

@@ -17,6 +17,7 @@ import androidx.navigation.ui.NavigationUI;
 import com.appsters.unlimitedgames.R;
 import com.appsters.unlimitedgames.databinding.ActivityMainBinding;
 import com.appsters.unlimitedgames.app.ui.auth.AuthViewModel;
+import com.appsters.unlimitedgames.app.ui.auth.AuthViewModelFactory;
 import com.appsters.unlimitedgames.app.ui.auth.AuthState;
 
 /**
@@ -58,7 +59,8 @@ public class MainActivity extends AppCompatActivity {
 
         setSupportActionBar(binding.toolbar);
 
-        authViewModel = new ViewModelProvider(this).get(AuthViewModel.class);
+        AuthViewModelFactory factory = new AuthViewModelFactory(getApplication());
+        authViewModel = new ViewModelProvider(this, factory).get(AuthViewModel.class);
 
         NavHostFragment navHostFragment = (NavHostFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.nav_host_fragment);
@@ -131,9 +133,6 @@ public class MainActivity extends AppCompatActivity {
                 binding.bottomNav.setVisibility(View.GONE);
                 if (getSupportActionBar() != null)
                     getSupportActionBar().hide();
-
-                // Clear all game data on logout
-                com.appsters.unlimitedgames.app.data.GameDataSource.clearAllGameData(this);
                 break;
 
             case ERROR:

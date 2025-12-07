@@ -14,30 +14,38 @@ public class Cam2048Repository {
     private static final String SAVED_SCORE_KEY_PREFIX = "saved_score_";
 
     private final SharedPreferences sharedPreferences;
-    private final FirebaseUser currentUser;
 
     public Cam2048Repository(Context context) {
         sharedPreferences = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
-        currentUser = FirebaseAuth.getInstance().getCurrentUser();
+    }
+
+    private FirebaseUser getCurrentUser() {
+        return FirebaseAuth.getInstance().getCurrentUser();
     }
 
     public int getHighScore() {
-        if (currentUser == null) return 0;
-        return sharedPreferences.getInt(HIGH_SCORE_KEY_PREFIX + currentUser.getUid(), 0);
+        FirebaseUser user = getCurrentUser();
+        if (user == null)
+            return 0;
+        return sharedPreferences.getInt(HIGH_SCORE_KEY_PREFIX + user.getUid(), 0);
     }
 
     public void saveHighScore(int score) {
-        if (currentUser == null) return;
+        FirebaseUser user = getCurrentUser();
+        if (user == null)
+            return;
         int currentHighScore = getHighScore();
         if (score > currentHighScore) {
             SharedPreferences.Editor editor = sharedPreferences.edit();
-            editor.putInt(HIGH_SCORE_KEY_PREFIX + currentUser.getUid(), score);
+            editor.putInt(HIGH_SCORE_KEY_PREFIX + user.getUid(), score);
             editor.apply();
         }
     }
 
     public void saveGameState(int[][] board, int score) {
-        if (currentUser == null) return;
+        FirebaseUser user = getCurrentUser();
+        if (user == null)
+            return;
         SharedPreferences.Editor editor = sharedPreferences.edit();
 
         StringBuilder boardString = new StringBuilder();
@@ -47,18 +55,22 @@ public class Cam2048Repository {
             }
         }
 
-        editor.putString(SAVED_BOARD_KEY_PREFIX + currentUser.getUid(), boardString.toString());
-        editor.putInt(SAVED_SCORE_KEY_PREFIX + currentUser.getUid(), score);
+        editor.putString(SAVED_BOARD_KEY_PREFIX + user.getUid(), boardString.toString());
+        editor.putInt(SAVED_SCORE_KEY_PREFIX + user.getUid(), score);
         editor.apply();
     }
 
     public int[][] getSavedBoard() {
-        if (currentUser == null) return null;
-        String boardString = sharedPreferences.getString(SAVED_BOARD_KEY_PREFIX + currentUser.getUid(), null);
-        if (boardString == null || boardString.isEmpty()) return null;
+        FirebaseUser user = getCurrentUser();
+        if (user == null)
+            return null;
+        String boardString = sharedPreferences.getString(SAVED_BOARD_KEY_PREFIX + user.getUid(), null);
+        if (boardString == null || boardString.isEmpty())
+            return null;
 
         String[] values = boardString.split(",");
-        if (values.length != 16) return null;
+        if (values.length != 16)
+            return null;
 
         int[][] board = new int[4][4];
         for (int i = 0; i < 4; i++) {
@@ -70,15 +82,29 @@ public class Cam2048Repository {
     }
 
     public int getSavedScore() {
-        if (currentUser == null) return -1;
-        return sharedPreferences.getInt(SAVED_SCORE_KEY_PREFIX + currentUser.getUid(), -1);
+        FirebaseUser user = getCurrentUser();
+        if (user == null)
+            return -1;
+        return sharedPreferences.getInt(SAVED_SCORE_KEY_PREFIX + user.getUid(), -1);
     }
 
     public void clearSavedState() {
-        if (currentUser == null) return;
+        FirebaseUser user = getCurrentUser();
+        if (user == null)
+            return;
         SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.remove(SAVED_BOARD_KEY_PREFIX + currentUser.getUid());
-        editor.remove(SAVED_SCORE_KEY_PREFIX + currentUser.getUid());
+        editor.remove(SAVED_BOARD_KEY_PREFIX + user.getUid());
+        editor.remove(SAVED_SCORE_KEY_PREFIX + user.getUid());
+        editor.apply();
+    }
+
+    public void clearHighScore() {
+        FirebaseUser user = getCurrentUser();
+        if (user == null)
+            return;
+        android.util.Log.d("Cam2048Repository", "Clearing high score for user: " + user.getUid());
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.remove(HIGH_SCORE_KEY_PREFIX + user.getUid());
         editor.apply();
     }
 }

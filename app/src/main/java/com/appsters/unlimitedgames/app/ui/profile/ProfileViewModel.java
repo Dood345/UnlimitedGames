@@ -123,7 +123,9 @@ public class ProfileViewModel extends ViewModel {
 
     /**
      * Loads the current user's profile from Firestore and their 2048 high score.
-     * @param context The context needed to access SharedPreferences for the high score.
+     * 
+     * @param context The context needed to access SharedPreferences for the high
+     *                score.
      */
     public void loadCurrentUser(Context context) {
         FirebaseUser firebaseUser = auth.getCurrentUser();
@@ -147,6 +149,7 @@ public class ProfileViewModel extends ViewModel {
 
     /**
      * Loads the 2048 high score from the repository.
+     * 
      * @param context The context used to initialize the Cam2048Repository.
      */
     private void load2048HighScore(Context context) {
@@ -173,7 +176,7 @@ public class ProfileViewModel extends ViewModel {
         updateUser(user);
     }
 
-    public void updateProfile(String newUsername, String newEmail, String currentPassword,
+    public void updateProfile(String newUsername, String currentPassword,
             String newPassword, String confirmPassword) {
         User user = currentUser.getValue();
         if (user == null) {
@@ -182,7 +185,7 @@ public class ProfileViewModel extends ViewModel {
         }
 
         ValidationResult validation = validateProfileUpdate(
-                user, newUsername, newEmail, currentPassword, newPassword, confirmPassword);
+                user, newUsername, currentPassword, newPassword, confirmPassword);
 
         if (!validation.isValid) {
             errorMessage.setValue(validation.errorMessage);
@@ -190,13 +193,12 @@ public class ProfileViewModel extends ViewModel {
         }
 
         boolean usernameChanged = !newUsername.equals(user.getUsername());
-        boolean emailChanged = !newEmail.equals(user.getEmail());
         boolean passwordChanged = !TextUtils.isEmpty(newPassword);
 
-        if (emailChanged || passwordChanged) {
-            // Need reauthentication for email/password changes
-            updateWithReauth(user, newEmail, newUsername, currentPassword,
-                    newPassword, usernameChanged, emailChanged, passwordChanged);
+        if (passwordChanged) {
+            // Need reauthentication for password changes
+            updateWithReauth(user, newUsername, currentPassword,
+                    newPassword, usernameChanged, passwordChanged);
         } else if (usernameChanged) {
             updateUsername(newUsername);
         } else {
@@ -204,19 +206,14 @@ public class ProfileViewModel extends ViewModel {
         }
     }
 
-    private ValidationResult validateProfileUpdate(User user, String newUsername, String newEmail,
+    private ValidationResult validateProfileUpdate(User user, String newUsername,
             String currentPassword, String newPassword,
             String confirmPassword) {
-        // Email validation
-        if (TextUtils.isEmpty(newEmail) && !android.util.Patterns.EMAIL_ADDRESS.matcher(newEmail).matches()) {
-            return new ValidationResult(false, "Invalid email address");
-        }
 
-        boolean emailChanged = !newEmail.equals(user.getEmail());
         boolean passwordChanged = !TextUtils.isEmpty(newPassword);
 
-        if ((emailChanged || passwordChanged) && currentPassword.isEmpty()) {
-            return new ValidationResult(false, "Current password required to change email or password");
+        if (passwordChanged && currentPassword.isEmpty()) {
+            return new ValidationResult(false, "Current password required to change password");
         }
 
         if (passwordChanged) {
@@ -247,9 +244,9 @@ public class ProfileViewModel extends ViewModel {
         }
     }
 
-    private void updateWithReauth(User user, String newEmail, String newUsername,
+    private void updateWithReauth(User user, String newUsername,
             String currentPassword, String newPassword,
-            boolean usernameChanged, boolean emailChanged,
+            boolean usernameChanged,
             boolean passwordChanged) {
         reauthenticate(user.getEmail(), currentPassword, () -> {
             FirebaseUser firebaseUser = auth.getCurrentUser();
@@ -260,32 +257,9 @@ public class ProfileViewModel extends ViewModel {
 
             isLoading.setValue(true);
 
-            if (emailChanged) {
-                updateEmailThenContinue(firebaseUser, user, newEmail, newPassword,
-                        newUsername, passwordChanged, usernameChanged);
-            } else if (passwordChanged) {
+            if (passwordChanged) {
                 updatePasswordThenContinue(firebaseUser, user, newUsername,
                         newPassword, usernameChanged);
-            }
-        });
-    }
-
-    private void updateEmailThenContinue(FirebaseUser firebaseUser, User user, String newEmail,
-            String newPassword, String newUsername,
-            boolean passwordChanged, boolean usernameChanged) {
-        firebaseUser.verifyBeforeUpdateEmail(newEmail).addOnCompleteListener(task -> {
-            if (task.isSuccessful()) {
-                user.setEmail(newEmail);
-
-                if (passwordChanged) {
-                    updatePasswordThenContinue(firebaseUser, user, newUsername,
-                            newPassword, usernameChanged);
-                } else {
-                    finalizeProfileUpdate(user, newUsername, usernameChanged);
-                }
-            } else {
-                isLoading.setValue(false);
-                errorMessage.setValue("Failed to update email: " + task.getException().getMessage());
             }
         });
     }
@@ -317,25 +291,6 @@ public class ProfileViewModel extends ViewModel {
 
         user.setUsername(newUsername);
         updateUser(user);
-    }
-
-    public void updateUserEmail(String newEmail, String password) {
-        FirebaseUser firebaseUser = auth.getCurrentUser();
-        User user = currentUser.getValue();
-        if (firebaseUser == null || user == null)
-            return;
-        isLoading.setValue(true);
-        reauthenticate(user.getEmail(), password, () -> {
-            firebaseUser.verifyBeforeUpdateEmail(newEmail).addOnCompleteListener(task -> {
-                if (task.isSuccessful()) {
-                    user.setEmail(newEmail);
-                    updateUser(user);
-                } else {
-                    isLoading.setValue(false);
-                    errorMessage.setValue("Failed to update email: " + task.getException().getMessage());
-                }
-            });
-        });
     }
 
     public void updatePassword(String currentPassword, String newPassword) {

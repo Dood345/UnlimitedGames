@@ -5,7 +5,12 @@ import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
+import com.appsters.unlimitedgames.app.data.model.Score;
+import com.appsters.unlimitedgames.app.data.repository.LeaderboardRepository;
+import com.appsters.unlimitedgames.app.data.repository.UserRepository;
+import com.appsters.unlimitedgames.app.util.GameType;
 import com.appsters.unlimitedgames.games.game2048.repository.Cam2048Repository;
+import com.google.firebase.auth.FirebaseAuth;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -28,10 +33,14 @@ public class Game2048ViewModel extends AndroidViewModel {
     private final Random random = new Random();
     private int moveScore = 0;
     private final Cam2048Repository repository;
+    private final LeaderboardRepository leaderboardRepository;
+    private final UserRepository userRepository;
 
     public Game2048ViewModel(Application application) {
         super(application);
         repository = new Cam2048Repository(application);
+        leaderboardRepository = new LeaderboardRepository();
+        userRepository = new UserRepository();
         _highScore.setValue(repository.getHighScore());
         loadGame();
     }
@@ -140,9 +149,9 @@ public class Game2048ViewModel extends AndroidViewModel {
     private int getRotationsForDirection(int direction) {
         switch (direction) {
             case 0: return 0; // Left
-            case 1: return 3; // Up - 270 deg rotation
-            case 2: return 2; // Right - 180 deg rotation
-            case 3: return 1; // Down - 90 deg rotation
+            case 1: return 1; // Up
+            case 2: return 2; // Right
+            case 3: return 3; // Down
             default: return 0;
         }
     }
@@ -179,8 +188,24 @@ public class Game2048ViewModel extends AndroidViewModel {
             if (currentScore > _highScore.getValue()) {
                 _highScore.postValue(currentScore);
             }
+            submitScoreToLeaderboard(currentScore);
         }
         _gameOver.postValue(true);
         repository.clearSavedState(); // Clear saved state on game over
+    }
+
+    private void submitScoreToLeaderboard(int score) {
+        String userId = FirebaseAuth.getInstance().getUid();
+        if (userId == null) return;
+
+        userRepository.getUser(userId, task -> {
+            if (task.isSuccessful() && task.getResult() != null) {
+                String username = task.getResult().getUsername();
+                Score scoreObject = new Score(null, userId, username, GameType.GAME2048, score);
+                leaderboardRepository.submitScore(scoreObject, (isSuccessful, result, e) -> {
+                    // Optionally handle success or failure
+                });
+            }
+        });
     }
 }

@@ -16,12 +16,12 @@ public class QRCodeFragment extends Fragment {
 
     private static final String TAG = "QRCodeFragment";
     private FragmentQrCodeBinding binding;
-    private FriendsViewModel viewModel;
+    private FriendViewModel viewModel;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        viewModel = new ViewModelProvider(this).get(FriendsViewModel.class);
+        viewModel = new ViewModelProvider(this).get(FriendViewModel.class);
     }
 
     @Nullable

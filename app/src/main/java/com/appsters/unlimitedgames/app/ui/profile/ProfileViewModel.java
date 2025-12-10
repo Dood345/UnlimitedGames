@@ -18,35 +18,24 @@ import com.appsters.unlimitedgames.app.util.Privacy;
 
 /**
  * ViewModel for the Profile screen.
- * Handles loading and updating user profile data, including privacy settings and profile picture.
+ * Handles loading and updating user profile data, including privacy settings
+ * and profile picture.
  * Also handles user logout.
  */
 public class ProfileViewModel extends ViewModel {
 
-    /** Firebase authentication instance. */
     private final FirebaseAuth auth;
-    /** User repository instance. */
     private final UserRepository userRepository;
 
-    /** LiveData holding the current user's profile information. */
     private final MutableLiveData<User> currentUser = new MutableLiveData<>();
     private final MutableLiveData<Integer> highScore2048 = new MutableLiveData<>();
     private final MutableLiveData<Boolean> isLoading = new MutableLiveData<>(false);
-    /** LiveData for displaying error messages. */
     private final MutableLiveData<String> errorMessage = new MutableLiveData<>();
-    /** LiveData to signal when logout is complete. */
     private final MutableLiveData<Boolean> logoutComplete = new MutableLiveData<>(false);
-    /** LiveData to signal if the image upload was successful. */
     private final MutableLiveData<Boolean> imageUploadSuccess = new MutableLiveData<>();
-    /** LiveData to signal if a profile update was successful. */
     private final MutableLiveData<Boolean> updateSuccess = new MutableLiveData<>(false);
-    /** LiveData to signal if an account deletion was successful. */
     private final MutableLiveData<Boolean> deleteSuccess = new MutableLiveData<>(false);
 
-    /**
-     * Constructor for ProfileViewModel.
-     * Initializes FirebaseAuth and UserRepository instances.
-     */
     public ProfileViewModel() {
         auth = FirebaseAuth.getInstance();
         userRepository = new UserRepository();
@@ -54,6 +43,7 @@ public class ProfileViewModel extends ViewModel {
 
     /**
      * Returns the LiveData for the current user.
+     * 
      * @return A LiveData object containing the current user's data.
      */
     public LiveData<User> getCurrentUser() {
@@ -61,19 +51,26 @@ public class ProfileViewModel extends ViewModel {
     }
 
     /**
-     * Returns the LiveData for the 2048 high score.
-     * @return A LiveData object containing the user's 2048 high score.
+     * Returns the LiveData for the loading state.
+     * 
+     * @return A LiveData object indicating if data is being loaded.
      */
     public LiveData<Integer> getHighScore2048() {
         return highScore2048;
     }
 
+    /**
+     * Returns the LiveData for the loading state.
+     * 
+     * @return A LiveData object indicating if data is being loaded.
+     */
     public LiveData<Boolean> getIsLoading() {
         return isLoading;
     }
 
     /**
      * Returns the LiveData for error messages.
+     * 
      * @return A LiveData object containing any error messages.
      */
     public LiveData<String> getErrorMessage() {
@@ -82,6 +79,7 @@ public class ProfileViewModel extends ViewModel {
 
     /**
      * Returns the LiveData for the logout completion status.
+     * 
      * @return A LiveData object that is true when logout is complete.
      */
     public LiveData<Boolean> getLogoutComplete() {
@@ -90,6 +88,7 @@ public class ProfileViewModel extends ViewModel {
 
     /**
      * Returns the LiveData for the image upload success status.
+     * 
      * @return A LiveData object that is true when image upload is successful.
      */
     public LiveData<Boolean> getImageUploadSuccess() {
@@ -98,6 +97,7 @@ public class ProfileViewModel extends ViewModel {
 
     /**
      * Returns the LiveData for the profile update success status.
+     * 
      * @return A LiveData object that is true when profile update is successful.
      */
     public LiveData<Boolean> getUpdateSuccess() {
@@ -106,6 +106,7 @@ public class ProfileViewModel extends ViewModel {
 
     /**
      * Returns the LiveData for the account deletion success status.
+     * 
      * @return A LiveData object that is true when account deletion is successful.
      */
     public LiveData<Boolean> getDeleteSuccess() {
@@ -155,7 +156,8 @@ public class ProfileViewModel extends ViewModel {
 
     public void updatePrivacy(Privacy privacy) {
         User user = currentUser.getValue();
-        if (user == null) return;
+        if (user == null)
+            return;
 
         user.setPrivacy(privacy);
         updateUser(user);
@@ -163,59 +165,48 @@ public class ProfileViewModel extends ViewModel {
 
     public void updateProfilePicture(String base64Image) {
         User user = currentUser.getValue();
-        if (user == null) return;
+        if (user == null)
+            return;
 
         user.setProfileImageUrl(base64Image);
         imageUploadSuccess.setValue(false); // Reset before upload
         updateUser(user);
     }
 
-    /**
-     * Validates and updates multiple profile fields in a coordinated way.
-     * Ensures proper sequencing and only one success callback.
-     */
     public void updateProfile(String newUsername, String newEmail, String currentPassword,
-                              String newPassword, String confirmPassword) {
+            String newPassword, String confirmPassword) {
         User user = currentUser.getValue();
         if (user == null) {
             errorMessage.setValue("User data not loaded");
             return;
         }
 
-        // Validate all inputs first
         ValidationResult validation = validateProfileUpdate(
-                user, newUsername, newEmail, currentPassword, newPassword, confirmPassword
-        );
+                user, newUsername, newEmail, currentPassword, newPassword, confirmPassword);
 
         if (!validation.isValid) {
             errorMessage.setValue(validation.errorMessage);
             return;
         }
 
-        // Determine what needs updating
         boolean usernameChanged = !newUsername.equals(user.getUsername());
         boolean emailChanged = !newEmail.equals(user.getEmail());
         boolean passwordChanged = !TextUtils.isEmpty(newPassword);
 
-        // Execute updates in proper sequence
         if (emailChanged || passwordChanged) {
             // Need reauthentication for email/password changes
-            updateWithReauth(user, newUsername, newEmail, currentPassword,
+            updateWithReauth(user, newEmail, newUsername, currentPassword,
                     newPassword, usernameChanged, emailChanged, passwordChanged);
         } else if (usernameChanged) {
-            // Just username - no reauth needed
             updateUsername(newUsername);
-        }else {
+        } else {
             errorMessage.setValue("No changes detected");
         }
     }
 
-    /**
-     * Validates all profile update inputs.
-     */
     private ValidationResult validateProfileUpdate(User user, String newUsername, String newEmail,
-                                                   String currentPassword, String newPassword,
-                                                   String confirmPassword) {
+            String currentPassword, String newPassword,
+            String confirmPassword) {
         // Email validation
         if (TextUtils.isEmpty(newEmail) && !android.util.Patterns.EMAIL_ADDRESS.matcher(newEmail).matches()) {
             return new ValidationResult(false, "Invalid email address");
@@ -224,12 +215,10 @@ public class ProfileViewModel extends ViewModel {
         boolean emailChanged = !newEmail.equals(user.getEmail());
         boolean passwordChanged = !TextUtils.isEmpty(newPassword);
 
-        // If changing email or password, current password is required
         if ((emailChanged || passwordChanged) && currentPassword.isEmpty()) {
             return new ValidationResult(false, "Current password required to change email or password");
         }
 
-        // Password change validation
         if (passwordChanged) {
             if (TextUtils.isEmpty(confirmPassword)) {
                 return new ValidationResult(false, "Please confirm new password");
@@ -248,9 +237,6 @@ public class ProfileViewModel extends ViewModel {
         return new ValidationResult(true, null);
     }
 
-    /**
-     * Inner class for validation results.
-     */
     private static class ValidationResult {
         boolean isValid;
         String errorMessage;
@@ -261,14 +247,10 @@ public class ProfileViewModel extends ViewModel {
         }
     }
 
-    /**
-     * Updates profile fields that require reauthentication.
-     * Executes in proper sequence: reauth → email → password → username/firestore
-     */
     private void updateWithReauth(User user, String newEmail, String newUsername,
-                                  String currentPassword, String newPassword,
-                                  boolean usernameChanged, boolean emailChanged,
-                                  boolean passwordChanged) {
+            String currentPassword, String newPassword,
+            boolean usernameChanged, boolean emailChanged,
+            boolean passwordChanged) {
         reauthenticate(user.getEmail(), currentPassword, () -> {
             FirebaseUser firebaseUser = auth.getCurrentUser();
             if (firebaseUser == null) {
@@ -278,7 +260,6 @@ public class ProfileViewModel extends ViewModel {
 
             isLoading.setValue(true);
 
-            // Chain the operations in sequence
             if (emailChanged) {
                 updateEmailThenContinue(firebaseUser, user, newEmail, newPassword,
                         newUsername, passwordChanged, usernameChanged);
@@ -289,12 +270,9 @@ public class ProfileViewModel extends ViewModel {
         });
     }
 
-    /**
-     * Updates email in Firebase Auth, then continues with other updates.
-     */
     private void updateEmailThenContinue(FirebaseUser firebaseUser, User user, String newEmail,
-                                         String newPassword, String newUsername,
-                                         boolean passwordChanged, boolean usernameChanged) {
+            String newPassword, String newUsername,
+            boolean passwordChanged, boolean usernameChanged) {
         firebaseUser.verifyBeforeUpdateEmail(newEmail).addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
                 user.setEmail(newEmail);
@@ -312,12 +290,9 @@ public class ProfileViewModel extends ViewModel {
         });
     }
 
-    /**
-     * Updates password in Firebase Auth, then continues with other updates.
-     */
     private void updatePasswordThenContinue(FirebaseUser firebaseUser, User user,
-                                            String newUsername, String newPassword,
-                                            boolean usernameChanged) {
+            String newUsername, String newPassword,
+            boolean usernameChanged) {
         firebaseUser.updatePassword(newPassword).addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
                 finalizeProfileUpdate(user, newUsername, usernameChanged);
@@ -328,9 +303,6 @@ public class ProfileViewModel extends ViewModel {
         });
     }
 
-    /**
-     * Final step: Update username in Firestore if changed.
-     */
     private void finalizeProfileUpdate(User user, String newUsername, boolean usernameChanged) {
         if (usernameChanged) {
             user.setUsername(newUsername);
@@ -340,7 +312,8 @@ public class ProfileViewModel extends ViewModel {
 
     public void updateUsername(String newUsername) {
         User user = currentUser.getValue();
-        if (user == null) return;
+        if (user == null)
+            return;
 
         user.setUsername(newUsername);
         updateUser(user);
@@ -349,10 +322,11 @@ public class ProfileViewModel extends ViewModel {
     public void updateUserEmail(String newEmail, String password) {
         FirebaseUser firebaseUser = auth.getCurrentUser();
         User user = currentUser.getValue();
-        if (firebaseUser == null || user == null) return;
+        if (firebaseUser == null || user == null)
+            return;
         isLoading.setValue(true);
         reauthenticate(user.getEmail(), password, () -> {
-                firebaseUser.verifyBeforeUpdateEmail(newEmail).addOnCompleteListener(task -> {
+            firebaseUser.verifyBeforeUpdateEmail(newEmail).addOnCompleteListener(task -> {
                 if (task.isSuccessful()) {
                     user.setEmail(newEmail);
                     updateUser(user);
@@ -367,7 +341,8 @@ public class ProfileViewModel extends ViewModel {
     public void updatePassword(String currentPassword, String newPassword) {
         FirebaseUser firebaseUser = auth.getCurrentUser();
         User user = currentUser.getValue();
-        if (firebaseUser == null || user == null) return;
+        if (firebaseUser == null || user == null)
+            return;
 
         reauthenticate(user.getEmail(), currentPassword, () -> {
             isLoading.setValue(true);
@@ -385,7 +360,8 @@ public class ProfileViewModel extends ViewModel {
     public void deleteAccount(String password) {
         FirebaseUser firebaseUser = auth.getCurrentUser();
         User user = currentUser.getValue();
-        if (firebaseUser == null || user == null) return;
+        if (firebaseUser == null || user == null)
+            return;
 
         reauthenticate(user.getEmail(), password, () -> {
             isLoading.setValue(true);
@@ -397,7 +373,8 @@ public class ProfileViewModel extends ViewModel {
                             currentUser.setValue(null);
                             deleteSuccess.setValue(true);
                         } else {
-                            errorMessage.setValue("Failed to delete Firebase Auth user: " + deleteTask.getException().getMessage());
+                            errorMessage.setValue(
+                                    "Failed to delete Firebase Auth user: " + deleteTask.getException().getMessage());
                         }
                     });
                 } else {
@@ -427,7 +404,8 @@ public class ProfileViewModel extends ViewModel {
 
     private void reauthenticate(String email, String password, Runnable onReAuthSuccess) {
         FirebaseUser user = auth.getCurrentUser();
-        if (user == null) return;
+        if (user == null)
+            return;
 
         AuthCredential credential = EmailAuthProvider.getCredential(email, password);
         isLoading.setValue(true);
@@ -442,8 +420,9 @@ public class ProfileViewModel extends ViewModel {
     }
 
     public void logout() {
-        // This was actually handled in the profile fragment and is loads easier to do there using AuthViewModel
-        //auth.signOut();
+        // This was actually handled in the profile fragment and is loads easier to do
+        // there using AuthViewModel
+        // auth.signOut();
         currentUser.setValue(null);
         logoutComplete.setValue(true);
     }

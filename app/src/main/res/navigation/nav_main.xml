@@ -50,10 +50,32 @@
         tools:layout="@layout/fragment_edit_profile" />
 
     <fragment
+        android:id="@+id/friendRequestsFragment"
+        android:name="com.appsters.unlimitedgames.app.ui.friends.FriendRequestFragment"
+        android:label="Requests"
+        tools:layout="@layout/fragment_friend_requests" />
+
+    <fragment
+        android:id="@+id/findFriendsFragment"
+        android:name="com.appsters.unlimitedgames.app.ui.friends.FindFriendsFragment"
+        android:label="Find Friends"
+        tools:layout="@layout/fragment_find_friends" />
+
+    <fragment
         android:id="@+id/friendsFragment"
-        android:name="com.appsters.unlimitedgames.app.ui.friends.FriendsFragment"
+        android:name="com.appsters.unlimitedgames.app.ui.friends.FriendFragment"
         android:label="Friends"
-        tools:layout="@layout/fragment_friends" />
+        tools:layout="@layout/fragment_friends">
+
+        <action
+            android:id="@+id/action_friendsFragment_to_friendRequestsFragment"
+            app:destination="@id/friendRequestsFragment" />
+
+        <action
+            android:id="@+id/action_friendsFragment_to_findFriendsFragment"
+            app:destination="@id/findFriendsFragment" />
+
+    </fragment>
 
     <fragment
         android:id="@+id/leaderboardFragment"

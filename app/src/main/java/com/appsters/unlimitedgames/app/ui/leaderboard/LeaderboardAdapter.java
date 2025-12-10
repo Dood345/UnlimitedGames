@@ -7,6 +7,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.appsters.unlimitedgames.app.data.model.Score;
+import com.appsters.unlimitedgames.app.util.GameType;
 import com.appsters.unlimitedgames.databinding.ItemLeaderboardBinding;
 
 import java.util.List;
@@ -14,9 +15,11 @@ import java.util.List;
 public class LeaderboardAdapter extends RecyclerView.Adapter<LeaderboardAdapter.LeaderboardViewHolder> {
 
     private final List<Score> scores;
+    private final boolean isAllGames;
 
-    public LeaderboardAdapter(List<Score> scores) {
+    public LeaderboardAdapter(List<Score> scores, GameType gameType) {
         this.scores = scores;
+        this.isAllGames = gameType == GameType.ALL;
     }
 
     @NonNull
@@ -29,7 +32,7 @@ public class LeaderboardAdapter extends RecyclerView.Adapter<LeaderboardAdapter.
 
     @Override
     public void onBindViewHolder(@NonNull LeaderboardViewHolder holder, int position) {
-        holder.bind(scores.get(position), position + 1);
+        holder.bind(scores.get(position), position + 1, isAllGames);
     }
 
     @Override
@@ -46,10 +49,30 @@ public class LeaderboardAdapter extends RecyclerView.Adapter<LeaderboardAdapter.
             this.binding = binding;
         }
 
-        public void bind(Score score, int rank) {
-            binding.rank.setText(String.valueOf(rank));
+        public void bind(Score score, int rank, boolean isAllGames) {
+            String rankText;
+            switch (rank) {
+                case 1:
+                    rankText = "🥇";
+                    break;
+                case 2:
+                    rankText = "🥈";
+                    break;
+                case 3:
+                    rankText = "🥉";
+                    break;
+                default:
+                    rankText = String.valueOf(rank);
+                    break;
+            }
+            binding.rank.setText(rankText);
             binding.username.setText(score.getUsername());
-            binding.score.setText(String.valueOf(score.getScore()));
+
+            if (isAllGames) {
+                binding.score.setText(String.format("%.2f", (float) score.getScore()));
+            } else {
+                binding.score.setText(String.valueOf(score.getScore()));
+            }
         }
     }
 }

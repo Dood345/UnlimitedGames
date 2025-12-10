@@ -103,13 +103,23 @@
                 app:layout_constraintTop_toBottomOf="@id/btn_edit_profile" />
 
             <TextView
-                android:id="@+id/tv_2048_high_score"
+                android:id="@+id/tv_average_rank"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:text="2048 High Score: 0"
+                android:text="Average Rank: 0.0"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/tv_high_scores_title" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rv_high_scores"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:nestedScrollingEnabled="false"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tv_average_rank" />
 
             <!-- Privacy Setting -->
             <TextView
@@ -121,7 +131,7 @@
                 android:textSize="18sp"
                 android:textStyle="bold"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/tv_2048_high_score" />
+                app:layout_constraintTop_toBottomOf="@id/rv_high_scores" />
 
             <Spinner
                 android:id="@+id/spinner_privacy"

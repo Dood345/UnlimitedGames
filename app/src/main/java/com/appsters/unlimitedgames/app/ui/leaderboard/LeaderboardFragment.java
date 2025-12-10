@@ -10,10 +10,12 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
+import com.appsters.unlimitedgames.R;
 import com.appsters.unlimitedgames.app.data.GameDataSource;
 import com.appsters.unlimitedgames.app.data.model.Game;
 import com.appsters.unlimitedgames.app.util.GameType;
@@ -56,9 +58,11 @@ public class LeaderboardFragment extends Fragment {
         List<String> gameTitles = games.stream().map(Game::getTitle).collect(Collectors.toList());
         gameTitles.add(0, "All Games");
 
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(requireContext(), android.R.layout.simple_spinner_item, gameTitles);
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(requireContext(), R.layout.spinner_item_white_text, gameTitles);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         binding.gameSpinner.setAdapter(adapter);
+        binding.gameSpinner.setBackground(ContextCompat.getDrawable(requireContext(), R.drawable.spinner_background));
+
         binding.gameSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
@@ -88,7 +92,8 @@ public class LeaderboardFragment extends Fragment {
     private void setupObservers() {
         viewModel.getLeaderboard().observe(getViewLifecycleOwner(), scores -> {
             if (scores != null) {
-                binding.leaderboardRecyclerView.setAdapter(new LeaderboardAdapter(scores));
+                GameType selectedGameType = viewModel.getSelectedGame();
+                binding.leaderboardRecyclerView.setAdapter(new LeaderboardAdapter(scores, selectedGameType));
             }
         });
 

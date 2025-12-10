@@ -24,6 +24,7 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
+import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.appsters.unlimitedgames.R;
 import com.appsters.unlimitedgames.app.data.model.User;
@@ -80,6 +81,7 @@ public class ProfileFragment extends Fragment {
         binding.setLifecycleOwner(getViewLifecycleOwner());
 
         setupPrivacySpinner();
+        setupRecyclerView();
         setupObservers();
         setupClickListeners();
 
@@ -110,6 +112,10 @@ public class ProfileFragment extends Fragment {
         });
     }
 
+    private void setupRecyclerView() {
+        binding.rvHighScores.setLayoutManager(new LinearLayoutManager(requireContext()));
+    }
+
     private void setupObservers() {
         viewModel.getCurrentUser().observe(getViewLifecycleOwner(), user -> {
             if (user != null) {
@@ -123,9 +129,15 @@ public class ProfileFragment extends Fragment {
             }
         });
 
-        viewModel.getHighScore2048().observe(getViewLifecycleOwner(), highScore -> {
-            if (highScore != null) {
-                binding.tv2048HighScore.setText("2048: " + highScore);
+        viewModel.getUserScores().observe(getViewLifecycleOwner(), scores -> {
+            if (scores != null) {
+                binding.rvHighScores.setAdapter(new ProfileScoreAdapter(scores));
+            }
+        });
+
+        viewModel.getAverageRank().observe(getViewLifecycleOwner(), avgRank -> {
+            if (avgRank != null) {
+                binding.tvAverageRank.setText(String.format("Average Rank: %.2f", avgRank));
             }
         });
 

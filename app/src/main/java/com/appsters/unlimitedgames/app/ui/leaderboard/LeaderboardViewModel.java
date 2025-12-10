@@ -17,7 +17,7 @@ public class LeaderboardViewModel extends ViewModel {
     private final MutableLiveData<List<Score>> leaderboard = new MutableLiveData<>();
     private final MutableLiveData<Boolean> isLoading = new MutableLiveData<>(false);
     private final MutableLiveData<String> errorMessage = new MutableLiveData<>();
-    private GameType selectedGame = null;
+    private GameType selectedGame = GameType.ALL;
     private boolean showFriendsOnly = false;
 
     public LeaderboardViewModel() {
@@ -40,10 +40,8 @@ public class LeaderboardViewModel extends ViewModel {
         isLoading.setValue(true);
         String userId = FirebaseAuth.getInstance().getUid();
 
-        GameType gameType = selectedGame == null ? GameType.ALL : selectedGame;
-
         if (showFriendsOnly) {
-            leaderboardRepository.getFriendsLeaderboard(userId, gameType, (isSuccessful, result, e) -> {
+            leaderboardRepository.getFriendsLeaderboard(userId, selectedGame, (isSuccessful, result, e) -> {
                 isLoading.setValue(false);
                 if (isSuccessful) {
                     leaderboard.setValue(result);
@@ -52,7 +50,7 @@ public class LeaderboardViewModel extends ViewModel {
                 }
             });
         } else {
-            leaderboardRepository.getGlobalLeaderboard(gameType, 100, (isSuccessful, result, e) -> {
+            leaderboardRepository.getGlobalLeaderboard(selectedGame, 100, (isSuccessful, result, e) -> {
                 isLoading.setValue(false);
                 if (isSuccessful) {
                     leaderboard.setValue(result);
@@ -71,5 +69,9 @@ public class LeaderboardViewModel extends ViewModel {
     public void setShowFriendsOnly(boolean friendsOnly) {
         showFriendsOnly = friendsOnly;
         loadLeaderboard();
+    }
+
+    public GameType getSelectedGame() {
+        return selectedGame;
     }
 }

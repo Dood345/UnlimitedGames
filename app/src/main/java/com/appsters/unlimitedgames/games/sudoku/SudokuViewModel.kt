@@ -5,12 +5,16 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import com.appsters.unlimitedgames.app.data.repository.LeaderboardRepository
+import com.appsters.unlimitedgames.app.data.repository.UserRepository
+import com.appsters.unlimitedgames.app.util.GameType
 import com.appsters.unlimitedgames.games.sudoku.model.Cell
 import com.appsters.unlimitedgames.games.sudoku.model.GameState
 import com.appsters.unlimitedgames.games.sudoku.model.PuzzleGenerator
 import com.appsters.unlimitedgames.games.sudoku.model.Score
 import com.appsters.unlimitedgames.games.sudoku.repository.SudokuRepository
 import com.appsters.unlimitedgames.games.sudoku.util.SudokuTimer
+import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
 
 /**
@@ -39,6 +43,8 @@ class SudokuViewModel(private val repository: SudokuRepository) : ViewModel() {
     val gameCompletedEvent: LiveData<Score> = _gameCompletedEvent
 
     private lateinit var sudokuTimer: SudokuTimer
+    private val leaderboardRepository = LeaderboardRepository()
+    private val userRepository = UserRepository()
 
     /**
      * Starts a new game with the specified parameters.
@@ -174,10 +180,11 @@ class SudokuViewModel(private val repository: SudokuRepository) : ViewModel() {
                 currentGameState.isCompleted = true
                 sudokuTimer.pause()
                 repository.saveGameState(currentGameState, currentGameState.difficulty)
-                
+
                 val finalScore = currentGameState.getScore()
                 if (currentGameState.isRanked) {
                     repository.saveHighScore(finalScore)
+                    submitScoreToLeaderboard(finalScore.calculateScore())
                 }
                 _gameCompletedEvent.postValue(finalScore)
             }
@@ -188,6 +195,24 @@ class SudokuViewModel(private val repository: SudokuRepository) : ViewModel() {
             _invalidMoveEvent.postValue(number)
         }
         _gameState.postValue(currentGameState)
+    }
+
+    private fun submitScoreToLeaderboard(score: Int) {
+        val userId = FirebaseAuth.getInstance().uid ?: return
+        userRepository.getUser(userId) { task ->
+            if (task.isSuccessful) {
+                val user = task.result
+                if (user != null) {
+                    val username = user.username
+                    val scoreObject = com.appsters.unlimitedgames.app.data.model.Score(
+                        null, userId, username, GameType.SUDOKU, score
+                    )
+                    leaderboardRepository.submitScore(scoreObject) { _, _, _ ->
+                        // Optionally handle success or failure
+                    }
+                }
+            }
+        }
     }
 
     /**

@@ -7,28 +7,33 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
+import com.appsters.unlimitedgames.app.data.model.Score;
 import com.appsters.unlimitedgames.app.data.model.User;
+import com.appsters.unlimitedgames.app.data.repository.LeaderboardRepository;
 import com.appsters.unlimitedgames.app.data.repository.UserRepository;
-import com.appsters.unlimitedgames.games.game2048.repository.Cam2048Repository;
+import com.appsters.unlimitedgames.app.util.GameType;
+import com.appsters.unlimitedgames.app.util.Privacy;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.EmailAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.appsters.unlimitedgames.app.util.Privacy;
 
-/**
- * ViewModel for the Profile screen.
- * Handles loading and updating user profile data, including privacy settings
- * and profile picture.
- * Also handles user logout.
- */
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap; // Import HashMap
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
 public class ProfileViewModel extends ViewModel {
 
     private final FirebaseAuth auth;
     private final UserRepository userRepository;
+    private final LeaderboardRepository leaderboardRepository;
 
     private final MutableLiveData<User> currentUser = new MutableLiveData<>();
-    private final MutableLiveData<Integer> highScore2048 = new MutableLiveData<>();
+    private final MutableLiveData<List<Score>> userScores = new MutableLiveData<>();
+    private final MutableLiveData<Double> averageRank = new MutableLiveData<>();
     private final MutableLiveData<Boolean> isLoading = new MutableLiveData<>(false);
     private final MutableLiveData<String> errorMessage = new MutableLiveData<>();
     private final MutableLiveData<Boolean> logoutComplete = new MutableLiveData<>(false);
@@ -39,76 +44,41 @@ public class ProfileViewModel extends ViewModel {
     public ProfileViewModel() {
         auth = FirebaseAuth.getInstance();
         userRepository = new UserRepository();
+        leaderboardRepository = new LeaderboardRepository();
     }
 
-    /**
-     * Returns the LiveData for the current user.
-     * 
-     * @return A LiveData object containing the current user's data.
-     */
     public LiveData<User> getCurrentUser() {
         return currentUser;
     }
 
-    /**
-     * Returns the LiveData for the loading state.
-     * 
-     * @return A LiveData object indicating if data is being loaded.
-     */
-    public LiveData<Integer> getHighScore2048() {
-        return highScore2048;
+    public LiveData<List<Score>> getUserScores() {
+        return userScores;
     }
 
-    /**
-     * Returns the LiveData for the loading state.
-     * 
-     * @return A LiveData object indicating if data is being loaded.
-     */
+    public LiveData<Double> getAverageRank() {
+        return averageRank;
+    }
+
     public LiveData<Boolean> getIsLoading() {
         return isLoading;
     }
 
-    /**
-     * Returns the LiveData for error messages.
-     * 
-     * @return A LiveData object containing any error messages.
-     */
     public LiveData<String> getErrorMessage() {
         return errorMessage;
     }
 
-    /**
-     * Returns the LiveData for the logout completion status.
-     * 
-     * @return A LiveData object that is true when logout is complete.
-     */
     public LiveData<Boolean> getLogoutComplete() {
         return logoutComplete;
     }
 
-    /**
-     * Returns the LiveData for the image upload success status.
-     * 
-     * @return A LiveData object that is true when image upload is successful.
-     */
     public LiveData<Boolean> getImageUploadSuccess() {
         return imageUploadSuccess;
     }
 
-    /**
-     * Returns the LiveData for the profile update success status.
-     * 
-     * @return A LiveData object that is true when profile update is successful.
-     */
     public LiveData<Boolean> getUpdateSuccess() {
         return updateSuccess;
     }
 
-    /**
-     * Returns the LiveData for the account deletion success status.
-     * 
-     * @return A LiveData object that is true when account deletion is successful.
-     */
     public LiveData<Boolean> getDeleteSuccess() {
         return deleteSuccess;
     }
@@ -121,10 +91,6 @@ public class ProfileViewModel extends ViewModel {
         errorMessage.setValue(null);
     }
 
-    /**
-     * Loads the current user's profile from Firestore and their 2048 high score.
-     * @param context The context needed to access SharedPreferences for the high score.
-     */
     public void loadCurrentUser(Context context) {
         FirebaseUser firebaseUser = auth.getCurrentUser();
         if (firebaseUser == null) {
@@ -137,27 +103,82 @@ public class ProfileViewModel extends ViewModel {
             isLoading.setValue(false);
             if (task.isSuccessful()) {
                 currentUser.setValue(task.getResult());
-                // After loading the user, load the 2048 high score.
-                load2048HighScore(context);
+                loadUserScores(firebaseUser.getUid());
             } else {
                 errorMessage.setValue("Failed to load profile: " + task.getException().getMessage());
             }
         });
     }
 
-    /**
-     * Loads the 2048 high score from the repository.
-     * @param context The context used to initialize the Cam2048Repository.
-     */
-    private void load2048HighScore(Context context) {
-        Cam2048Repository game2048Repository = new Cam2048Repository(context);
-        highScore2048.setValue(game2048Repository.getHighScore());
+    private void loadUserScores(String userId) {
+        leaderboardRepository.getUserScores(userId, (isSuccessful, scores, e) -> {
+            if (isSuccessful) {
+                // Now, get all global leaderboards to calculate ranks
+                fetchAllLeaderboardsAndCalculateRanks(scores, userId);
+            } else {
+                errorMessage.setValue("Failed to load user scores.");
+            }
+        });
+    }
+
+    private void fetchAllLeaderboardsAndCalculateRanks(List<Score> userScores, String userId) {
+        List<GameType> gameTypes = new ArrayList<>();
+        for (GameType type : GameType.values()) {
+            if (type != GameType.ALL) {
+                gameTypes.add(type);
+            }
+        }
+
+        List<List<Score>> allLeaderboards = new ArrayList<>();
+        for (GameType gameType : gameTypes) {
+            leaderboardRepository.getGlobalLeaderboard(gameType, 100, (isSuccessful, scores, e) -> {
+                if (isSuccessful) {
+                    allLeaderboards.add(scores);
+                    if (allLeaderboards.size() == gameTypes.size()) {
+                        // All leaderboards fetched, now calculate ranks
+                        calculateRanks(userScores, allLeaderboards, userId);
+                    }
+                } else {
+                    errorMessage.setValue("Failed to load leaderboards for rank calculation.");
+                }
+            });
+        }
+    }
+
+    private void calculateRanks(List<Score> userScores, List<List<Score>> allLeaderboards, String userId) {
+        Map<GameType, Integer> userRanks = new HashMap<>();
+        int totalRank = 0;
+        int gamesPlayed = 0;
+
+        for (List<Score> leaderboard : allLeaderboards) {
+            for (int i = 0; i < leaderboard.size(); i++) {
+                Score score = leaderboard.get(i);
+                if (score.getUserId().equals(userId)) {
+                    userRanks.put(score.getGameType(), i + 1);
+                    totalRank += (i + 1);
+                    gamesPlayed++;
+                    break;
+                }
+            }
+        }
+
+        if (gamesPlayed > 0) {
+            averageRank.setValue((double) totalRank / gamesPlayed);
+        }
+
+        // Add rank to user scores
+        for (Score score : userScores) {
+            Integer rank = userRanks.get(score.getGameType());
+            if (rank != null) {
+                score.setRank(rank);
+            }
+        }
+        this.userScores.setValue(userScores);
     }
 
     public void updatePrivacy(Privacy privacy) {
         User user = currentUser.getValue();
-        if (user == null)
-            return;
+        if (user == null) return;
 
         user.setPrivacy(privacy);
         updateUser(user);
@@ -165,16 +186,15 @@ public class ProfileViewModel extends ViewModel {
 
     public void updateProfilePicture(String base64Image) {
         User user = currentUser.getValue();
-        if (user == null)
-            return;
+        if (user == null) return;
 
         user.setProfileImageUrl(base64Image);
-        imageUploadSuccess.setValue(false); // Reset before upload
+        imageUploadSuccess.setValue(false);
         updateUser(user);
     }
 
     public void updateProfile(String newUsername, String newEmail, String currentPassword,
-            String newPassword, String confirmPassword) {
+                              String newPassword, String confirmPassword) {
         User user = currentUser.getValue();
         if (user == null) {
             errorMessage.setValue("User data not loaded");
@@ -182,7 +202,8 @@ public class ProfileViewModel extends ViewModel {
         }
 
         ValidationResult validation = validateProfileUpdate(
-                user, newUsername, newEmail, currentPassword, newPassword, confirmPassword);
+                user, newUsername, newEmail, currentPassword, newPassword, confirmPassword
+        );
 
         if (!validation.isValid) {
             errorMessage.setValue(validation.errorMessage);
@@ -194,8 +215,7 @@ public class ProfileViewModel extends ViewModel {
         boolean passwordChanged = !TextUtils.isEmpty(newPassword);
 
         if (emailChanged || passwordChanged) {
-            // Need reauthentication for email/password changes
-            updateWithReauth(user, newEmail, newUsername, currentPassword,
+            updateWithReauth(user, newUsername, newEmail, currentPassword,
                     newPassword, usernameChanged, emailChanged, passwordChanged);
         } else if (usernameChanged) {
             updateUsername(newUsername);
@@ -205,10 +225,9 @@ public class ProfileViewModel extends ViewModel {
     }
 
     private ValidationResult validateProfileUpdate(User user, String newUsername, String newEmail,
-            String currentPassword, String newPassword,
-            String confirmPassword) {
-        // Email validation
-        if (TextUtils.isEmpty(newEmail) && !android.util.Patterns.EMAIL_ADDRESS.matcher(newEmail).matches()) {
+                                                   String currentPassword, String newPassword,
+                                                   String confirmPassword) {
+        if (TextUtils.isEmpty(newEmail) || !android.util.Patterns.EMAIL_ADDRESS.matcher(newEmail).matches()) {
             return new ValidationResult(false, "Invalid email address");
         }
 
@@ -248,9 +267,9 @@ public class ProfileViewModel extends ViewModel {
     }
 
     private void updateWithReauth(User user, String newEmail, String newUsername,
-            String currentPassword, String newPassword,
-            boolean usernameChanged, boolean emailChanged,
-            boolean passwordChanged) {
+                                  String currentPassword, String newPassword,
+                                  boolean usernameChanged, boolean emailChanged,
+                                  boolean passwordChanged) {
         reauthenticate(user.getEmail(), currentPassword, () -> {
             FirebaseUser firebaseUser = auth.getCurrentUser();
             if (firebaseUser == null) {
@@ -271,8 +290,8 @@ public class ProfileViewModel extends ViewModel {
     }
 
     private void updateEmailThenContinue(FirebaseUser firebaseUser, User user, String newEmail,
-            String newPassword, String newUsername,
-            boolean passwordChanged, boolean usernameChanged) {
+                                         String newPassword, String newUsername,
+                                         boolean passwordChanged, boolean usernameChanged) {
         firebaseUser.verifyBeforeUpdateEmail(newEmail).addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
                 user.setEmail(newEmail);
@@ -291,8 +310,8 @@ public class ProfileViewModel extends ViewModel {
     }
 
     private void updatePasswordThenContinue(FirebaseUser firebaseUser, User user,
-            String newUsername, String newPassword,
-            boolean usernameChanged) {
+                                            String newUsername, String newPassword,
+                                            boolean usernameChanged) {
         firebaseUser.updatePassword(newPassword).addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
                 finalizeProfileUpdate(user, newUsername, usernameChanged);
@@ -312,8 +331,7 @@ public class ProfileViewModel extends ViewModel {
 
     public void updateUsername(String newUsername) {
         User user = currentUser.getValue();
-        if (user == null)
-            return;
+        if (user == null) return;
 
         user.setUsername(newUsername);
         updateUser(user);
@@ -322,11 +340,10 @@ public class ProfileViewModel extends ViewModel {
     public void updateUserEmail(String newEmail, String password) {
         FirebaseUser firebaseUser = auth.getCurrentUser();
         User user = currentUser.getValue();
-        if (firebaseUser == null || user == null)
-            return;
+        if (firebaseUser == null || user == null) return;
         isLoading.setValue(true);
         reauthenticate(user.getEmail(), password, () -> {
-            firebaseUser.verifyBeforeUpdateEmail(newEmail).addOnCompleteListener(task -> {
+                firebaseUser.verifyBeforeUpdateEmail(newEmail).addOnCompleteListener(task -> {
                 if (task.isSuccessful()) {
                     user.setEmail(newEmail);
                     updateUser(user);
@@ -341,8 +358,7 @@ public class ProfileViewModel extends ViewModel {
     public void updatePassword(String currentPassword, String newPassword) {
         FirebaseUser firebaseUser = auth.getCurrentUser();
         User user = currentUser.getValue();
-        if (firebaseUser == null || user == null)
-            return;
+        if (firebaseUser == null || user == null) return;
 
         reauthenticate(user.getEmail(), currentPassword, () -> {
             isLoading.setValue(true);
@@ -360,8 +376,7 @@ public class ProfileViewModel extends ViewModel {
     public void deleteAccount(String password) {
         FirebaseUser firebaseUser = auth.getCurrentUser();
         User user = currentUser.getValue();
-        if (firebaseUser == null || user == null)
-            return;
+        if (firebaseUser == null || user == null) return;
 
         reauthenticate(user.getEmail(), password, () -> {
             isLoading.setValue(true);
@@ -373,8 +388,7 @@ public class ProfileViewModel extends ViewModel {
                             currentUser.setValue(null);
                             deleteSuccess.setValue(true);
                         } else {
-                            errorMessage.setValue(
-                                    "Failed to delete Firebase Auth user: " + deleteTask.getException().getMessage());
+                            errorMessage.setValue("Failed to delete Firebase Auth user: " + deleteTask.getException().getMessage());
                         }
                     });
                 } else {
@@ -404,8 +418,7 @@ public class ProfileViewModel extends ViewModel {
 
     private void reauthenticate(String email, String password, Runnable onReAuthSuccess) {
         FirebaseUser user = auth.getCurrentUser();
-        if (user == null)
-            return;
+        if (user == null) return;
 
         AuthCredential credential = EmailAuthProvider.getCredential(email, password);
         isLoading.setValue(true);
@@ -420,9 +433,6 @@ public class ProfileViewModel extends ViewModel {
     }
 
     public void logout() {
-        // This was actually handled in the profile fragment and is loads easier to do
-        // there using AuthViewModel
-        // auth.signOut();
         currentUser.setValue(null);
         logoutComplete.setValue(true);
     }

@@ -303,4 +303,32 @@ public class FriendRepository {
         });
     }
 
+    public void deleteAllFriends(String userId, OnCompleteListener<Void> listener) {
+        db.collection(COLLECTION)
+                .where(Filter.or(
+                        Filter.equalTo("fromUserId", userId),
+                        Filter.equalTo("toUserId", userId)))
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful() && task.getResult() != null) {
+                        List<com.google.android.gms.tasks.Task<Void>> deletes = new ArrayList<>();
+                        for (QueryDocumentSnapshot doc : task.getResult()) {
+                            deletes.add(doc.getReference().delete());
+                        }
+
+                        if (deletes.isEmpty()) {
+                            listener.onComplete(com.google.android.gms.tasks.Tasks.forResult(null));
+                        } else {
+                            com.google.android.gms.tasks.Tasks.whenAll(deletes)
+                                    .addOnCompleteListener(listener);
+                        }
+                    } else {
+                        listener.onComplete(
+                                com.google.android.gms.tasks.Tasks.forException(
+                                        task.getException() != null ? task.getException()
+                                                : new Exception("Failed to load friend documents")));
+                    }
+                });
+    }
+
 }

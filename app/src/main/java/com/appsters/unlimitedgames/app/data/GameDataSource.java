@@ -87,5 +87,10 @@ public class GameDataSource {
                                 android.content.Context.MODE_PRIVATE);
                 new com.appsters.unlimitedgames.games.whackamole.repository.SharedPrefGameRepository(whackPrefs)
                                 .clearData();
+
+                // Clear Soccer Separation Game Data
+                new com.appsters.unlimitedgames.games.soccerseparationgame.repository.SoccerSeparationGameRepository(
+                                context)
+                                .clearUserData();
         }
 }

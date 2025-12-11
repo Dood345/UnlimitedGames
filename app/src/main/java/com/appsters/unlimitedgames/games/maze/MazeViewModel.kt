@@ -9,7 +9,7 @@ import com.appsters.unlimitedgames.games.maze.controller.RunManager
 import com.appsters.unlimitedgames.games.maze.model.Maze
 import com.google.firebase.auth.FirebaseAuth
 
-class MazeViewModel : ViewModel() {
+class MazeViewModel(application: android.app.Application) : androidx.lifecycle.AndroidViewModel(application) {
 
     var maze: Maze? = null
         private set
@@ -58,7 +58,7 @@ class MazeViewModel : ViewModel() {
     private val _currentRound = androidx.lifecycle.MutableLiveData<Int>(1)
     val currentRound: androidx.lifecycle.LiveData<Int> = _currentRound
 
-    private val leaderboardRepository = LeaderboardRepository()
+    private val leaderboardRepository = LeaderboardRepository(application)
     private val userRepository = UserRepository()
     private var scoreSubmitted = false
 
@@ -430,7 +430,7 @@ class MazeViewModel : ViewModel() {
                 val user = task.result
                 if (user != null) {
                     val username = user.username
-                    val scoreObject = Score(null, userId, username, GameType.MAZE, score)
+                    val scoreObject = Score(null, userId, username, GameType.MAZE, score, user.privacy)
                     leaderboardRepository.submitScore(scoreObject) { _, _, _ ->
                         // Optionally handle success or failure
                     }

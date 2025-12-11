@@ -15,6 +15,12 @@ public class SoccerSeparationGameRepository {
 
     private static final String TAG = "SeparationRepo";
 
+    private final android.content.SharedPreferences sharedPreferences;
+
+    public SoccerSeparationGameRepository(android.content.Context context) {
+        this.sharedPreferences = context.getSharedPreferences("SoccerGamePrefs", android.content.Context.MODE_PRIVATE);
+    }
+
     public void loadQuestions(BiConsumer<List<SeparationQuestion>, Exception> callback) {
 
         Log.d(TAG, "Loading questions…");
@@ -36,16 +42,14 @@ public class SoccerSeparationGameRepository {
                     Log.d(TAG, "Parsed " + parsed.size() + " questions");
 
                     callback.accept(parsed, null);
-                }
-        );
+                });
     }
 
     public void fetchTeammateQuestions(
             int steps,
             int numQuestions,
             int numOptions,
-            BiConsumer<String, Exception> callback
-    ) {
+            BiConsumer<String, Exception> callback) {
 
         String urlString = "http://sdmay26-37.ece.iastate.edu:8080/soccer/teammates/question"
                 + "?steps=" + steps
@@ -75,8 +79,7 @@ public class SoccerSeparationGameRepository {
                 }
 
                 BufferedReader reader = new BufferedReader(
-                        new InputStreamReader(connection.getInputStream())
-                );
+                        new InputStreamReader(connection.getInputStream()));
 
                 StringBuilder sb = new StringBuilder();
                 String line;
@@ -101,5 +104,20 @@ public class SoccerSeparationGameRepository {
             }
 
         }).start();
+    }
+
+    public void saveLocalHighScore(int score) {
+        int currentHigh = getLocalHighScore();
+        if (score > currentHigh) {
+            sharedPreferences.edit().putInt("high_score", score).apply();
+        }
+    }
+
+    public int getLocalHighScore() {
+        return sharedPreferences.getInt("high_score", 0);
+    }
+
+    public void clearUserData() {
+        sharedPreferences.edit().clear().apply();
     }
 }

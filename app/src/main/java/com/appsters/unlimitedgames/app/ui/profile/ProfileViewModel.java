@@ -25,11 +25,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-public class ProfileViewModel extends ViewModel {
+public class ProfileViewModel extends androidx.lifecycle.AndroidViewModel {
 
     private final FirebaseAuth auth;
     private final UserRepository userRepository;
     private final LeaderboardRepository leaderboardRepository;
+    private final com.appsters.unlimitedgames.app.data.repository.FriendRepository friendRepository;
 
     private final MutableLiveData<User> currentUser = new MutableLiveData<>();
     private final MutableLiveData<List<Score>> userScores = new MutableLiveData<>();
@@ -41,10 +42,12 @@ public class ProfileViewModel extends ViewModel {
     private final MutableLiveData<Boolean> updateSuccess = new MutableLiveData<>(false);
     private final MutableLiveData<Boolean> deleteSuccess = new MutableLiveData<>(false);
 
-    public ProfileViewModel() {
+    public ProfileViewModel(android.app.Application application) {
+        super(application);
         auth = FirebaseAuth.getInstance();
         userRepository = new UserRepository();
-        leaderboardRepository = new LeaderboardRepository();
+        friendRepository = new com.appsters.unlimitedgames.app.data.repository.FriendRepository();
+        leaderboardRepository = new LeaderboardRepository(application);
     }
 
     public LiveData<User> getCurrentUser() {
@@ -137,7 +140,7 @@ public class ProfileViewModel extends ViewModel {
 
         List<List<Score>> allLeaderboards = new ArrayList<>();
         for (GameType gameType : gameTypes) {
-            leaderboardRepository.getGlobalLeaderboard(gameType, 100, (isSuccessful, scores, e) -> {
+            leaderboardRepository.getGlobalLeaderboard(userId, gameType, 100, (isSuccessful, scores, e) -> {
                 if (isSuccessful) {
                     allLeaderboards.add(scores);
                     if (allLeaderboards.size() == gameTypes.size()) {
@@ -188,6 +191,14 @@ public class ProfileViewModel extends ViewModel {
             return;
 
         user.setPrivacy(privacy);
+
+        // Batch update all scores with new privacy
+        leaderboardRepository.updateUserPrivacy(user.getUserId(), privacy, (isSuccessful, result, e) -> {
+            if (!isSuccessful) {
+                errorMessage.setValue("Failed to update privacy settings on past scores.");
+            }
+        });
+
         updateUser(user);
     }
 
@@ -350,8 +361,23 @@ public class ProfileViewModel extends ViewModel {
                     firebaseUser.delete().addOnCompleteListener(deleteTask -> {
                         isLoading.setValue(false);
                         if (deleteTask.isSuccessful()) {
-                            currentUser.setValue(null);
-                            deleteSuccess.setValue(true);
+                            // Deleted Auth User. Now cleanup data.
+                            // 1. Delete Scores
+                            leaderboardRepository.deleteAllUserScores(user.getUserId(), (scoresSuccess, sRes, sErr) -> {
+                                if (!scoresSuccess) {
+                                    // Log error but continue
+                                }
+
+                                // 2. Delete Friends
+                                friendRepository.deleteAllFriends(user.getUserId(), friendTask -> {
+                                    if (!friendTask.isSuccessful()) {
+                                        // Log error
+                                    }
+
+                                    currentUser.setValue(null);
+                                    deleteSuccess.setValue(true);
+                                });
+                            });
                         } else {
                             errorMessage.setValue(
                                     "Failed to delete Firebase Auth user: " + deleteTask.getException().getMessage());

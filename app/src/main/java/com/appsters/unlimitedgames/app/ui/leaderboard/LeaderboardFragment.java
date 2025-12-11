@@ -32,7 +32,8 @@ public class LeaderboardFragment extends Fragment {
 
     @Nullable
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
+            @Nullable Bundle savedInstanceState) {
         binding = FragmentLeaderboardBinding.inflate(inflater, container, false);
         return binding.getRoot();
     }
@@ -58,10 +59,11 @@ public class LeaderboardFragment extends Fragment {
         List<String> gameTitles = games.stream().map(Game::getTitle).collect(Collectors.toList());
         gameTitles.add(0, "All Games");
 
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(requireContext(), R.layout.spinner_item_white_text, gameTitles);
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(requireContext(), R.layout.spinner_item_white_text,
+                gameTitles);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         binding.gameSpinner.setAdapter(adapter);
-        binding.gameSpinner.setBackground(ContextCompat.getDrawable(requireContext(), R.drawable.spinner_background));
+        binding.gameSpinner.post(() -> binding.gameSpinner.setDropDownWidth(binding.gameSpinner.getWidth()));
 
         binding.gameSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override

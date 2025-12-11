@@ -9,6 +9,7 @@ public class Score {
     private GameType gameType;
     private int score;
     private long timestamp;
+    private int rank;
 
     public Score() {
         this.timestamp = System.currentTimeMillis();
@@ -69,5 +70,13 @@ public class Score {
 
     public void setTimestamp(long timestamp) {
         this.timestamp = timestamp;
+    }
+
+    public int getRank() {
+        return rank;
+    }
+
+    public void setRank(int rank) {
+        this.rank = rank;
     }
 }

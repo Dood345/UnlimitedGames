@@ -22,7 +22,7 @@ public class GameDataSource {
                 games.add(
                                 new Game(
                                                 "1",
-                                                GameType.PUZZLE,
+                                                GameType.GAME2048,
                                                 "2048",
                                                 "",
                                                 R.id.action_homeFragment_to_game2048Fragment,
@@ -30,7 +30,7 @@ public class GameDataSource {
                 games.add(
                                 new Game(
                                                 "2",
-                                                GameType.CARD,
+                                                GameType.POKER,
                                                 "Poker",
                                                 "",
                                                 R.id.action_homeFragment_to_pokerFragment,
@@ -38,7 +38,7 @@ public class GameDataSource {
                 games.add(
                                 new Game(
                                                 "3",
-                                                GameType.PUZZLE,
+                                                GameType.SUDOKU,
                                                 "Sudoku",
                                                 "",
                                                 0,
@@ -46,7 +46,7 @@ public class GameDataSource {
                 games.add(
                                 new Game(
                                                 "4",
-                                                GameType.QUIZ,
+                                                GameType.SOCCERSEPARATION,
                                                 "Soccer Separation Game",
                                                 "",
                                                 R.id.action_homeFragment_to_SoccerSeparationGameFragment,
@@ -54,7 +54,7 @@ public class GameDataSource {
                 games.add(
                                 new Game(
                                                 "5",
-                                                GameType.ACTION,
+                                                GameType.WHACK_A_MOLE,
                                                 "Whack-a-Mole",
                                                 "",
                                                 0,
@@ -62,7 +62,7 @@ public class GameDataSource {
                 games.add(
                                 new Game(
                                                 "6",
-                                                GameType.PUZZLE,
+                                                GameType.MAZE,
                                                 "Maze",
                                                 "",
                                                 R.id.action_homeFragment_to_mazeMenuFragment,

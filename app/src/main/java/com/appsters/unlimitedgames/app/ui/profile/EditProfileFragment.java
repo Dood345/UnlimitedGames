@@ -88,7 +88,6 @@ public class EditProfileFragment extends Fragment {
         viewModel.getCurrentUser().observe(getViewLifecycleOwner(), user -> {
             if (user != null) {
                 binding.etUsername.setText(user.getUsername());
-                binding.etEmail.setText(user.getEmail());
             }
         });
 
@@ -134,7 +133,6 @@ public class EditProfileFragment extends Fragment {
      */
     private void saveChanges() {
         String username = binding.etUsername.getText().toString().trim();
-        String email = binding.etEmail.getText().toString().trim();
         String currentPassword = binding.etCurrentPassword.getText().toString();
         String newPassword = binding.etNewPassword.getText().toString();
         String confirmPassword = binding.etConfirmPassword.getText().toString();
@@ -144,53 +142,8 @@ public class EditProfileFragment extends Fragment {
             return;
         }
 
-        // Check if email is being updated but current password is not provided
-        com.appsters.unlimitedgames.app.data.model.User currentUser = viewModel.getCurrentUser().getValue();
-        if (currentUser != null && !email.equals(currentUser.getEmail()) && currentPassword.isEmpty()) {
-            showPasswordPromptForUpdate(username, email, newPassword, confirmPassword);
-            return;
-        }
-
         // ViewModel handles all validation and sequencing
-        viewModel.updateProfile(username, email, currentPassword, newPassword, confirmPassword);
-    }
-
-    /**
-     * Displays a dialog prompting the user to enter their password to confirm
-     * profile updates (like email change).
-     */
-    private void showPasswordPromptForUpdate(String username, String email, String newPassword,
-            String confirmPassword) {
-        FrameLayout container = new FrameLayout(requireContext());
-        final com.google.android.material.textfield.TextInputEditText input = new com.google.android.material.textfield.TextInputEditText(
-                requireContext());
-        input.setInputType(
-                android.text.InputType.TYPE_CLASS_TEXT | android.text.InputType.TYPE_TEXT_VARIATION_PASSWORD);
-        input.setHint("Enter password");
-
-        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT);
-        int margin = (int) (16 * getResources().getDisplayMetrics().density); // 16dp margin
-        params.setMargins(margin, 0, margin, 0);
-        input.setLayoutParams(params);
-
-        container.addView(input);
-
-        new MaterialAlertDialogBuilder(requireContext(), R.style.DeleteDialogueTheme)
-                .setTitle("Confirm Changes")
-                .setMessage("Please enter your current password to update your email.")
-                .setView(container)
-                .setNegativeButton("Cancel", null)
-                .setPositiveButton("Confirm", (dialog, which) -> {
-                    String password = input.getText().toString();
-                    if (!password.isEmpty()) {
-                        viewModel.updateProfile(username, email, password, newPassword, confirmPassword);
-                    } else {
-                        Toast.makeText(getContext(), "Password is required.", Toast.LENGTH_SHORT).show();
-                    }
-                })
-                .show();
+        viewModel.updateProfile(username, currentPassword, newPassword, confirmPassword);
     }
 
     /**

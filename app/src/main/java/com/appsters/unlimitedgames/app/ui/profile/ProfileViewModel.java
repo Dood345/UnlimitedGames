@@ -91,6 +91,12 @@ public class ProfileViewModel extends ViewModel {
         errorMessage.setValue(null);
     }
 
+    /**
+     * Loads the current user's profile from Firestore and their 2048 high score.
+     * 
+     * @param context The context needed to access SharedPreferences for the high
+     *                score.
+     */
     public void loadCurrentUser(Context context) {
         FirebaseUser firebaseUser = auth.getCurrentUser();
         if (firebaseUser == null) {
@@ -178,7 +184,8 @@ public class ProfileViewModel extends ViewModel {
 
     public void updatePrivacy(Privacy privacy) {
         User user = currentUser.getValue();
-        if (user == null) return;
+        if (user == null)
+            return;
 
         user.setPrivacy(privacy);
         updateUser(user);
@@ -186,15 +193,16 @@ public class ProfileViewModel extends ViewModel {
 
     public void updateProfilePicture(String base64Image) {
         User user = currentUser.getValue();
-        if (user == null) return;
+        if (user == null)
+            return;
 
         user.setProfileImageUrl(base64Image);
         imageUploadSuccess.setValue(false);
         updateUser(user);
     }
 
-    public void updateProfile(String newUsername, String newEmail, String currentPassword,
-                              String newPassword, String confirmPassword) {
+    public void updateProfile(String newUsername, String currentPassword,
+            String newPassword, String confirmPassword) {
         User user = currentUser.getValue();
         if (user == null) {
             errorMessage.setValue("User data not loaded");
@@ -202,8 +210,7 @@ public class ProfileViewModel extends ViewModel {
         }
 
         ValidationResult validation = validateProfileUpdate(
-                user, newUsername, newEmail, currentPassword, newPassword, confirmPassword
-        );
+                user, newUsername, currentPassword, newPassword, confirmPassword);
 
         if (!validation.isValid) {
             errorMessage.setValue(validation.errorMessage);
@@ -211,12 +218,12 @@ public class ProfileViewModel extends ViewModel {
         }
 
         boolean usernameChanged = !newUsername.equals(user.getUsername());
-        boolean emailChanged = !newEmail.equals(user.getEmail());
         boolean passwordChanged = !TextUtils.isEmpty(newPassword);
 
-        if (emailChanged || passwordChanged) {
-            updateWithReauth(user, newUsername, newEmail, currentPassword,
-                    newPassword, usernameChanged, emailChanged, passwordChanged);
+        if (passwordChanged) {
+            // Need reauthentication for password changes
+            updateWithReauth(user, newUsername, currentPassword,
+                    newPassword, usernameChanged, passwordChanged);
         } else if (usernameChanged) {
             updateUsername(newUsername);
         } else {
@@ -224,18 +231,14 @@ public class ProfileViewModel extends ViewModel {
         }
     }
 
-    private ValidationResult validateProfileUpdate(User user, String newUsername, String newEmail,
-                                                   String currentPassword, String newPassword,
-                                                   String confirmPassword) {
-        if (TextUtils.isEmpty(newEmail) || !android.util.Patterns.EMAIL_ADDRESS.matcher(newEmail).matches()) {
-            return new ValidationResult(false, "Invalid email address");
-        }
+    private ValidationResult validateProfileUpdate(User user, String newUsername,
+            String currentPassword, String newPassword,
+            String confirmPassword) {
 
-        boolean emailChanged = !newEmail.equals(user.getEmail());
         boolean passwordChanged = !TextUtils.isEmpty(newPassword);
 
-        if ((emailChanged || passwordChanged) && currentPassword.isEmpty()) {
-            return new ValidationResult(false, "Current password required to change email or password");
+        if (passwordChanged && currentPassword.isEmpty()) {
+            return new ValidationResult(false, "Current password required to change password");
         }
 
         if (passwordChanged) {
@@ -266,10 +269,10 @@ public class ProfileViewModel extends ViewModel {
         }
     }
 
-    private void updateWithReauth(User user, String newEmail, String newUsername,
-                                  String currentPassword, String newPassword,
-                                  boolean usernameChanged, boolean emailChanged,
-                                  boolean passwordChanged) {
+    private void updateWithReauth(User user, String newUsername,
+            String currentPassword, String newPassword,
+            boolean usernameChanged,
+            boolean passwordChanged) {
         reauthenticate(user.getEmail(), currentPassword, () -> {
             FirebaseUser firebaseUser = auth.getCurrentUser();
             if (firebaseUser == null) {
@@ -279,39 +282,16 @@ public class ProfileViewModel extends ViewModel {
 
             isLoading.setValue(true);
 
-            if (emailChanged) {
-                updateEmailThenContinue(firebaseUser, user, newEmail, newPassword,
-                        newUsername, passwordChanged, usernameChanged);
-            } else if (passwordChanged) {
+            if (passwordChanged) {
                 updatePasswordThenContinue(firebaseUser, user, newUsername,
                         newPassword, usernameChanged);
             }
         });
     }
 
-    private void updateEmailThenContinue(FirebaseUser firebaseUser, User user, String newEmail,
-                                         String newPassword, String newUsername,
-                                         boolean passwordChanged, boolean usernameChanged) {
-        firebaseUser.verifyBeforeUpdateEmail(newEmail).addOnCompleteListener(task -> {
-            if (task.isSuccessful()) {
-                user.setEmail(newEmail);
-
-                if (passwordChanged) {
-                    updatePasswordThenContinue(firebaseUser, user, newUsername,
-                            newPassword, usernameChanged);
-                } else {
-                    finalizeProfileUpdate(user, newUsername, usernameChanged);
-                }
-            } else {
-                isLoading.setValue(false);
-                errorMessage.setValue("Failed to update email: " + task.getException().getMessage());
-            }
-        });
-    }
-
     private void updatePasswordThenContinue(FirebaseUser firebaseUser, User user,
-                                            String newUsername, String newPassword,
-                                            boolean usernameChanged) {
+            String newUsername, String newPassword,
+            boolean usernameChanged) {
         firebaseUser.updatePassword(newPassword).addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
                 finalizeProfileUpdate(user, newUsername, usernameChanged);
@@ -331,34 +311,18 @@ public class ProfileViewModel extends ViewModel {
 
     public void updateUsername(String newUsername) {
         User user = currentUser.getValue();
-        if (user == null) return;
+        if (user == null)
+            return;
 
         user.setUsername(newUsername);
         updateUser(user);
     }
 
-    public void updateUserEmail(String newEmail, String password) {
-        FirebaseUser firebaseUser = auth.getCurrentUser();
-        User user = currentUser.getValue();
-        if (firebaseUser == null || user == null) return;
-        isLoading.setValue(true);
-        reauthenticate(user.getEmail(), password, () -> {
-                firebaseUser.verifyBeforeUpdateEmail(newEmail).addOnCompleteListener(task -> {
-                if (task.isSuccessful()) {
-                    user.setEmail(newEmail);
-                    updateUser(user);
-                } else {
-                    isLoading.setValue(false);
-                    errorMessage.setValue("Failed to update email: " + task.getException().getMessage());
-                }
-            });
-        });
-    }
-
     public void updatePassword(String currentPassword, String newPassword) {
         FirebaseUser firebaseUser = auth.getCurrentUser();
         User user = currentUser.getValue();
-        if (firebaseUser == null || user == null) return;
+        if (firebaseUser == null || user == null)
+            return;
 
         reauthenticate(user.getEmail(), currentPassword, () -> {
             isLoading.setValue(true);
@@ -376,7 +340,8 @@ public class ProfileViewModel extends ViewModel {
     public void deleteAccount(String password) {
         FirebaseUser firebaseUser = auth.getCurrentUser();
         User user = currentUser.getValue();
-        if (firebaseUser == null || user == null) return;
+        if (firebaseUser == null || user == null)
+            return;
 
         reauthenticate(user.getEmail(), password, () -> {
             isLoading.setValue(true);
@@ -388,7 +353,8 @@ public class ProfileViewModel extends ViewModel {
                             currentUser.setValue(null);
                             deleteSuccess.setValue(true);
                         } else {
-                            errorMessage.setValue("Failed to delete Firebase Auth user: " + deleteTask.getException().getMessage());
+                            errorMessage.setValue(
+                                    "Failed to delete Firebase Auth user: " + deleteTask.getException().getMessage());
                         }
                     });
                 } else {
@@ -418,7 +384,8 @@ public class ProfileViewModel extends ViewModel {
 
     private void reauthenticate(String email, String password, Runnable onReAuthSuccess) {
         FirebaseUser user = auth.getCurrentUser();
-        if (user == null) return;
+        if (user == null)
+            return;
 
         AuthCredential credential = EmailAuthProvider.getCredential(email, password);
         isLoading.setValue(true);

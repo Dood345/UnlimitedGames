@@ -47,10 +47,10 @@ public class GameDataSource {
                                 new Game(
                                                 "4",
                                                 GameType.QUIZ,
-                                                "NFL Quiz",
+                                                "Soccer Separation Game",
                                                 "",
-                                                R.id.action_homeFragment_to_NFLQuizFragment,
-                                                R.drawable.ic_launcher_background));
+                                                R.id.action_homeFragment_to_SoccerSeparationGameFragment,
+                                                R.drawable.ic_soccer_separation));
                 games.add(
                                 new Game(
                                                 "5",

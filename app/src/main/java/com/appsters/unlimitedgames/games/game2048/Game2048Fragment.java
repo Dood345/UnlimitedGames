@@ -165,10 +165,10 @@ public class Game2048Fragment extends Fragment {
                 if (Math.abs(diffY) > SWIPE_THRESHOLD && Math.abs(velocityY) > SWIPE_VELOCITY_THRESHOLD) {
                     if (diffY > 0) {
                         // A downward swipe has a positive diffY.
-                        viewModel.move(3); // Down
+                        viewModel.move(1); // Down
                     } else {
                         // An upward swipe has a negative diffY.
-                        viewModel.move(1); // Up
+                        viewModel.move(3); // Up
                     }
                     return true;
                 }

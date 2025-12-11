@@ -66,18 +66,20 @@ public class ProfileScoreAdapter extends RecyclerView.Adapter<ProfileScoreAdapte
 
     /**
      * Converts a GameType enum into a user-friendly, readable string.
+     * 
      * @param gameType The enum to convert.
      * @return A readable string for the UI.
      */
     private String getGameName(GameType gameType) {
-        if (gameType == null) return "Game";
+        if (gameType == null)
+            return "Game";
         switch (gameType) {
             case GAME2048:
                 return "2048";
             case SUDOKU:
                 return "Sudoku";
-            case NFL_QUIZ:
-                return "NFL Quiz";
+            case SOCCERSEPARATION:
+                return "Soccer Separation";
             case POKER:
                 return "Poker";
             case MAZE:
@@ -85,7 +87,8 @@ public class ProfileScoreAdapter extends RecyclerView.Adapter<ProfileScoreAdapte
             case WHACK_A_MOLE:
                 return "Whack-A-Mole";
             default:
-                // Capitalize the first letter and make the rest lowercase, replacing underscores
+                // Capitalize the first letter and make the rest lowercase, replacing
+                // underscores
                 String name = gameType.name().replace("_", " ").toLowerCase();
                 return name.substring(0, 1).toUpperCase() + name.substring(1);
         }

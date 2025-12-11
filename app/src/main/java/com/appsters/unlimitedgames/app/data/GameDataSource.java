@@ -27,14 +27,7 @@ public class GameDataSource {
                                                 "",
                                                 R.id.action_homeFragment_to_game2048Fragment,
                                                 R.drawable.game2048_logo));
-                games.add(
-                                new Game(
-                                                "2",
-                                                GameType.POKER,
-                                                "Poker",
-                                                "",
-                                                R.id.action_homeFragment_to_pokerFragment,
-                                                R.drawable.ic_launcher_background));
+
                 games.add(
                                 new Game(
                                                 "3",

@@ -5,7 +5,7 @@ public enum GameType {
     GAME2048,
     SUDOKU,
     SOCCERSEPARATION,
-    POKER,
+
     MAZE,
     WHACK_A_MOLE
 }

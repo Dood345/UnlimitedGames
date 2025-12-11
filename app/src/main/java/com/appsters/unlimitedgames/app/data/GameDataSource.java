@@ -27,14 +27,7 @@ public class GameDataSource {
                                                 "",
                                                 R.id.action_homeFragment_to_game2048Fragment,
                                                 R.drawable.game2048_logo));
-                games.add(
-                                new Game(
-                                                "2",
-                                                GameType.POKER,
-                                                "Poker",
-                                                "",
-                                                R.id.action_homeFragment_to_pokerFragment,
-                                                R.drawable.ic_launcher_background));
+
                 games.add(
                                 new Game(
                                                 "3",
@@ -76,16 +69,16 @@ public class GameDataSource {
          * @param context The application context.
          */
         public static void clearAllGameData(android.content.Context context) {
-                // Clear Sudoku Data
-                new com.appsters.unlimitedgames.games.sudoku.repository.SudokuRepository(context).clearAllData();
+                // Use IGame implementations to ensure consistent cleanup across the app
+                List<com.appsters.unlimitedgames.games.interfaces.IGame> games = new ArrayList<>();
+                games.add(new com.appsters.unlimitedgames.games.game2048.Game2048Game(context));
+                games.add(new com.appsters.unlimitedgames.games.sudoku.SudokuGame(context));
+                games.add(new com.appsters.unlimitedgames.games.maze.MazeGame(context));
+                games.add(new com.appsters.unlimitedgames.games.whackamole.WhackAMoleGame(context));
+                games.add(new com.appsters.unlimitedgames.games.soccerseparationgame.SoccerSeparationGame(context));
 
-                // Clear Maze Data
-                com.appsters.unlimitedgames.games.maze.controller.RunManager.INSTANCE.clearAllData(context);
-
-                // Clear Whack-a-Mole Data
-                android.content.SharedPreferences whackPrefs = context.getSharedPreferences("WhackAMolePrefs",
-                                android.content.Context.MODE_PRIVATE);
-                new com.appsters.unlimitedgames.games.whackamole.repository.SharedPrefGameRepository(whackPrefs)
-                                .clearData();
+                for (com.appsters.unlimitedgames.games.interfaces.IGame game : games) {
+                        game.clearUserData();
+                }
         }
 }

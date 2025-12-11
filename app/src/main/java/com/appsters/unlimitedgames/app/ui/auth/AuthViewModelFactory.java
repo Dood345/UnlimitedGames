@@ -32,6 +32,7 @@ public class AuthViewModelFactory implements ViewModelProvider.Factory {
             games.add(new WhackAMoleGame(application));
             games.add(new SudokuGame(application));
             games.add(new MazeGame(application));
+            games.add(new com.appsters.unlimitedgames.games.soccerseparationgame.SoccerSeparationGame(application));
 
             GameCleanupManager manager = new GameCleanupManager(games);
             return (T) new AuthViewModel(manager);

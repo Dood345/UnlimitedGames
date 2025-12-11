@@ -10,18 +10,29 @@ public class Score {
     private int score;
     private long timestamp;
     private int rank;
+    private com.appsters.unlimitedgames.app.util.Privacy privacy; // Denormalized privacy
 
     public Score() {
         this.timestamp = System.currentTimeMillis();
+        this.privacy = com.appsters.unlimitedgames.app.util.Privacy.PUBLIC; // Default
     }
 
-    public Score(String scoreId, String userId, String username, GameType gameType, int score) {
+    public Score(String scoreId, String userId, String username, GameType gameType, int score,
+            com.appsters.unlimitedgames.app.util.Privacy privacy) {
         this.scoreId = scoreId;
         this.userId = userId;
         this.username = username;
         this.gameType = gameType;
         this.score = score;
         this.timestamp = System.currentTimeMillis();
+        this.privacy = privacy;
+    }
+
+    // Keep existing constructor for backward compatibility if needed, or update
+    // call sites.
+    // Ideally we update call sites, but overloading is safer for now.
+    public Score(String scoreId, String userId, String username, GameType gameType, int score) {
+        this(scoreId, userId, username, gameType, score, com.appsters.unlimitedgames.app.util.Privacy.PUBLIC);
     }
 
     public String getScoreId() {
@@ -78,5 +89,13 @@ public class Score {
 
     public void setRank(int rank) {
         this.rank = rank;
+    }
+
+    public com.appsters.unlimitedgames.app.util.Privacy getPrivacy() {
+        return privacy;
+    }
+
+    public void setPrivacy(com.appsters.unlimitedgames.app.util.Privacy privacy) {
+        this.privacy = privacy;
     }
 }

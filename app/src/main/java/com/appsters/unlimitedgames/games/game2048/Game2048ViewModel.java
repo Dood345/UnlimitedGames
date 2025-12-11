@@ -152,11 +152,11 @@ public class Game2048ViewModel extends AndroidViewModel {
             case 0:
                 return 0; // Left
             case 1:
-                return 1; // Up
+                return 3; // Up
             case 2:
                 return 2; // Right
             case 3:
-                return 3; // Down
+                return 1; // Down
             default:
                 return 0;
         }

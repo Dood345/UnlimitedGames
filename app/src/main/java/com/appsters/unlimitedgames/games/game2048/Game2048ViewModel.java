@@ -60,8 +60,18 @@ public class Game2048ViewModel extends AndroidViewModel {
 
     public void saveGameState() {
         Integer currentScore = _score.getValue();
-        if (currentScore != null && !Boolean.TRUE.equals(_gameOver.getValue())) {
-            repository.saveGameState(boardArray, currentScore);
+        if (currentScore != null) {
+            // Save high score if needed
+            if (currentScore > _highScore.getValue()) {
+                _highScore.postValue(currentScore);
+                repository.saveHighScore(currentScore);
+                submitScoreToLeaderboard(currentScore);
+            }
+
+            // Save game state if not over
+            if (!Boolean.TRUE.equals(_gameOver.getValue())) {
+                repository.saveGameState(boardArray, currentScore);
+            }
         }
     }
 

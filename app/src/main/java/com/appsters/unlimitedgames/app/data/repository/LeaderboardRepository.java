@@ -92,6 +92,12 @@ public class LeaderboardRepository {
                         // Show if Public OR (FriendsOnly AND I am a friend/self)
                         if (isPublic || (isFriendsOnly && isFriend)) {
                             filteredScores.add(s);
+                        } else {
+                            // If not visible, show as Anonymous
+                            Score anonymousScore = new Score(s.getScoreId(), s.getUserId(), "Anonymous",
+                                    s.getGameType(),
+                                    s.getScore(), s.getPrivacy());
+                            filteredScores.add(anonymousScore);
                         }
                     }
 

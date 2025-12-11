@@ -1,14 +1,18 @@
 package com.appsters.unlimitedgames.games.whackamole;
 
-
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
+import com.appsters.unlimitedgames.app.data.model.Score;
+import com.appsters.unlimitedgames.app.data.repository.LeaderboardRepository;
+import com.appsters.unlimitedgames.app.data.repository.UserRepository;
+import com.appsters.unlimitedgames.app.util.GameType;
 import com.appsters.unlimitedgames.games.whackamole.model.GameConfig;
 import com.appsters.unlimitedgames.games.whackamole.model.MoleContainer;
 import com.appsters.unlimitedgames.games.whackamole.repository.GameRepository;
 import com.appsters.unlimitedgames.games.whackamole.util.Scheduler;
+import com.google.firebase.auth.FirebaseAuth;
 
 import java.util.Objects;
 import java.util.Random;
@@ -34,6 +38,8 @@ public class WhackAMoleGameViewModel extends ViewModel {
 
     private final GameConfig gameConfig;
     private final GameRepository gameRepository;
+    private final LeaderboardRepository leaderboardRepository;
+    private final UserRepository userRepository;
     private final Scheduler scheduler;
     private final Runnable spawnRunnable = this::spawnMole;
     private final LiveData<Integer> highScore;
@@ -44,6 +50,7 @@ public class WhackAMoleGameViewModel extends ViewModel {
     private final MutableLiveData<Long> moleTimeRemaining;
     private final Runnable moleTimerRunnable = this::onMoleTimerTick;
     private long currentInterval;
+    private boolean scoreSubmitted;
 
     /**
      * Constructs a GameViewModel with a default game configuration.
@@ -66,6 +73,8 @@ public class WhackAMoleGameViewModel extends ViewModel {
                                    GameConfig gameConfig) {
         this.gameConfig = gameConfig;
         this.gameRepository = gameRepository;
+        this.leaderboardRepository = new LeaderboardRepository();
+        this.userRepository = new UserRepository();
         this.scheduler = scheduler;
 
         this.highScore = gameRepository.getHighScore();
@@ -78,8 +87,8 @@ public class WhackAMoleGameViewModel extends ViewModel {
         this.misses = new MutableLiveData<>(0);
         this.moleTimeRemaining = new MutableLiveData<>(gameConfig.getInitialInterval());
 
-
         this.currentInterval = gameConfig.getInitialInterval();
+        this.scoreSubmitted = false;
 
         scheduler.postDelayed(spawnRunnable, gameConfig.getInitialInterval());
         scheduler.postDelayed(moleTimerRunnable, 100);
@@ -94,9 +103,8 @@ public class WhackAMoleGameViewModel extends ViewModel {
      * @throws IllegalStateException if called after the game is already over.
      */
     private void spawnMole() {
-        boolean isGameOver = Objects.requireNonNull(gameOver.getValue());
-        if (isGameOver) {
-            throw new IllegalStateException("spawnMole should never be called after game over.");
+        if (Boolean.TRUE.equals(gameOver.getValue())) {
+            return; // Game is already over, do nothing.
         }
 
         MoleContainer currentMoles = Objects.requireNonNull(moles.getValue());
@@ -140,6 +148,29 @@ public class WhackAMoleGameViewModel extends ViewModel {
         gameOver.setValue(true);
         scheduler.removeCallbacks(spawnRunnable);
         scheduler.removeCallbacks(moleTimerRunnable);
+
+        Integer finalScore = score.getValue();
+        if (finalScore != null) {
+            submitScoreToLeaderboard(finalScore);
+        }
+    }
+
+    private void submitScoreToLeaderboard(int scoreValue) {
+        if (scoreSubmitted) return; // Prevent multiple submissions
+        scoreSubmitted = true;
+
+        String userId = FirebaseAuth.getInstance().getUid();
+        if (userId == null) return;
+
+        userRepository.getUser(userId, task -> {
+            if (task.isSuccessful() && task.getResult() != null) {
+                String username = task.getResult().getUsername();
+                Score scoreObject = new Score(null, userId, username, GameType.WHACK_A_MOLE, scoreValue);
+                leaderboardRepository.submitScore(scoreObject, (isSuccessful, result, e) -> {
+                    // Optionally handle success or failure, e.g., log an error
+                });
+            }
+        });
     }
 
     /**
@@ -151,14 +182,13 @@ public class WhackAMoleGameViewModel extends ViewModel {
      * @throws IllegalStateException if called after the game is already over.
      */
     public void hitMole(int moleId) {
-        boolean isGameOver = Objects.requireNonNull(gameOver.getValue());
-        if (isGameOver) {
-            throw new IllegalStateException("hitMole should not be called after game over.");
+        if (Boolean.TRUE.equals(gameOver.getValue())) {
+            return;
         }
 
         MoleContainer currentMoles = Objects.requireNonNull(moles.getValue());
         int currentScore = Objects.requireNonNull(score.getValue());
-        int currentHighScore = Objects.requireNonNull(highScore.getValue());
+        Integer currentHighScore = highScore.getValue(); // Can be null initially
 
         if (currentMoles.getVisibleId() != moleId) {
             return;
@@ -169,9 +199,8 @@ public class WhackAMoleGameViewModel extends ViewModel {
         score.setValue(newScore);
 
         // Update high score if needed
-        if (newScore > currentHighScore) {
+        if (currentHighScore == null || newScore > currentHighScore) {
             gameRepository.saveHighScore(newScore);
-
         }
 
         // Pick new mole ID
@@ -206,6 +235,7 @@ public class WhackAMoleGameViewModel extends ViewModel {
 
         misses.setValue(0);
         currentInterval = gameConfig.getInitialInterval();
+        scoreSubmitted = false; // Reset the flag for the new game
 
         score.setValue(0);
         gameOver.setValue(false);

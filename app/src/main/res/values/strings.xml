@@ -24,6 +24,9 @@
     <string name="logout">Logout</string>
     <string name="no_high_scores">No high scores yet. Start playing!</string>
 
+    <!-- Leaderboard -->
+    <string name="friends_only">Friends Only</string>
+
     <!-- Edit Profile -->
     <string name="username">Username</string>
     <string name="change_password">Change Password</string>

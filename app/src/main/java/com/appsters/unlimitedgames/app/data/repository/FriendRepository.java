@@ -26,8 +26,7 @@ public class FriendRepository {
             String toUserId,
             String fromUsername,
             String toUsername,
-            OnCompleteListener<Void> listener
-    ) {
+            OnCompleteListener<Void> listener) {
         Friend request = new Friend(fromUserId, toUserId, fromUsername, toUsername);
 
         db.collection(COLLECTION)
@@ -50,8 +49,7 @@ public class FriendRepository {
                 .document(requestId)
                 .update(
                         "status", FriendStatus.ACCEPTED.name(),
-                        "updatedAt", new Date()
-                )
+                        "updatedAt", new Date())
                 .addOnCompleteListener(listener);
     }
 
@@ -60,8 +58,7 @@ public class FriendRepository {
                 .document(requestId)
                 .update(
                         "status", FriendStatus.DECLINED.name(),
-                        "updatedAt", new Date()
-                )
+                        "updatedAt", new Date())
                 .addOnCompleteListener(listener);
     }
 
@@ -71,24 +68,17 @@ public class FriendRepository {
                         Filter.or(
                                 Filter.and(
                                         Filter.equalTo("fromUserId", userA),
-                                        Filter.equalTo("toUserId", userB)
-                                ),
+                                        Filter.equalTo("toUserId", userB)),
                                 Filter.and(
                                         Filter.equalTo("fromUserId", userB),
-                                        Filter.equalTo("toUserId", userA)
-                                )
-                        )
-                )
+                                        Filter.equalTo("toUserId", userA))))
                 .get()
                 .addOnCompleteListener(task -> {
                     if (!task.isSuccessful() || task.getResult() == null) {
                         listener.onComplete(
                                 com.google.android.gms.tasks.Tasks.forException(
-                                        task.getException() != null ?
-                                                task.getException() :
-                                                new Exception("Failed to load friend documents")
-                                )
-                        );
+                                        task.getException() != null ? task.getException()
+                                                : new Exception("Failed to load friend documents")));
                         return;
                     }
 
@@ -98,8 +88,7 @@ public class FriendRepository {
                         deletes.add(
                                 db.collection(COLLECTION)
                                         .document(doc.getId())
-                                        .delete()
-                        );
+                                        .delete());
                     }
 
                     com.google.android.gms.tasks.Tasks.whenAll(deletes)
@@ -113,9 +102,7 @@ public class FriendRepository {
                 .where(
                         com.google.firebase.firestore.Filter.or(
                                 com.google.firebase.firestore.Filter.equalTo("fromUserId", userId),
-                                com.google.firebase.firestore.Filter.equalTo("toUserId", userId)
-                        )
-                )
+                                com.google.firebase.firestore.Filter.equalTo("toUserId", userId)))
                 .get()
                 .addOnCompleteListener(task -> {
                     List<Friend> friends = new ArrayList<>();
@@ -127,8 +114,7 @@ public class FriendRepository {
                     }
 
                     listener.onComplete(
-                            com.google.android.gms.tasks.Tasks.forResult(friends)
-                    );
+                            com.google.android.gms.tasks.Tasks.forResult(friends));
                 });
     }
 
@@ -148,8 +134,7 @@ public class FriendRepository {
                     }
 
                     listener.onComplete(
-                            com.google.android.gms.tasks.Tasks.forResult(requests)
-                    );
+                            com.google.android.gms.tasks.Tasks.forResult(requests));
                 });
     }
 
@@ -175,9 +160,7 @@ public class FriendRepository {
                 .where(
                         Filter.or(
                                 Filter.equalTo("fromUserId", userId),
-                                Filter.equalTo("toUserId", userId)
-                        )
-                )
+                                Filter.equalTo("toUserId", userId)))
                 .get()
                 .addOnCompleteListener(task -> {
 
@@ -190,15 +173,15 @@ public class FriendRepository {
                     }
 
                     listener.onComplete(
-                            com.google.android.gms.tasks.Tasks.forResult(relations)
-                    );
+                            com.google.android.gms.tasks.Tasks.forResult(relations));
                 });
     }
 
     public void loadAllNewFriends(String currentUserId, OnCompleteListener<List<User>> listener) {
 
-        // First load all users
+        // First load all PUBLIC users
         db.collection("users")
+                .whereEqualTo("privacy", "PUBLIC")
                 .get()
                 .addOnCompleteListener(userTask -> {
 
@@ -218,8 +201,7 @@ public class FriendRepository {
                     // Then load relations to filter out existing friends/pending requests
                     getAllFriendRelations(currentUserId, relTask -> {
 
-                        List<Friend> relations =
-                                relTask.getResult() != null ? relTask.getResult() : new ArrayList<>();
+                        List<Friend> relations = relTask.getResult() != null ? relTask.getResult() : new ArrayList<>();
 
                         List<User> finalList = new ArrayList<>();
 
@@ -241,11 +223,84 @@ public class FriendRepository {
                         }
 
                         listener.onComplete(
-                                com.google.android.gms.tasks.Tasks.forResult(finalList)
-                        );
+                                com.google.android.gms.tasks.Tasks.forResult(finalList));
                     });
                 });
     }
 
+    /**
+     * Searches for new friends using a privacy-aware split query approach.
+     * <p>
+     * Task 1: Find PUBLIC users who match the search (Partial Match).
+     * Task 2: Find ANY user who matches EXACTLY (Exact Match overrides privacy).
+     * Task 3: Merge results, removing duplicates and the current user.
+     *
+     * @param currentUserId The ID of the current user (to exclude from results).
+     * @param searchQuery   The search query string.
+     * @param listener      Listener to handle the result list.
+     */
+    public void searchNewFriends(String currentUserId, String searchQuery, OnCompleteListener<List<User>> listener) {
+        if (searchQuery == null || searchQuery.trim().isEmpty()) {
+            listener.onComplete(com.google.android.gms.tasks.Tasks.forResult(new ArrayList<>()));
+            return;
+        }
+
+        String query = searchQuery.trim();
+
+        // Task 1: Find PUBLIC users who match the search (Partial Match)
+        // Note: Filtering by privacy="PUBLIC" here requires a composite index on
+        // (privacy, username)
+        // which triggers FAILED_PRECONDITION errors if missing.
+        // Workaround: Query by username only, then filter privacy in code.
+        com.google.android.gms.tasks.Task<com.google.firebase.firestore.QuerySnapshot> publicSearch = db
+                .collection("users")
+                .whereGreaterThanOrEqualTo("username", query)
+                .whereLessThan("username", query + "\uf8ff")
+                .get();
+
+        // Task 2: Find ANY user who matches EXACTLY (Exact Match overrides privacy)
+        com.google.android.gms.tasks.Task<com.google.firebase.firestore.QuerySnapshot> exactSearch = db
+                .collection("users")
+                .whereEqualTo("username", query)
+                .get();
+
+        // Task 3: Run both in parallel
+        com.google.android.gms.tasks.Tasks.whenAllSuccess(publicSearch, exactSearch).addOnSuccessListener(results -> {
+            // 'results' is a list of objects.
+            // Index 0 = publicSearch result
+            // Index 1 = exactSearch result
+
+            List<User> finalUsers = new ArrayList<>();
+            java.util.Set<String> seenIds = new java.util.HashSet<>(); // Avoid duplicates
+
+            // Process Public Results
+            com.google.firebase.firestore.QuerySnapshot publicSnap = (com.google.firebase.firestore.QuerySnapshot) results
+                    .get(0);
+            for (com.google.firebase.firestore.DocumentSnapshot doc : publicSnap.getDocuments()) {
+                User u = doc.toObject(User.class);
+                // Manual privacy check since we removed valid query filter
+                if (u != null && "PUBLIC".equals(u.getPrivacy()) && !u.getUserId().equals(currentUserId)) {
+                    finalUsers.add(u);
+                    seenIds.add(u.getUserId());
+                }
+            }
+
+            // Process Exact Match Results
+            com.google.firebase.firestore.QuerySnapshot exactSnap = (com.google.firebase.firestore.QuerySnapshot) results
+                    .get(1);
+            for (com.google.firebase.firestore.DocumentSnapshot doc : exactSnap.getDocuments()) {
+                User u = doc.toObject(User.class);
+                // Only add if not already in the list (and not myself)
+                if (u != null && !seenIds.contains(u.getUserId()) && !u.getUserId().equals(currentUserId)) {
+                    finalUsers.add(u);
+                }
+            }
+
+            // Return the clean, secure list
+            listener.onComplete(com.google.android.gms.tasks.Tasks.forResult(finalUsers));
+        }).addOnFailureListener(e -> {
+            listener.onComplete(com.google.android.gms.tasks.Tasks.forException(e));
+        });
+    }
 
 }

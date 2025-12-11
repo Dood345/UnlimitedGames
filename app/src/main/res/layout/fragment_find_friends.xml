@@ -17,7 +17,8 @@
             android:layout_height="48dp"
             android:hint="Search username..."
             android:padding="12dp"
-            android:background="@android:drawable/editbox_background_normal"
+            android:textColor="?android:attr/textColorPrimary"
+            android:textColorHint="?android:attr/textColorHint"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />

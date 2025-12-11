@@ -36,18 +36,38 @@ public class FriendViewModel extends ViewModel {
 
     // ----------- LIVE DATA GETTERS -----------
 
-    public LiveData<Boolean> getIsLoading() { return isLoading; }
-    public LiveData<String> getErrorMessage() { return errorMessage; }
+    public LiveData<Boolean> getIsLoading() {
+        return isLoading;
+    }
 
-    public LiveData<List<Friend>> getFriends() { return friends; }
-    public LiveData<List<Friend>> getIncomingRequests() { return incomingRequests; }
-    public LiveData<List<Friend>> getOutgoingRequests() { return outgoingRequests; }
-    public LiveData<List<User>> getNewFriends() { return newFriends; }
+    public LiveData<String> getErrorMessage() {
+        return errorMessage;
+    }
+
+    public LiveData<List<Friend>> getFriends() {
+        return friends;
+    }
+
+    public LiveData<List<Friend>> getIncomingRequests() {
+        return incomingRequests;
+    }
+
+    public LiveData<List<Friend>> getOutgoingRequests() {
+        return outgoingRequests;
+    }
+
+    public LiveData<List<User>> getNewFriends() {
+        return newFriends;
+    }
 
     // ✅ CURRENT USER GETTER
-    public LiveData<User> getCurrentUser() { return currentUser; }
+    public LiveData<User> getCurrentUser() {
+        return currentUser;
+    }
 
-    public LiveData<Boolean> getActionSuccess() { return actionSuccess; }
+    public LiveData<Boolean> getActionSuccess() {
+        return actionSuccess;
+    }
 
     public void resetFlags() {
         actionSuccess.setValue(false);
@@ -124,8 +144,7 @@ public class FriendViewModel extends ViewModel {
             String fromUserId,
             String toUserId,
             String fromUsername,
-            String toUsername
-    ) {
+            String toUsername) {
         isLoading.setValue(true);
 
         friendRepository.sendFriendRequest(
@@ -141,8 +160,7 @@ public class FriendViewModel extends ViewModel {
                     } else {
                         errorMessage.setValue("Failed to send friend request.");
                     }
-                }
-        );
+                });
     }
 
     // ----------- ACCEPT FRIEND REQUEST -----------
@@ -208,4 +226,28 @@ public class FriendViewModel extends ViewModel {
             }
         });
     }
+
+    public void searchNewFriends(String query) {
+        User me = currentUser.getValue();
+        if (me == null) {
+            errorMessage.setValue("Current user not loaded.");
+            return;
+        }
+
+        if (query == null || query.trim().isEmpty()) {
+            loadAllNewFriends(me.getUserId());
+            return;
+        }
+
+        isLoading.setValue(true);
+        friendRepository.searchNewFriends(me.getUserId(), query, task -> {
+            isLoading.setValue(false);
+            if (task.isSuccessful()) {
+                newFriends.setValue(task.getResult());
+            } else {
+                errorMessage.setValue("Search failed.");
+            }
+        });
+    }
+
 }

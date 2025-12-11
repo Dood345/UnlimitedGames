@@ -11,24 +11,28 @@ import com.google.firebase.auth.FirebaseUser;
 
 /**
  * ViewModel for authentication-related operations.
- * This ViewModel handles user sign-up, sign-in, and sign-out, and exposes the current
+ * This ViewModel handles user sign-up, sign-in, and sign-out, and exposes the
+ * current
  * authentication state to the UI.
  */
 public class AuthViewModel extends ViewModel {
 
     private final FirebaseAuth firebaseAuth;
     private final UserRepository userRepository;
+    private final com.appsters.unlimitedgames.app.managers.GameCleanupManager gameCleanupManager;
     private final MutableLiveData<AuthState> authState = new MutableLiveData<>();
     private final MutableLiveData<FirebaseUser> user = new MutableLiveData<>();
     private String errorMessage;
 
     /**
      * Constructs a new AuthViewModel and initializes Firebase Auth.
-     * It also checks the current authentication state to see if a user is already signed in.
+     * It also checks the current authentication state to see if a user is already
+     * signed in.
      */
-    public AuthViewModel() {
-        firebaseAuth = FirebaseAuth.getInstance();
-        userRepository = new UserRepository();
+    public AuthViewModel(com.appsters.unlimitedgames.app.managers.GameCleanupManager gameCleanupManager) {
+        this.firebaseAuth = FirebaseAuth.getInstance();
+        this.userRepository = new UserRepository();
+        this.gameCleanupManager = gameCleanupManager;
 
         // Check if a user is already logged in
         FirebaseUser currentUser = firebaseAuth.getCurrentUser();
@@ -52,7 +56,8 @@ public class AuthViewModel extends ViewModel {
     /**
      * Gets the currently authenticated user.
      *
-     * @return A LiveData object that emits the current {@link FirebaseUser}, or null if no user is
+     * @return A LiveData object that emits the current {@link FirebaseUser}, or
+     *         null if no user is
      *         authenticated.
      */
     public LiveData<FirebaseUser> getUser() {
@@ -71,8 +76,10 @@ public class AuthViewModel extends ViewModel {
     /**
      * Signs up a new user with the given email and password.
      * Creates both a Firebase Auth account and a Firestore user profile.
-     * The authentication state will be updated to {@link AuthState#LOADING} during the operation,
-     * and then to {@link AuthState#AUTHENTICATED} on success or {@link AuthState#ERROR} on failure.
+     * The authentication state will be updated to {@link AuthState#LOADING} during
+     * the operation,
+     * and then to {@link AuthState#AUTHENTICATED} on success or
+     * {@link AuthState#ERROR} on failure.
      *
      * @param email    The user's email address.
      * @param password The user's password.
@@ -90,8 +97,8 @@ public class AuthViewModel extends ViewModel {
                             authState.setValue(AuthState.ERROR);
                         }
                     } else {
-                        errorMessage = task.getException() != null ?
-                                task.getException().getMessage() : "Sign up failed";
+                        errorMessage = task.getException() != null ? task.getException().getMessage()
+                                : "Sign up failed";
                         authState.setValue(AuthState.ERROR);
                     }
                 });
@@ -121,8 +128,10 @@ public class AuthViewModel extends ViewModel {
 
     /**
      * Signs in an existing user with the given email and password.
-     * The authentication state will be updated to {@link AuthState#LOADING} during the operation,
-     * and then to {@link AuthState#AUTHENTICATED} on success or {@link AuthState#ERROR} on failure.
+     * The authentication state will be updated to {@link AuthState#LOADING} during
+     * the operation,
+     * and then to {@link AuthState#AUTHENTICATED} on success or
+     * {@link AuthState#ERROR} on failure.
      *
      * @param email    The user's email address.
      * @param password The user's password.
@@ -135,8 +144,8 @@ public class AuthViewModel extends ViewModel {
                         user.setValue(firebaseAuth.getCurrentUser());
                         authState.setValue(AuthState.AUTHENTICATED);
                     } else {
-                        errorMessage = task.getException() != null ?
-                                task.getException().getMessage() : "Sign in failed";
+                        errorMessage = task.getException() != null ? task.getException().getMessage()
+                                : "Sign in failed";
                         authState.setValue(AuthState.ERROR);
                     }
                 });
@@ -144,9 +153,11 @@ public class AuthViewModel extends ViewModel {
 
     /**
      * Signs out the currently authenticated user.
-     * The authentication state will be updated to {@link AuthState#UNAUTHENTICATED}.
+     * The authentication state will be updated to
+     * {@link AuthState#UNAUTHENTICATED}.
      */
     public void logout() {
+        gameCleanupManager.clearAllGameData();
         firebaseAuth.signOut();
         authState.setValue(AuthState.UNAUTHENTICATED);
     }

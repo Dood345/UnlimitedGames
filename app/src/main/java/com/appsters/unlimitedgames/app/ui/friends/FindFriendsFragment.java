@@ -40,8 +40,7 @@ public class FindFriendsFragment extends Fragment {
     public View onCreateView(
             @NonNull LayoutInflater inflater,
             @Nullable ViewGroup container,
-            @Nullable Bundle savedInstanceState
-    ) {
+            @Nullable Bundle savedInstanceState) {
         binding = FragmentFindFriendsBinding.inflate(inflater, container, false);
         return binding.getRoot();
     }
@@ -49,8 +48,7 @@ public class FindFriendsFragment extends Fragment {
     @Override
     public void onViewCreated(
             @NonNull View view,
-            @Nullable Bundle savedInstanceState
-    ) {
+            @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
         viewModel = new ViewModelProvider(requireActivity()).get(FriendViewModel.class);
@@ -113,8 +111,7 @@ public class FindFriendsFragment extends Fragment {
                     me.getUserId(),
                     user.getUserId(),
                     me.getUsername(),
-                    user.getUsername()
-            );
+                    user.getUsername());
         });
 
         binding.rvSearchResults.setLayoutManager(new LinearLayoutManager(requireContext()));
@@ -155,8 +152,13 @@ public class FindFriendsFragment extends Fragment {
 
         binding.etSearchFriends.addTextChangedListener(new TextWatcher() {
 
-            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-            @Override public void afterTextChanged(Editable s) {}
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+            }
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
@@ -172,28 +174,8 @@ public class FindFriendsFragment extends Fragment {
     }
 
     private void applyFilter(String query) {
-
-        String q = query.trim().toLowerCase();
-
-        List<User> currentList = viewModel.getNewFriends().getValue();
-        if (currentList == null) return;
-
-        if (q.isEmpty()) {
-            adapter.submitList(currentList);
-            binding.emptyText.setVisibility(View.GONE);
-            return;
-        }
-
-        List<User> filtered = new ArrayList<>();
-        for (User u : currentList) {
-            if (u.getUsername() != null &&
-                    u.getUsername().toLowerCase().contains(q)) {
-                filtered.add(u);
-            }
-        }
-
-        adapter.submitList(filtered);
-        binding.emptyText.setVisibility(filtered.isEmpty() ? View.VISIBLE : View.GONE);
+        // Delegate search to ViewModel for server-side privacy filtering
+        viewModel.searchNewFriends(query);
     }
 
     @Override

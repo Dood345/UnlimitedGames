@@ -37,6 +37,10 @@ public class FriendAdapter extends RecyclerView.Adapter<FriendAdapter.FriendVH> 
         notifyDataSetChanged();
     }
 
+    public List<Friend> getItems() {
+        return items;
+    }
+
     @NonNull
     @Override
     public FriendVH onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {

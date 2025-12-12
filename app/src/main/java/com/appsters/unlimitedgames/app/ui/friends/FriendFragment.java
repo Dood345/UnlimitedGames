@@ -53,8 +53,42 @@ public class FriendFragment extends Fragment {
         setupObservers();
         setupClickListeners();
 
+        // ✅ Swipe to Delete
+        new androidx.recyclerview.widget.ItemTouchHelper(
+                new androidx.recyclerview.widget.ItemTouchHelper.SimpleCallback(0,
+                        androidx.recyclerview.widget.ItemTouchHelper.LEFT) {
+                    @Override
+                    public boolean onMove(@NonNull androidx.recyclerview.widget.RecyclerView recyclerView,
+                            @NonNull androidx.recyclerview.widget.RecyclerView.ViewHolder viewHolder,
+                            @NonNull androidx.recyclerview.widget.RecyclerView.ViewHolder target) {
+                        return false;
+                    }
+
+                    @Override
+                    public void onSwiped(@NonNull androidx.recyclerview.widget.RecyclerView.ViewHolder viewHolder,
+                            int direction) {
+                        int position = viewHolder.getAdapterPosition();
+                        com.appsters.unlimitedgames.app.data.model.Friend friend = adapter.getItems().get(position);
+
+                        String userId = FirebaseAuth.getInstance().getUid();
+                        if (userId != null) {
+                            // Identify other user
+                            String otherUserId = friend.getFromUserId().equals(userId) ? friend.getToUserId()
+                                    : friend.getFromUserId();
+
+                            viewModel.removeFriend(userId, otherUserId);
+                            Toast.makeText(requireContext(), "Friend removed", Toast.LENGTH_SHORT).show();
+
+                            // Reload list (Ideally we would just remove from list but we rely on simple
+                            // reload for now)
+                            viewModel.loadFriends(userId);
+                        }
+                    }
+                }).attachToRecyclerView(binding.rvFriends);
+
         if (userId != null) {
             viewModel.loadFriends(userId);
+            viewModel.listenToRequestCount(userId); // Ensure listener is active here too if needed
         }
     }
 
@@ -62,6 +96,15 @@ public class FriendFragment extends Fragment {
         viewModel.getFriends().observe(getViewLifecycleOwner(), friends -> {
             adapter.submitList(friends);
             binding.emptyText.setVisibility(friends.isEmpty() ? View.VISIBLE : View.GONE);
+        });
+
+        // ✅ Update Requests Button Text
+        viewModel.getOngoingRequestCount().observe(getViewLifecycleOwner(), count -> {
+            if (count > 0) {
+                binding.btnFriendRequests.setText("Requests (" + count + ")");
+            } else {
+                binding.btnFriendRequests.setText("Requests");
+            }
         });
 
         viewModel.getIsLoading().observe(getViewLifecycleOwner(),

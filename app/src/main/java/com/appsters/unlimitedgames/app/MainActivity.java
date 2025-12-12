@@ -29,27 +29,17 @@ import com.appsters.unlimitedgames.app.ui.auth.AuthState;
  * application content
  * ({@code nav_main}) and the authentication flow ({@code nav_auth}).
  */
+import com.appsters.unlimitedgames.app.ui.friends.FriendViewModel;
+import com.google.android.material.badge.BadgeDrawable;
+
 public class MainActivity extends AppCompatActivity {
 
     private ActivityMainBinding binding;
     private AuthViewModel authViewModel;
+    private FriendViewModel friendViewModel; // ✅
     private NavController navController;
     private AppBarConfiguration appBarConfiguration;
 
-    /**
-     * Called when the activity is first created. This method initializes the view
-     * binding, sets up
-     * the action bar, and configures the navigation controller with top-level
-     * destinations.
-     * It also sets up an observer to monitor the authentication state and adjust
-     * the UI accordingly.
-     *
-     * @param savedInstanceState If the activity is being re-initialized after
-     *                           previously being shut down then this Bundle
-     *                           contains the data it most
-     *                           recently supplied in {@link #onSaveInstanceState}.
-     *                           Otherwise, it is null.
-     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -61,6 +51,7 @@ public class MainActivity extends AppCompatActivity {
 
         AuthViewModelFactory factory = new AuthViewModelFactory(getApplication());
         authViewModel = new ViewModelProvider(this, factory).get(AuthViewModel.class);
+        friendViewModel = new ViewModelProvider(this).get(FriendViewModel.class); // ✅
 
         NavHostFragment navHostFragment = (NavHostFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.nav_host_fragment);
@@ -68,23 +59,30 @@ public class MainActivity extends AppCompatActivity {
         if (navHostFragment != null) {
             navController = navHostFragment.getNavController();
 
-            // Define top-level destinations for the AppBarConfiguration
             appBarConfiguration = new AppBarConfiguration.Builder(R.id.homeFragment, R.id.friendsFragment,
                     R.id.leaderboardFragment, R.id.profileFragment)
                     .build();
 
-            // Set up the toolbar with NavController and AppBarConfiguration
             NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
 
-            // Observe authentication state to update the navigation graph
             authViewModel.getAuthState().observe(this, authState -> {
                 if (authState != null) {
                     handleAuthState(authState);
                 }
             });
+
+            // ✅ Observe Request Count
+            friendViewModel.getOngoingRequestCount().observe(this, count -> {
+                BadgeDrawable badge = binding.bottomNav.getOrCreateBadge(R.id.friendsFragment);
+                if (count > 0) {
+                    badge.setVisible(true);
+                    badge.setNumber(count);
+                } else {
+                    badge.setVisible(false);
+                }
+            });
         }
 
-        // Apply window insets to handle system bars
         ViewCompat.setOnApplyWindowInsetsListener(binding.mainContainer, (v, windowInsets) -> {
             Insets insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(insets.left, insets.top, insets.right, insets.bottom);
@@ -92,27 +90,15 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    /**
-     * Handles changes in the user's authentication state. It updates the navigation
-     * graph and the
-     * visibility of UI components like the toolbar and bottom navigation based on
-     * whether the user
-     * is authenticated, unauthenticated, or in a loading state.
-     *
-     * @param authState The current authentication state (e.g., AUTHENTICATED,
-     *                  UNAUTHENTICATED).
-     */
     private void handleAuthState(AuthState authState) {
         switch (authState) {
             case LOADING:
-                // Hide UI elements during the loading process
                 binding.bottomNav.setVisibility(View.GONE);
                 if (getSupportActionBar() != null)
                     getSupportActionBar().hide();
                 break;
 
             case AUTHENTICATED:
-                // If the user is authenticated, show the main application graph and UI
                 if (navController.getGraph().getId() != R.id.nav_main) {
                     navController.setGraph(R.navigation.nav_main);
                 }
@@ -121,12 +107,17 @@ public class MainActivity extends AppCompatActivity {
                     getSupportActionBar().show();
                 setupBottomNavigation();
 
-                // Ensure Home is selected and highlighted
                 binding.bottomNav.setSelectedItemId(R.id.homeFragment);
+
+                // ✅ Start listening
+                com.google.firebase.auth.FirebaseUser user = com.google.firebase.auth.FirebaseAuth.getInstance()
+                        .getCurrentUser();
+                if (user != null) {
+                    friendViewModel.listenToRequestCount(user.getUid());
+                }
                 break;
 
             case UNAUTHENTICATED:
-                // If the user is not authenticated, show the authentication flow
                 if (navController.getGraph().getId() != R.id.nav_auth) {
                     navController.setGraph(R.navigation.nav_auth);
                 }
@@ -136,8 +127,6 @@ public class MainActivity extends AppCompatActivity {
                 break;
 
             case ERROR:
-                // The auth fragments handle showing the error to the user
-                // Revert to unauthenticated state after an error
                 break;
         }
     }

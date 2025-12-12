@@ -290,4 +290,34 @@ public class FriendViewModel extends ViewModel {
         });
     }
 
+    // ✅ LISTENER FOR NOTIFICATIONS
+    private com.google.firebase.firestore.ListenerRegistration requestCountListener;
+    private final MutableLiveData<Integer> ongoingRequestCount = new MutableLiveData<>(0);
+
+    public LiveData<Integer> getOngoingRequestCount() {
+        return ongoingRequestCount;
+    }
+
+    public void listenToRequestCount(String userId) {
+        if (requestCountListener != null) {
+            requestCountListener.remove();
+        }
+
+        requestCountListener = friendRepository.listenToIncomingRequestsCount(userId, (count, error) -> {
+            if (error != null) {
+                // Log error
+                return;
+            }
+            ongoingRequestCount.setValue(count);
+        });
+    }
+
+    @Override
+    protected void onCleared() {
+        super.onCleared();
+        if (requestCountListener != null) {
+            requestCountListener.remove();
+        }
+    }
+
 }

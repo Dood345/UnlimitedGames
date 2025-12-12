@@ -28,8 +28,8 @@ public class FriendFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
-                             @Nullable ViewGroup container,
-                             @Nullable Bundle savedInstanceState) {
+            @Nullable ViewGroup container,
+            @Nullable Bundle savedInstanceState) {
 
         binding = FragmentFriendsBinding.inflate(inflater, container, false);
         return binding.getRoot();
@@ -37,13 +37,15 @@ public class FriendFragment extends Fragment {
 
     @Override
     public void onViewCreated(@NonNull View view,
-                              @Nullable Bundle savedInstanceState) {
+            @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
         navController = Navigation.findNavController(view);
 
         viewModel = new ViewModelProvider(requireActivity()).get(FriendViewModel.class);
-        adapter = new FriendAdapter();
+
+        String userId = FirebaseAuth.getInstance().getUid();
+        adapter = new FriendAdapter(userId);
 
         binding.rvFriends.setLayoutManager(new LinearLayoutManager(requireContext()));
         binding.rvFriends.setAdapter(adapter);
@@ -51,7 +53,6 @@ public class FriendFragment extends Fragment {
         setupObservers();
         setupClickListeners();
 
-        String userId = FirebaseAuth.getInstance().getUid();
         if (userId != null) {
             viewModel.loadFriends(userId);
         }
@@ -63,9 +64,8 @@ public class FriendFragment extends Fragment {
             binding.emptyText.setVisibility(friends.isEmpty() ? View.VISIBLE : View.GONE);
         });
 
-        viewModel.getIsLoading().observe(getViewLifecycleOwner(), loading ->
-                binding.progressBar.setVisibility(loading ? View.VISIBLE : View.GONE)
-        );
+        viewModel.getIsLoading().observe(getViewLifecycleOwner(),
+                loading -> binding.progressBar.setVisibility(loading ? View.VISIBLE : View.GONE));
 
         viewModel.getErrorMessage().observe(getViewLifecycleOwner(), msg -> {
             if (msg != null && !msg.isEmpty()) {
@@ -75,13 +75,11 @@ public class FriendFragment extends Fragment {
     }
 
     private void setupClickListeners() {
-        binding.btnFindFriends.setOnClickListener(v ->
-                navController.navigate(R.id.action_friendsFragment_to_findFriendsFragment)
-        );
+        binding.btnFindFriends
+                .setOnClickListener(v -> navController.navigate(R.id.action_friendsFragment_to_findFriendsFragment));
 
-        binding.btnFriendRequests.setOnClickListener(v ->
-                navController.navigate(R.id.action_friendsFragment_to_friendRequestsFragment)
-        );
+        binding.btnFriendRequests
+                .setOnClickListener(v -> navController.navigate(R.id.action_friendsFragment_to_friendRequestsFragment));
     }
 
     @Override

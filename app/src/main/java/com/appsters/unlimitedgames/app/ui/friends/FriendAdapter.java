@@ -18,8 +18,15 @@ public class FriendAdapter extends RecyclerView.Adapter<FriendAdapter.FriendVH> 
 
     private List<Friend> items = new ArrayList<>();
 
+    private final String currentUserId;
+
+    public FriendAdapter(String currentUserId) {
+        this.currentUserId = currentUserId;
+    }
+
     public void submitList(List<Friend> list) {
-        if (list == null) list = new ArrayList<>();
+        if (list == null)
+            list = new ArrayList<>();
         items = list;
         notifyDataSetChanged();
     }
@@ -29,8 +36,7 @@ public class FriendAdapter extends RecyclerView.Adapter<FriendAdapter.FriendVH> 
     public FriendVH onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         return new FriendVH(
                 LayoutInflater.from(parent.getContext())
-                        .inflate(R.layout.item_friend, parent, false)
-        );
+                        .inflate(R.layout.item_friend, parent, false));
     }
 
     @Override
@@ -39,10 +45,10 @@ public class FriendAdapter extends RecyclerView.Adapter<FriendAdapter.FriendVH> 
 
         // ✅ Display the OTHER user's username
         String displayName;
-        if (f.getFromUsername() != null && !f.getFromUsername().isEmpty()) {
-            displayName = f.getFromUsername();
-        } else {
+        if (f.getFromUserId() != null && f.getFromUserId().equals(currentUserId)) {
             displayName = f.getToUsername();
+        } else {
+            displayName = f.getFromUsername();
         }
 
         holder.name.setText(displayName);

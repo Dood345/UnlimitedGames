@@ -138,6 +138,24 @@ public class FriendRepository {
                 });
     }
 
+    public com.google.firebase.firestore.ListenerRegistration listenToIncomingRequestsCount(String userId,
+            com.google.firebase.firestore.EventListener<Integer> listener) {
+        return db.collection(COLLECTION)
+                .whereEqualTo("status", FriendStatus.PENDING.name())
+                .whereEqualTo("toUserId", userId)
+                .addSnapshotListener((value, error) -> {
+                    if (error != null) {
+                        listener.onEvent(null, error);
+                        return;
+                    }
+                    if (value != null) {
+                        listener.onEvent(value.size(), null);
+                    } else {
+                        listener.onEvent(0, null);
+                    }
+                });
+    }
+
     public void getOutgoingRequests(String userId, OnCompleteListener<List<Friend>> listener) {
         db.collection(COLLECTION)
                 .whereEqualTo("status", FriendStatus.PENDING.name())

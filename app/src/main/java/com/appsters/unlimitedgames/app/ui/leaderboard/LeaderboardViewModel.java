@@ -11,7 +11,7 @@ import com.google.firebase.auth.FirebaseAuth;
 
 import java.util.List;
 
-public class LeaderboardViewModel extends ViewModel {
+public class LeaderboardViewModel extends androidx.lifecycle.AndroidViewModel {
 
     private final LeaderboardRepository leaderboardRepository;
     private final MutableLiveData<List<Score>> leaderboard = new MutableLiveData<>();
@@ -20,8 +20,9 @@ public class LeaderboardViewModel extends ViewModel {
     private GameType selectedGame = GameType.ALL;
     private boolean showFriendsOnly = false;
 
-    public LeaderboardViewModel() {
-        leaderboardRepository = new LeaderboardRepository();
+    public LeaderboardViewModel(android.app.Application application) {
+        super(application);
+        leaderboardRepository = new LeaderboardRepository(application);
     }
 
     public LiveData<List<Score>> getLeaderboard() {
@@ -50,7 +51,7 @@ public class LeaderboardViewModel extends ViewModel {
                 }
             });
         } else {
-            leaderboardRepository.getGlobalLeaderboard(selectedGame, 100, (isSuccessful, result, e) -> {
+            leaderboardRepository.getGlobalLeaderboard(userId, selectedGame, 100, (isSuccessful, result, e) -> {
                 isLoading.setValue(false);
                 if (isSuccessful) {
                     leaderboard.setValue(result);

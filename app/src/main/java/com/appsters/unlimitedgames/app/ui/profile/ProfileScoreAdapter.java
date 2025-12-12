@@ -80,8 +80,7 @@ public class ProfileScoreAdapter extends RecyclerView.Adapter<ProfileScoreAdapte
                 return "Sudoku";
             case SOCCERSEPARATION:
                 return "Soccer Separation";
-            case POKER:
-                return "Poker";
+
             case MAZE:
                 return "Maze";
             case WHACK_A_MOLE:

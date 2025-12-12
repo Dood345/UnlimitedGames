@@ -41,8 +41,7 @@ public class SoccerSeparationGameFragment extends Fragment {
     public View onCreateView(
             @NonNull LayoutInflater inflater,
             @Nullable ViewGroup container,
-            @Nullable Bundle savedInstanceState
-    ) {
+            @Nullable Bundle savedInstanceState) {
 
         View v = inflater.inflate(R.layout.fragment_soccer_separation_game, container, false);
 
@@ -90,7 +89,8 @@ public class SoccerSeparationGameFragment extends Fragment {
     }
 
     private void updateUI() {
-        if (isShowingFeedback) return;
+        if (isShowingFeedback)
+            return;
 
         Boolean isLoading = vm.getLoading().getValue();
         Boolean isGameOver = vm.getGameOver().getValue();
@@ -107,7 +107,8 @@ public class SoccerSeparationGameFragment extends Fragment {
             return;
         }
 
-        if (questionsList != null && !questionsList.isEmpty() && currentIndex != null && currentIndex < questionsList.size()) {
+        if (questionsList != null && !questionsList.isEmpty() && currentIndex != null
+                && currentIndex < questionsList.size()) {
             showPlayingUI();
             return;
         }
@@ -154,21 +155,22 @@ public class SoccerSeparationGameFragment extends Fragment {
         tvPlayer2.setText(q.player2.name);
 
         for (int i = 0; i < choiceButtons.length; i++) {
-                SeparationQuestion.Player p = q.choices1.get(i);
-                Button b = choiceButtons[i];
+            SeparationQuestion.Player p = q.choices1.get(i);
+            Button b = choiceButtons[i];
 
-                b.setVisibility(View.VISIBLE);
-                b.setEnabled(true);
-                b.setText(p.name);
-                b.setTextSize(18);
-                b.setTextColor(requireContext().getColor(R.color.separation_game_text));
-                b.setBackgroundTintList(requireContext().getColorStateList(R.color.separation_game_button));
-                b.setOnClickListener(v -> {
-                    if (isAnswered) return; // Prevent multiple clicks
-                    isAnswered = true;
-                    selectedAnswerId = p.id;
-                    vm.answer(p.id);
-                });
+            b.setVisibility(View.VISIBLE);
+            b.setEnabled(true);
+            b.setText(p.name);
+            b.setTextSize(18);
+            b.setTextColor(requireContext().getColor(R.color.separation_game_text));
+            b.setBackgroundTintList(requireContext().getColorStateList(R.color.separation_game_button));
+            b.setOnClickListener(v -> {
+                if (isAnswered)
+                    return; // Prevent multiple clicks
+                isAnswered = true;
+                selectedAnswerId = p.id;
+                vm.answer(p.id);
+            });
         }
     }
 
@@ -216,31 +218,34 @@ public class SoccerSeparationGameFragment extends Fragment {
         tvResult.setPadding(32, 32, 32, 32);
 
         btnRestart.setVisibility(View.VISIBLE);
+
+        vm.submitScore();
     }
 
     private void showAnswerFeedback(boolean isCorrect) {
         isShowingFeedback = true;
         SeparationQuestion q = vm.getCurrentQuestion();
-        if (q == null) return;
+        if (q == null)
+            return;
 
         // Highlight the buttons to show correct/incorrect
         for (int i = 0; i < choiceButtons.length; i++) {
-                Button b = choiceButtons[i];
-                SeparationQuestion.Player p = q.choices1.get(i);
+            Button b = choiceButtons[i];
+            SeparationQuestion.Player p = q.choices1.get(i);
 
-                if (p.id.equals(q.correct1.id)) {
-                    // This is the correct answer - always show in green
-                    b.setBackgroundTintList(requireContext().getColorStateList(R.color.separation_game_correct));
-                    b.setTextSize(22);
-                    b.setTextColor(requireContext().getColor(R.color.separation_game_text));
-                } else if (p.id.equals(selectedAnswerId)) {
-                    // User selected this wrong answer - show in red
-                    b.setBackgroundTintList(requireContext().getColorStateList(R.color.separation_game_wrong));
-                    b.setTextColor(requireContext().getColor(R.color.separation_game_text));
-                } else {
-                    // Other buttons - grey out
-                    b.setBackgroundTintList(requireContext().getColorStateList(R.color.separation_game_button_pressed));
-                }
+            if (p.id.equals(q.correct1.id)) {
+                // This is the correct answer - always show in green
+                b.setBackgroundTintList(requireContext().getColorStateList(R.color.separation_game_correct));
+                b.setTextSize(22);
+                b.setTextColor(requireContext().getColor(R.color.separation_game_text));
+            } else if (p.id.equals(selectedAnswerId)) {
+                // User selected this wrong answer - show in red
+                b.setBackgroundTintList(requireContext().getColorStateList(R.color.separation_game_wrong));
+                b.setTextColor(requireContext().getColor(R.color.separation_game_text));
+            } else {
+                // Other buttons - grey out
+                b.setBackgroundTintList(requireContext().getColorStateList(R.color.separation_game_button_pressed));
+            }
         }
 
         // Wait 1 seconds before moving to next question or ending game

@@ -48,7 +48,7 @@ class WhackAMoleGameActivity : AppCompatActivity() {
         val prefs = getSharedPreferences("WhackAMolePrefs", MODE_PRIVATE)
         val repository = SharedPrefGameRepository(prefs)
         val scheduler = AndroidScheduler(mainLooper)
-        WhackAMoleGameViewModel(repository, scheduler)
+        WhackAMoleGameViewModel(application, repository, scheduler)
     }
 
     /**

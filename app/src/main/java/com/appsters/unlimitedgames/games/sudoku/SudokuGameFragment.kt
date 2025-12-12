@@ -81,7 +81,7 @@ class SudokuGameFragment : Fragment(), SudokuBoardView.OnCellSelectedListener {
         }
 
         val repository = SudokuRepository(requireContext())
-        val factory = SudokuViewModelFactory(repository)
+        val factory = SudokuViewModelFactory(requireActivity().application, repository)
         viewModel = ViewModelProvider(this, factory)[SudokuViewModel::class.java]
     }
 

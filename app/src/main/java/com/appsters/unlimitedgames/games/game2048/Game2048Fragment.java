@@ -25,18 +25,20 @@ public class Game2048Fragment extends Fragment {
     private FragmentGame2048Binding binding;
     private Game2048ViewModel viewModel;
     private TextView[][] tiles;
-    private GestureDetectorCompat gestureDetector;
+    private GestureDetector gestureDetector;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         viewModel = new ViewModelProvider(this).get(Game2048ViewModel.class);
-        gestureDetector = new GestureDetectorCompat(requireContext(), new SwipeListener());
+        gestureDetector = new GestureDetector(requireContext(), new SwipeListener(),
+                new android.os.Handler(android.os.Looper.getMainLooper()));
     }
 
     @Nullable
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
+            @Nullable Bundle savedInstanceState) {
         binding = FragmentGame2048Binding.inflate(inflater, container, false);
         binding.setViewModel(viewModel);
         binding.setLifecycleOwner(getViewLifecycleOwner());
@@ -47,13 +49,14 @@ public class Game2048Fragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        binding.gameBoard.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-            @Override
-            public void onGlobalLayout() {
-                binding.gameBoard.getViewTreeObserver().removeOnGlobalLayoutListener(this);
-                initializeBoard();
-            }
-        });
+        binding.gameBoard.getViewTreeObserver()
+                .addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+                    @Override
+                    public void onGlobalLayout() {
+                        binding.gameBoard.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                        initializeBoard();
+                    }
+                });
 
         viewModel.board.observe(getViewLifecycleOwner(), this::updateBoard);
         viewModel.gameOver.observe(getViewLifecycleOwner(), isGameOver -> {
@@ -83,9 +86,8 @@ public class Game2048Fragment extends Fragment {
                 TextView tile = new TextView(requireContext());
 
                 GridLayout.LayoutParams params = new GridLayout.LayoutParams(
-                    GridLayout.spec(i, 1f),
-                    GridLayout.spec(j, 1f)
-                );
+                        GridLayout.spec(i, 1f),
+                        GridLayout.spec(j, 1f));
                 params.width = 0;
                 params.height = 0;
                 params.setMargins(margin, margin, margin, margin);
@@ -101,7 +103,8 @@ public class Game2048Fragment extends Fragment {
     }
 
     private void updateBoard(int[][] board) {
-        if (board == null || tiles == null) return;
+        if (board == null || tiles == null)
+            return;
         for (int i = 0; i < 4; i++) {
             for (int j = 0; j < 4; j++) {
                 if (tiles[i][j] != null) {
@@ -123,18 +126,30 @@ public class Game2048Fragment extends Fragment {
 
     private int getTileColor(int value) {
         switch (value) {
-            case 2: return Color.parseColor("#EEE4DA");
-            case 4: return Color.parseColor("#EDE0C8");
-            case 8: return Color.parseColor("#F2B179");
-            case 16: return Color.parseColor("#F59563");
-            case 32: return Color.parseColor("#F67C5F");
-            case 64: return Color.parseColor("#F65E3B");
-            case 128: return Color.parseColor("#EDCF72");
-            case 256: return Color.parseColor("#EDCC61");
-            case 512: return Color.parseColor("#EDC850");
-            case 1024: return Color.parseColor("#EDC53F");
-            case 2048: return Color.parseColor("#EDC22E");
-            default: return Color.parseColor("#CDC1B4");
+            case 2:
+                return Color.parseColor("#EEE4DA");
+            case 4:
+                return Color.parseColor("#EDE0C8");
+            case 8:
+                return Color.parseColor("#F2B179");
+            case 16:
+                return Color.parseColor("#F59563");
+            case 32:
+                return Color.parseColor("#F67C5F");
+            case 64:
+                return Color.parseColor("#F65E3B");
+            case 128:
+                return Color.parseColor("#EDCF72");
+            case 256:
+                return Color.parseColor("#EDCC61");
+            case 512:
+                return Color.parseColor("#EDC850");
+            case 1024:
+                return Color.parseColor("#EDC53F");
+            case 2048:
+                return Color.parseColor("#EDC22E");
+            default:
+                return Color.parseColor("#CDC1B4");
         }
     }
 

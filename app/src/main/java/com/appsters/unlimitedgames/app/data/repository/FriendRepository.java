@@ -138,6 +138,24 @@ public class FriendRepository {
                 });
     }
 
+    public com.google.firebase.firestore.ListenerRegistration listenToIncomingRequestsCount(String userId,
+            com.google.firebase.firestore.EventListener<Integer> listener) {
+        return db.collection(COLLECTION)
+                .whereEqualTo("status", FriendStatus.PENDING.name())
+                .whereEqualTo("toUserId", userId)
+                .addSnapshotListener((value, error) -> {
+                    if (error != null) {
+                        listener.onEvent(null, error);
+                        return;
+                    }
+                    if (value != null) {
+                        listener.onEvent(value.size(), null);
+                    } else {
+                        listener.onEvent(0, null);
+                    }
+                });
+    }
+
     public void getOutgoingRequests(String userId, OnCompleteListener<List<Friend>> listener) {
         db.collection(COLLECTION)
                 .whereEqualTo("status", FriendStatus.PENDING.name())
@@ -212,8 +230,14 @@ public class FriendRepository {
                             for (Friend f : relations) {
                                 if (f.getFromUserId().equals(u.getUserId()) ||
                                         f.getToUserId().equals(u.getUserId())) {
-                                    related = true;
-                                    break;
+
+                                    // ONLY filter if status is PENDING or ACCEPTED
+                                    // If DECLINED, we treat it as no relation so they show up again
+                                    if (f.getStatus().equals(FriendStatus.PENDING.name()) ||
+                                            f.getStatus().equals(FriendStatus.ACCEPTED.name())) {
+                                        related = true;
+                                        break;
+                                    }
                                 }
                             }
 
@@ -226,6 +250,13 @@ public class FriendRepository {
                                 com.google.android.gms.tasks.Tasks.forResult(finalList));
                     });
                 });
+    }
+
+    public void deleteRequest(String requestId, OnCompleteListener<Void> listener) {
+        db.collection(COLLECTION)
+                .document(requestId)
+                .delete()
+                .addOnCompleteListener(listener);
     }
 
     /**
@@ -301,6 +332,34 @@ public class FriendRepository {
         }).addOnFailureListener(e -> {
             listener.onComplete(com.google.android.gms.tasks.Tasks.forException(e));
         });
+    }
+
+    public void deleteAllFriends(String userId, OnCompleteListener<Void> listener) {
+        db.collection(COLLECTION)
+                .where(Filter.or(
+                        Filter.equalTo("fromUserId", userId),
+                        Filter.equalTo("toUserId", userId)))
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful() && task.getResult() != null) {
+                        List<com.google.android.gms.tasks.Task<Void>> deletes = new ArrayList<>();
+                        for (QueryDocumentSnapshot doc : task.getResult()) {
+                            deletes.add(doc.getReference().delete());
+                        }
+
+                        if (deletes.isEmpty()) {
+                            listener.onComplete(com.google.android.gms.tasks.Tasks.forResult(null));
+                        } else {
+                            com.google.android.gms.tasks.Tasks.whenAll(deletes)
+                                    .addOnCompleteListener(listener);
+                        }
+                    } else {
+                        listener.onComplete(
+                                com.google.android.gms.tasks.Tasks.forException(
+                                        task.getException() != null ? task.getException()
+                                                : new Exception("Failed to load friend documents")));
+                    }
+                });
     }
 
 }

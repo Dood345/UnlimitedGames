@@ -22,7 +22,7 @@ import kotlinx.coroutines.launch
  * Manages the game state, business logic, timer, and communication with the repository.
  * It exposes LiveData objects for the UI to observe.
  */
-class SudokuViewModel(private val repository: SudokuRepository) : ViewModel() {
+class SudokuViewModel(application: android.app.Application, private val repository: SudokuRepository) : androidx.lifecycle.AndroidViewModel(application) {
 
     private val _gameState = MutableLiveData<GameState>()
     val gameState: LiveData<GameState> = _gameState
@@ -43,7 +43,7 @@ class SudokuViewModel(private val repository: SudokuRepository) : ViewModel() {
     val gameCompletedEvent: LiveData<Score> = _gameCompletedEvent
 
     private lateinit var sudokuTimer: SudokuTimer
-    private val leaderboardRepository = LeaderboardRepository()
+    private val leaderboardRepository = LeaderboardRepository(getApplication())
     private val userRepository = UserRepository()
 
     /**
@@ -205,7 +205,7 @@ class SudokuViewModel(private val repository: SudokuRepository) : ViewModel() {
                 if (user != null) {
                     val username = user.username
                     val scoreObject = com.appsters.unlimitedgames.app.data.model.Score(
-                        null, userId, username, GameType.SUDOKU, score
+                        null, userId, username, GameType.SUDOKU, score, user.privacy
                     )
                     leaderboardRepository.submitScore(scoreObject) { _, _, _ ->
                         // Optionally handle success or failure
@@ -239,11 +239,11 @@ class SudokuViewModel(private val repository: SudokuRepository) : ViewModel() {
     }
 }
 
-class SudokuViewModelFactory(private val repository: SudokuRepository) : ViewModelProvider.Factory {
+class SudokuViewModelFactory(private val application: android.app.Application, private val repository: SudokuRepository) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(SudokuViewModel::class.java)) {
             @Suppress("UNCHECKED_CAST")
-            return SudokuViewModel(repository) as T
+            return SudokuViewModel(application, repository) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }

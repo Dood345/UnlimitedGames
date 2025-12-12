@@ -22,17 +22,19 @@ import java.util.Random;
  * <p>
  * This ViewModel is responsible for:
  * <ul>
- *   <li>Starting and stopping the game loop that spawns moles.</li>
- *   <li>Tracking the player's score, misses, and the current high score.</li>
- *   <li>Handling user interactions, such as hitting a mole.</li>
- *   <li>Managing the game-over state.</li>
- *   <li>Persisting the high score using a {@link GameRepository}.</li>
- *   <li>Resetting the game to a fresh state.</li>
+ * <li>Starting and stopping the game loop that spawns moles.</li>
+ * <li>Tracking the player's score, misses, and the current high score.</li>
+ * <li>Handling user interactions, such as hitting a mole.</li>
+ * <li>Managing the game-over state.</li>
+ * <li>Persisting the high score using a {@link GameRepository}.</li>
+ * <li>Resetting the game to a fresh state.</li>
  * </ul>
- * It exposes game state to the UI (the Activity) via {@link LiveData} objects, ensuring that the
- * UI is always in sync with the underlying game data and that the logic is decoupled from the view.
+ * It exposes game state to the UI (the Activity) via {@link LiveData} objects,
+ * ensuring that the
+ * UI is always in sync with the underlying game data and that the logic is
+ * decoupled from the view.
  */
-public class WhackAMoleGameViewModel extends ViewModel {
+public class WhackAMoleGameViewModel extends androidx.lifecycle.AndroidViewModel {
 
     private final Random random = new Random();
 
@@ -56,10 +58,12 @@ public class WhackAMoleGameViewModel extends ViewModel {
      * Constructs a GameViewModel with a default game configuration.
      *
      * @param gameRepository The repository for handling high score persistence.
-     * @param scheduler      The scheduler for managing timed events like mole spawning.
+     * @param scheduler      The scheduler for managing timed events like mole
+     *                       spawning.
      */
-    public WhackAMoleGameViewModel(GameRepository gameRepository, Scheduler scheduler) {
-        this(gameRepository, scheduler, GameConfig.DEFAULT);
+    public WhackAMoleGameViewModel(android.app.Application application, GameRepository gameRepository,
+            Scheduler scheduler) {
+        this(application, gameRepository, scheduler, GameConfig.DEFAULT);
     }
 
     /**
@@ -67,13 +71,16 @@ public class WhackAMoleGameViewModel extends ViewModel {
      *
      * @param gameRepository The repository for handling high score persistence.
      * @param scheduler      The scheduler for managing timed events.
-     * @param gameConfig     The configuration defining game rules (e.g., number of moles, miss limit).
+     * @param gameConfig     The configuration defining game rules (e.g., number of
+     *                       moles, miss limit).
      */
-    public WhackAMoleGameViewModel(GameRepository gameRepository, Scheduler scheduler,
-                                   GameConfig gameConfig) {
+    public WhackAMoleGameViewModel(android.app.Application application, GameRepository gameRepository,
+            Scheduler scheduler,
+            GameConfig gameConfig) {
+        super(application);
         this.gameConfig = gameConfig;
         this.gameRepository = gameRepository;
-        this.leaderboardRepository = new LeaderboardRepository();
+        this.leaderboardRepository = new LeaderboardRepository(application);
         this.userRepository = new UserRepository();
         this.scheduler = scheduler;
 
@@ -95,9 +102,12 @@ public class WhackAMoleGameViewModel extends ViewModel {
     }
 
     /**
-     * Core game loop action. This method is responsible for advancing the game state when a mole is missed.
-     * It increments the miss counter, checks for game-over conditions, and then selects a new mole
-     * to be visible. It also dynamically adjusts the spawn interval to increase difficulty.
+     * Core game loop action. This method is responsible for advancing the game
+     * state when a mole is missed.
+     * It increments the miss counter, checks for game-over conditions, and then
+     * selects a new mole
+     * to be visible. It also dynamically adjusts the spawn interval to increase
+     * difficulty.
      * Finally, it schedules the next call to itself.
      *
      * @throws IllegalStateException if called after the game is already over.
@@ -156,16 +166,19 @@ public class WhackAMoleGameViewModel extends ViewModel {
     }
 
     private void submitScoreToLeaderboard(int scoreValue) {
-        if (scoreSubmitted) return; // Prevent multiple submissions
+        if (scoreSubmitted)
+            return; // Prevent multiple submissions
         scoreSubmitted = true;
 
         String userId = FirebaseAuth.getInstance().getUid();
-        if (userId == null) return;
+        if (userId == null)
+            return;
 
         userRepository.getUser(userId, task -> {
             if (task.isSuccessful() && task.getResult() != null) {
                 String username = task.getResult().getUsername();
-                Score scoreObject = new Score(null, userId, username, GameType.WHACK_A_MOLE, scoreValue);
+                Score scoreObject = new Score(null, userId, username, GameType.WHACK_A_MOLE, scoreValue,
+                        task.getResult().getPrivacy());
                 leaderboardRepository.submitScore(scoreObject, (isSuccessful, result, e) -> {
                     // Optionally handle success or failure, e.g., log an error
                 });
@@ -175,8 +188,10 @@ public class WhackAMoleGameViewModel extends ViewModel {
 
     /**
      * Processes a user's tap on a mole.
-     * If the correct mole is hit, the score is incremented, the high score is updated if necessary,
-     * and the game loop is reset for the next mole. If the wrong mole is hit, the action is ignored.
+     * If the correct mole is hit, the score is incremented, the high score is
+     * updated if necessary,
+     * and the game loop is reset for the next mole. If the wrong mole is hit, the
+     * action is ignored.
      *
      * @param moleId The ID of the mole that was tapped.
      * @throws IllegalStateException if called after the game is already over.
@@ -221,9 +236,11 @@ public class WhackAMoleGameViewModel extends ViewModel {
     }
 
     /**
-     * Resets the game to its initial state, allowing the player to start a new session.
+     * Resets the game to its initial state, allowing the player to start a new
+     * session.
      * This method should only be called after the game is over.
-     * It resets the score, misses, and mole positions, and restarts the spawn scheduler.
+     * It resets the score, misses, and mole positions, and restarts the spawn
+     * scheduler.
      *
      * @throws IllegalStateException if called while the game is still active.
      */
@@ -248,8 +265,9 @@ public class WhackAMoleGameViewModel extends ViewModel {
     }
 
     /**
-     * @return A LiveData stream of the {@link MoleContainer}, which holds the state of all moles.
-     * The UI observes this to draw the moles on the screen.
+     * @return A LiveData stream of the {@link MoleContainer}, which holds the state
+     *         of all moles.
+     *         The UI observes this to draw the moles on the screen.
      */
     public LiveData<MoleContainer> getMoles() {
         return moles;
@@ -257,7 +275,7 @@ public class WhackAMoleGameViewModel extends ViewModel {
 
     /**
      * @return A LiveData stream of the current score.
-     * The UI observes this to display the player's score in real-time.
+     *         The UI observes this to display the player's score in real-time.
      */
     public LiveData<Integer> getScore() {
         return score;
@@ -265,7 +283,7 @@ public class WhackAMoleGameViewModel extends ViewModel {
 
     /**
      * @return A LiveData stream of the persisted high score.
-     * The UI observes this to display the all-time high score.
+     *         The UI observes this to display the all-time high score.
      */
     public LiveData<Integer> getHighScore() {
         return highScore;
@@ -273,7 +291,7 @@ public class WhackAMoleGameViewModel extends ViewModel {
 
     /**
      * @return A LiveData stream indicating whether the game is over.
-     * The UI observes this to show or hide game-over screens or dialogs.
+     *         The UI observes this to show or hide game-over screens or dialogs.
      */
     public LiveData<Boolean> getGameOver() {
         return gameOver;
@@ -281,7 +299,8 @@ public class WhackAMoleGameViewModel extends ViewModel {
 
     /**
      * @return A LiveData stream of the current number of misses.
-     * The UI observes this to show the player how many misses they have left.
+     *         The UI observes this to show the player how many misses they have
+     *         left.
      */
     public LiveData<Integer> getMisses() {
         return misses;
@@ -294,7 +313,8 @@ public class WhackAMoleGameViewModel extends ViewModel {
     /**
      * This method is called when the ViewModel is about to be destroyed.
      * It cleans up resources by removing any pending callbacks from the scheduler,
-     * preventing memory leaks and stopping the game loop after the ViewModel is no longer in use.
+     * preventing memory leaks and stopping the game loop after the ViewModel is no
+     * longer in use.
      */
     @Override
     protected void onCleared() {

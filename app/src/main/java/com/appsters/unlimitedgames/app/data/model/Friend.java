@@ -19,7 +19,11 @@ public class Friend {
     private Date createdAt;
     private Date updatedAt;
 
-    public Friend() {}
+    // ✅ Transient (Not in Firestore)
+    private String profileBase64;
+
+    public Friend() {
+    }
 
     public Friend(String fromUserId, String toUserId, String fromUsername, String toUsername) {
         this.fromUserId = fromUserId;
@@ -112,5 +116,18 @@ public class Friend {
 
     public void setUpdatedAt(Date updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    // ------------------------
+    // ✅ Transient
+    // ------------------------
+
+    @com.google.firebase.firestore.Exclude
+    public String getProfileBase64() {
+        return profileBase64;
+    }
+
+    public void setProfileBase64(String profileBase64) {
+        this.profileBase64 = profileBase64;
     }
 }

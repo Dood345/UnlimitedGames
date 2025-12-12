@@ -29,4 +29,14 @@
     <color name="d_pad_inactive_color">#FF555555</color>
     <color name="d_pad_active_color">#FF888888</color>
     <color name="lessWhite">#242424</color>
+
+    <!-- Separation Game Colors -->
+    <color name="separation_game_bg">#121212</color>
+    <color name="separation_game_card">#1E1E1E</color>
+    <color name="separation_game_button">#333333</color>
+    <color name="separation_game_button_pressed">#555555</color>
+    <color name="separation_game_correct">#2E7D32</color>
+    <color name="separation_game_wrong">#C62828</color>
+    <color name="separation_game_highlight">#006064</color>
+    <color name="separation_game_text">@color/generalText</color>
 </resources>

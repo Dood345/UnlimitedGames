@@ -39,7 +39,7 @@ public class Game2048ViewModel extends AndroidViewModel {
     public Game2048ViewModel(Application application) {
         super(application);
         repository = new Cam2048Repository(application);
-        leaderboardRepository = new LeaderboardRepository();
+        leaderboardRepository = new LeaderboardRepository(application);
         userRepository = new UserRepository();
         _highScore.setValue(repository.getHighScore());
         loadGame();
@@ -60,8 +60,18 @@ public class Game2048ViewModel extends AndroidViewModel {
 
     public void saveGameState() {
         Integer currentScore = _score.getValue();
-        if (currentScore != null && !Boolean.TRUE.equals(_gameOver.getValue())) {
-            repository.saveGameState(boardArray, currentScore);
+        if (currentScore != null) {
+            // Save high score if needed
+            if (currentScore > _highScore.getValue()) {
+                _highScore.postValue(currentScore);
+                repository.saveHighScore(currentScore);
+                submitScoreToLeaderboard(currentScore);
+            }
+
+            // Save game state if not over
+            if (!Boolean.TRUE.equals(_gameOver.getValue())) {
+                repository.saveGameState(boardArray, currentScore);
+            }
         }
     }
 
@@ -99,7 +109,8 @@ public class Game2048ViewModel extends AndroidViewModel {
 
         if (moved) {
             Integer currentScore = _score.getValue();
-            if (currentScore == null) currentScore = 0;
+            if (currentScore == null)
+                currentScore = 0;
             _score.setValue(currentScore + moveScore);
             addRandomTile();
             checkGameOver();
@@ -148,11 +159,16 @@ public class Game2048ViewModel extends AndroidViewModel {
 
     private int getRotationsForDirection(int direction) {
         switch (direction) {
-            case 0: return 0; // Left
-            case 1: return 1; // Up
-            case 2: return 2; // Right
-            case 3: return 3; // Down
-            default: return 0;
+            case 0:
+                return 0; // Left
+            case 1:
+                return 3; // Up
+            case 2:
+                return 2; // Right
+            case 3:
+                return 1; // Down
+            default:
+                return 0;
         }
     }
 
@@ -161,7 +177,7 @@ public class Game2048ViewModel extends AndroidViewModel {
         for (int i = 0; i < SIZE; i++) {
             for (int j = 0; j < SIZE; j++) {
                 if (boardArray[i][j] == 0) {
-                    emptyTiles.add(new int[]{i, j});
+                    emptyTiles.add(new int[] { i, j });
                 }
             }
         }
@@ -175,8 +191,8 @@ public class Game2048ViewModel extends AndroidViewModel {
         for (int i = 0; i < SIZE; i++) {
             for (int j = 0; j < SIZE; j++) {
                 if (boardArray[i][j] == 0 ||
-                    (i < SIZE - 1 && boardArray[i][j] == boardArray[i + 1][j]) ||
-                    (j < SIZE - 1 && boardArray[i][j] == boardArray[i][j + 1])) {
+                        (i < SIZE - 1 && boardArray[i][j] == boardArray[i + 1][j]) ||
+                        (j < SIZE - 1 && boardArray[i][j] == boardArray[i][j + 1])) {
                     _gameOver.postValue(false);
                     return;
                 }
@@ -196,7 +212,8 @@ public class Game2048ViewModel extends AndroidViewModel {
 
     private void submitScoreToLeaderboard(int score) {
         String userId = FirebaseAuth.getInstance().getUid();
-        if (userId == null) return;
+        if (userId == null)
+            return;
 
         userRepository.getUser(userId, task -> {
             if (task.isSuccessful() && task.getResult() != null) {

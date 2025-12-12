@@ -51,7 +51,7 @@ public class SoccerSeparationGameRepository {
             int numOptions,
             BiConsumer<String, Exception> callback) {
 
-        String urlString = "http://sdmay26-37.ece.iastate.edu:8080/soccer/teammates/question"
+        String urlString = "https://sportgraphrender.onrender.com/soccer/teammates/question"
                 + "?steps=" + steps
                 + "&num_questions=" + numQuestions
                 + "&num_options=" + numOptions;

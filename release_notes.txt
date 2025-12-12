@@ -1,0 +1,20 @@
+UnlimitedGames - Initial Release v1.0
+
+🎉 Welcome to UnlimitedGames! 🎉
+
+We are excited to announce the first release of our all-in-one gaming app. Dive into a collection of 5 fun and challenging games tailored for every type of player.
+
+🎮 Included Games:
+• 2048: Technical logic meets puzzle fun. Slide tiles and reach the 2048 tile!
+• Whack-A-Mole: Fast-paced arcade action. whacks those moles before they hide!
+• Sudoku: Classic number puzzle to sharpen your mind.
+• Maze: Navigate through twisty labyrinths.
+• Soccer Separation: A unique puzzle strategy game with full Night Mode support.
+
+✨ Key Features:
+• Global Leaderboards: Compete with players worldwide and claim the top spot.
+• Friend System: Connect with friends, send requests, and challenge their scores.
+• Modern UI: Clean, responsive design for a smooth gaming experience.
+• Night Mode: Easy on the eyes for late-night gaming sessions.
+
+Download now and start your winning streak!

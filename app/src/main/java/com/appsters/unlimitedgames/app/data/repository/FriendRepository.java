@@ -230,8 +230,14 @@ public class FriendRepository {
                             for (Friend f : relations) {
                                 if (f.getFromUserId().equals(u.getUserId()) ||
                                         f.getToUserId().equals(u.getUserId())) {
-                                    related = true;
-                                    break;
+
+                                    // ONLY filter if status is PENDING or ACCEPTED
+                                    // If DECLINED, we treat it as no relation so they show up again
+                                    if (f.getStatus().equals(FriendStatus.PENDING.name()) ||
+                                            f.getStatus().equals(FriendStatus.ACCEPTED.name())) {
+                                        related = true;
+                                        break;
+                                    }
                                 }
                             }
 
@@ -244,6 +250,13 @@ public class FriendRepository {
                                 com.google.android.gms.tasks.Tasks.forResult(finalList));
                     });
                 });
+    }
+
+    public void deleteRequest(String requestId, OnCompleteListener<Void> listener) {
+        db.collection(COLLECTION)
+                .document(requestId)
+                .delete()
+                .addOnCompleteListener(listener);
     }
 
     /**

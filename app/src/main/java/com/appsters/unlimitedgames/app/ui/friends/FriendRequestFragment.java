@@ -31,15 +31,15 @@ public class FriendRequestFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
-                             @Nullable ViewGroup container,
-                             @Nullable Bundle savedInstanceState) {
+            @Nullable ViewGroup container,
+            @Nullable Bundle savedInstanceState) {
         binding = FragmentFriendRequestsBinding.inflate(inflater, container, false);
         return binding.getRoot();
     }
 
     @Override
     public void onViewCreated(@NonNull View view,
-                              @Nullable Bundle savedInstanceState) {
+            @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
         viewModel = new ViewModelProvider(requireActivity()).get(FriendViewModel.class);
@@ -63,14 +63,12 @@ public class FriendRequestFragment extends Fragment {
         incomingAdapter = new FriendRequestAdapter(
                 false,
                 requestId -> viewModel.acceptFriendRequest(requestId),
-                requestId -> viewModel.declineFriendRequest(requestId)
-        );
+                requestId -> viewModel.declineFriendRequest(requestId));
 
         outgoingAdapter = new FriendRequestAdapter(
                 true,
                 null, // no accept option for outgoing
-                requestId -> viewModel.declineFriendRequest(requestId)
-        );
+                requestId -> viewModel.cancelFriendRequest(requestId));
 
         binding.rvIncomingRequests.setLayoutManager(new LinearLayoutManager(requireContext()));
         binding.rvIncomingRequests.setAdapter(incomingAdapter);
@@ -92,8 +90,7 @@ public class FriendRequestFragment extends Fragment {
         });
 
         viewModel.getIsLoading().observe(getViewLifecycleOwner(),
-                loading -> binding.progressBar.setVisibility(loading ? View.VISIBLE : View.GONE)
-        );
+                loading -> binding.progressBar.setVisibility(loading ? View.VISIBLE : View.GONE));
 
         viewModel.getErrorMessage().observe(getViewLifecycleOwner(), msg -> {
             if (msg != null && !msg.isEmpty()) {
@@ -132,8 +129,7 @@ public class FriendRequestFragment extends Fragment {
         binding.rvOutgoingRequests.setVisibility(outgoingEmpty ? View.GONE : View.VISIBLE);
 
         binding.tvEmpty.setVisibility(
-                incomingEmpty && outgoingEmpty ? View.VISIBLE : View.GONE
-        );
+                incomingEmpty && outgoingEmpty ? View.VISIBLE : View.GONE);
     }
 
     @Override

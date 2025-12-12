@@ -96,13 +96,53 @@ public class FriendViewModel extends ViewModel {
         isLoading.setValue(true);
 
         friendRepository.getFriends(userId, task -> {
-            isLoading.setValue(false);
-
-            if (task.isSuccessful()) {
-                friends.setValue(task.getResult());
-            } else {
+            if (!task.isSuccessful() || task.getResult() == null) {
+                isLoading.setValue(false);
                 errorMessage.setValue("Failed to load friends.");
+                return;
             }
+
+            List<Friend> friendList = task.getResult();
+            if (friendList.isEmpty()) {
+                isLoading.setValue(false);
+                friends.setValue(friendList);
+                return;
+            }
+
+            // Fetch profiles in parallel
+            List<com.google.android.gms.tasks.Task<User>> userTasks = new java.util.ArrayList<>();
+
+            for (Friend f : friendList) {
+                String friendId = f.getFromUserId().equals(userId) ? f.getToUserId() : f.getFromUserId();
+
+                // We need to use a TaskCompletionSource to wrap the UserRepository callback
+                // into a Task
+                com.google.android.gms.tasks.TaskCompletionSource<User> tcs = new com.google.android.gms.tasks.TaskCompletionSource<>();
+
+                userRepository.getUser(friendId, userTask -> {
+                    if (userTask.isSuccessful()) {
+                        tcs.setResult(userTask.getResult());
+                    } else {
+                        // If one fails, just return null so we don't block others
+                        tcs.setResult(null);
+                    }
+                });
+
+                userTasks.add(tcs.getTask());
+            }
+
+            com.google.android.gms.tasks.Tasks.whenAllSuccess(userTasks).addOnSuccessListener(users -> {
+                isLoading.setValue(false);
+                // Users list corresponds to friendList order
+                for (int i = 0; i < friendList.size(); i++) {
+                    Object result = users.get(i);
+                    if (result instanceof User) {
+                        User u = (User) result;
+                        friendList.get(i).setProfileBase64(u.getProfileImageUrl());
+                    }
+                }
+                friends.setValue(friendList);
+            });
         });
     }
 

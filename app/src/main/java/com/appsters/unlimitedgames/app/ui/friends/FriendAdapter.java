@@ -14,6 +14,12 @@ import com.appsters.unlimitedgames.app.data.model.Friend;
 import java.util.ArrayList;
 import java.util.List;
 
+import android.graphics.Bitmap;
+import android.widget.ImageView;
+import com.appsters.unlimitedgames.app.util.ImageHelper;
+import android.content.res.Configuration;
+import android.graphics.Color;
+
 public class FriendAdapter extends RecyclerView.Adapter<FriendAdapter.FriendVH> {
 
     private List<Friend> items = new ArrayList<>();
@@ -52,6 +58,33 @@ public class FriendAdapter extends RecyclerView.Adapter<FriendAdapter.FriendVH> 
         }
 
         holder.name.setText(displayName);
+
+        // ✅ Profile Picture Logic
+        if (f.getProfileBase64() != null && !f.getProfileBase64().isEmpty()) {
+            Bitmap bitmap = ImageHelper.decodeBase64ToBitmap(f.getProfileBase64());
+            if (bitmap != null) {
+                holder.avatar.setImageBitmap(bitmap);
+                holder.avatar.clearColorFilter(); // Clear any previous filter
+            } else {
+                setSilhouette(holder);
+            }
+        } else {
+            setSilhouette(holder);
+        }
+    }
+
+    private void setSilhouette(FriendVH holder) {
+        int nightModeFlags = holder.itemView.getContext().getResources().getConfiguration().uiMode
+                & Configuration.UI_MODE_NIGHT_MASK;
+        int color;
+        if (nightModeFlags == Configuration.UI_MODE_NIGHT_YES) {
+            color = Color.WHITE;
+        } else {
+            color = Color.BLACK;
+        }
+
+        holder.avatar.setImageResource(R.drawable.ic_profile);
+        holder.avatar.setColorFilter(color);
     }
 
     @Override
@@ -62,10 +95,12 @@ public class FriendAdapter extends RecyclerView.Adapter<FriendAdapter.FriendVH> 
     static class FriendVH extends RecyclerView.ViewHolder {
 
         TextView name;
+        ImageView avatar;
 
         FriendVH(View itemView) {
             super(itemView);
             name = itemView.findViewById(R.id.tvFriendName);
+            avatar = itemView.findViewById(R.id.friend_avatar);
         }
     }
 }

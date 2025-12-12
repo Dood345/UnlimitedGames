@@ -13,6 +13,12 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.ColorDrawable;
+import androidx.core.content.ContextCompat;
 
 import com.appsters.unlimitedgames.R;
 import com.appsters.unlimitedgames.databinding.FragmentFriendsBinding;
@@ -53,10 +59,21 @@ public class FriendFragment extends Fragment {
         setupObservers();
         setupClickListeners();
 
-        // ✅ Swipe to Delete
+        // ✅ Swipe to Delete with Red Background & "Remove"
         new androidx.recyclerview.widget.ItemTouchHelper(
                 new androidx.recyclerview.widget.ItemTouchHelper.SimpleCallback(0,
                         androidx.recyclerview.widget.ItemTouchHelper.LEFT) {
+
+                    private final ColorDrawable background = new ColorDrawable(Color.RED);
+                    private final Paint textPaint = new Paint();
+
+                    {
+                        textPaint.setColor(Color.WHITE);
+                        textPaint.setTextSize(60f); // adjusted size for visibility
+                        textPaint.setAntiAlias(true);
+                        textPaint.setTextAlign(Paint.Align.RIGHT);
+                    }
+
                     @Override
                     public boolean onMove(@NonNull androidx.recyclerview.widget.RecyclerView recyclerView,
                             @NonNull androidx.recyclerview.widget.RecyclerView.ViewHolder viewHolder,
@@ -76,19 +93,46 @@ public class FriendFragment extends Fragment {
                             String otherUserId = friend.getFromUserId().equals(userId) ? friend.getToUserId()
                                     : friend.getFromUserId();
 
+                            // 1. Optimistic Update (Immediate Removal)
+                            adapter.removeItem(position);
+
+                            // 2. Database Update
                             viewModel.removeFriend(userId, otherUserId);
                             Toast.makeText(requireContext(), "Friend removed", Toast.LENGTH_SHORT).show();
 
-                            // Reload list (Ideally we would just remove from list but we rely on simple
-                            // reload for now)
-                            viewModel.loadFriends(userId);
+                            // Note: We do NOT call loadFriends immediately to avoid race condition
+                            // replacing list with old data.
+                            // The cached/optimistic list is correct.
                         }
+                    }
+
+                    @Override
+                    public void onChildDraw(@NonNull Canvas c,
+                            @NonNull androidx.recyclerview.widget.RecyclerView recyclerView,
+                            @NonNull androidx.recyclerview.widget.RecyclerView.ViewHolder viewHolder, float dX,
+                            float dY, int actionState, boolean isCurrentlyActive) {
+                        if (actionState == androidx.recyclerview.widget.ItemTouchHelper.ACTION_STATE_SWIPE) {
+                            View itemView = viewHolder.itemView;
+
+                            if (dX < 0) { // Swiping Left
+                                background.setBounds(itemView.getRight() + (int) dX, itemView.getTop(),
+                                        itemView.getRight(), itemView.getBottom());
+                                background.draw(c);
+
+                                // Draw "Remove" text vertically centered, with 32dp margin from right
+                                float margin = 32f * getResources().getDisplayMetrics().density;
+                                float textY = itemView.getTop() + ((itemView.getBottom() - itemView.getTop()) / 2f)
+                                        - ((textPaint.descent() + textPaint.ascent()) / 2f);
+                                c.drawText("Remove", itemView.getRight() - margin, textY, textPaint);
+                            }
+                        }
+                        super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
                     }
                 }).attachToRecyclerView(binding.rvFriends);
 
         if (userId != null) {
             viewModel.loadFriends(userId);
-            viewModel.listenToRequestCount(userId); // Ensure listener is active here too if needed
+            viewModel.listenToRequestCount(userId);
         }
     }
 
@@ -98,12 +142,16 @@ public class FriendFragment extends Fragment {
             binding.emptyText.setVisibility(friends.isEmpty() ? View.VISIBLE : View.GONE);
         });
 
-        // ✅ Update Requests Button Text
+        // ✅ Update Requests Badge Bubble
         viewModel.getOngoingRequestCount().observe(getViewLifecycleOwner(), count -> {
+            // Reset button text just in case
+            binding.btnFriendRequests.setText("Requests");
+
             if (count > 0) {
-                binding.btnFriendRequests.setText("Requests (" + count + ")");
+                binding.tvRequestsBadge.setText(String.valueOf(count));
+                binding.tvRequestsBadge.setVisibility(View.VISIBLE);
             } else {
-                binding.btnFriendRequests.setText("Requests");
+                binding.tvRequestsBadge.setVisibility(View.GONE);
             }
         });
 

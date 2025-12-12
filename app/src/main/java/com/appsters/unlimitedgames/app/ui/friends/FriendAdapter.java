@@ -41,6 +41,13 @@ public class FriendAdapter extends RecyclerView.Adapter<FriendAdapter.FriendVH> 
         return items;
     }
 
+    public void removeItem(int position) {
+        if (position >= 0 && position < items.size()) {
+            items.remove(position);
+            notifyItemRemoved(position);
+        }
+    }
+
     @NonNull
     @Override
     public FriendVH onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {

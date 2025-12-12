@@ -235,6 +235,22 @@ public class FriendViewModel extends ViewModel {
         });
     }
 
+    // ----------- CANCEL FRIEND REQUEST -----------
+
+    public void cancelFriendRequest(String requestId) {
+        isLoading.setValue(true);
+
+        friendRepository.deleteRequest(requestId, task -> {
+            isLoading.setValue(false);
+
+            if (task.isSuccessful()) {
+                actionSuccess.setValue(true);
+            } else {
+                errorMessage.setValue("Failed to cancel request.");
+            }
+        });
+    }
+
     // ----------- REMOVE FRIEND -----------
 
     public void removeFriend(String userA, String userB) {

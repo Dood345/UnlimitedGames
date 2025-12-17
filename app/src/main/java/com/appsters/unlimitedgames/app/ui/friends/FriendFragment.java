@@ -84,7 +84,7 @@ public class FriendFragment extends Fragment {
                     @Override
                     public void onSwiped(@NonNull androidx.recyclerview.widget.RecyclerView.ViewHolder viewHolder,
                             int direction) {
-                        int position = viewHolder.getAdapterPosition();
+                        int position = viewHolder.getAbsoluteAdapterPosition();
                         com.appsters.unlimitedgames.app.data.model.Friend friend = adapter.getItems().get(position);
 
                         String userId = FirebaseAuth.getInstance().getUid();

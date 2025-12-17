@@ -60,6 +60,15 @@ public class GameDataSource {
                                                 "",
                                                 R.id.action_homeFragment_to_mazeMenuFragment,
                                                 R.drawable.ic_maze));
+                games.add(
+                                new Game(
+                                                "7",
+                                                GameType.POKER,
+                                                "Poker",
+                                                "",
+                                                R.id.action_homeFragment_to_pokerFragment,
+                                                R.drawable.ic_poker));
+
                 return games;
         }
 

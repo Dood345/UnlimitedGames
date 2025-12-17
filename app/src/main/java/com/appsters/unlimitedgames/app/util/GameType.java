@@ -7,5 +7,6 @@ public enum GameType {
     SOCCERSEPARATION,
 
     MAZE,
-    WHACK_A_MOLE
+    WHACK_A_MOLE,
+    POKER
 }

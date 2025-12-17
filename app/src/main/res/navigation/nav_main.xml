@@ -22,6 +22,10 @@
         <action
             android:id="@+id/action_homeFragment_to_game2048Fragment"
             app:destination="@id/game2048Fragment" />
+        <action
+            android:id="@+id/action_homeFragment_to_pokerFragment"
+            app:destination="@+id/pokerFragment"
+            />
 
         <action
             android:id="@+id/action_homeFragment_to_SoccerSeparationGameFragment"
@@ -87,6 +91,11 @@
         android:label="2048"
         tools:layout="@layout/fragment_game_2048" />
 
+    <fragment
+        android:id="@+id/pokerFragment"
+        android:name="com.appsters.unlimitedgames.games.poker.PokerFragment"
+        android:label="Poker"
+        tools:layout="@layout/fragment_poker" />
 
     <fragment
         android:id="@+id/SoccerSeparationGameFragment"

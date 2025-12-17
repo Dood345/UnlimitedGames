@@ -12,6 +12,8 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.core.content.ContextCompat;
+import androidx.navigation.NavController;
+import androidx.navigation.fragment.NavHostFragment;
 
 import com.appsters.unlimitedgames.databinding.FragmentPokerBinding;
 
@@ -45,6 +47,13 @@ public class PokerFragment extends Fragment {
         binding.raiseButton.setOnClickListener(v -> viewModel.playerRaise());
         binding.revealNextButton.setOnClickListener(v -> viewModel.revealNext());
 
+        //Backs out of game
+        binding.backToGamesButton.setOnClickListener(v -> {
+            NavController navController =
+                    NavHostFragment.findNavController(PokerFragment.this);
+            navController.navigateUp();
+        });
+
         // Raise slider: progress 0..(raiseMax-1) maps to raise amount 1..raiseMax
         binding.raiseAmountSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
@@ -72,6 +81,8 @@ public class PokerFragment extends Fragment {
             if (binding.raiseAmountSeekBar.getProgress() != a - 1) {
                 binding.raiseAmountSeekBar.setProgress(a - 1);
             }
+
+
         });
 
 // Highlight selected buy-in button

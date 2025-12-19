@@ -16,19 +16,16 @@ public class ImageBindingAdapters {
         boolean faceUp = (isFaceUp == null) || isFaceUp;
 
         if (!faceUp) {
-            // Load local card back
+            // Load local card back (User provided)
             Glide.with(view.getContext())
                     .load(R.drawable.card_back)
-                    .placeholder(R.drawable.card_placeholder)
                     .into(view);
             return;
         }
 
-        // If URL is empty or null, show placeholder
+        // If URL is empty or null, clear the view (e.g. undealt board cards)
         if (url == null || url.isEmpty()) {
-            Glide.with(view.getContext())
-                    .load(R.drawable.card_placeholder)
-                    .into(view);
+            view.setImageDrawable(null);
             return;
         }
 
@@ -36,8 +33,8 @@ public class ImageBindingAdapters {
         Glide.with(view.getContext())
                 .load(url)
                 .placeholder(R.drawable.card_placeholder)
-                .error(R.drawable.card_placeholder) // or a specific error image
-                .diskCacheStrategy(DiskCacheStrategy.ALL) // Cache generic cards
+                .error(R.drawable.card_placeholder)
+                .diskCacheStrategy(DiskCacheStrategy.ALL)
                 .into(view);
     }
 }

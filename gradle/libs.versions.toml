@@ -17,6 +17,7 @@ firebaseBom = "34.4.0"
 material = "1.13.0"
 playServicesMlkitBarcodeScanning = "18.3.1"
 googleServices = "4.4.4"
+glide = "4.16.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -45,6 +46,7 @@ konfetti-core = { module = "nl.dionsegijn:konfetti-core", version.ref = "konfett
 konfetti-xml = { module = "nl.dionsegijn:konfetti-xml", version.ref = "konfettiXml" }
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 play-services-mlkit-barcode-scanning = { group = "com.google.android.gms", name = "play-services-mlkit-barcode-scanning", version.ref = "playServicesMlkitBarcodeScanning" }
+glide = { group = "com.github.bumptech.glide", name = "glide", version.ref = "glide" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

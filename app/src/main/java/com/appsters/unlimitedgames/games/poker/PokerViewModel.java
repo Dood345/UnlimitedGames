@@ -33,9 +33,13 @@ import java.util.Random;
  */
 public class PokerViewModel extends AndroidViewModel {
 
-    public enum Phase { LOBBY, IN_HAND, SHOWDOWN }
+    public enum Phase {
+        LOBBY, IN_HAND, SHOWDOWN
+    }
 
-    public enum HandStage { PREFLOP, FLOP, TURN, RIVER, SHOWDOWN }
+    public enum HandStage {
+        PREFLOP, FLOP, TURN, RIVER, SHOWDOWN
+    }
 
     private final RandPokerRepository repository;
     private final LeaderboardRepository leaderboardRepository;
@@ -44,7 +48,6 @@ public class PokerViewModel extends AndroidViewModel {
     private boolean isSignedIn() {
         return FirebaseAuth.getInstance().getCurrentUser() != null;
     }
-
 
     private final Random random = new Random();
 
@@ -72,7 +75,6 @@ public class PokerViewModel extends AndroidViewModel {
     private final MutableLiveData<String> _revealButtonText = new MutableLiveData<>("Reveal Flop");
     public LiveData<String> revealButtonText = _revealButtonText;
 
-
     private final MutableLiveData<String> _status = new MutableLiveData<>("");
     public LiveData<String> status = _status;
 
@@ -97,7 +99,8 @@ public class PokerViewModel extends AndroidViewModel {
     private final MutableLiveData<Boolean> _raiseEnabled = new MutableLiveData<>(false);
     public LiveData<Boolean> raiseEnabled = _raiseEnabled;
 
-    // Raise amount slider (additional chips to put in on a raise for the current street)
+    // Raise amount slider (additional chips to put in on a raise for the current
+    // street)
     private final MutableLiveData<Integer> _raiseMax = new MutableLiveData<>(1); // absolute max raise amount
     public LiveData<Integer> raiseMax = _raiseMax;
 
@@ -107,8 +110,20 @@ public class PokerViewModel extends AndroidViewModel {
     private final MutableLiveData<String> _raiseAmountText = new MutableLiveData<>("Raise add: 1");
     public LiveData<String> raiseAmountText = _raiseAmountText;
 
+    private CountDownTimer freeTimer;
 
-private CountDownTimer freeTimer;
+    // Expose card lists for UI binding
+    private final MutableLiveData<List<String>> _playerCardUrls = new MutableLiveData<>(new ArrayList<>());
+    public LiveData<List<String>> playerCardUrls = _playerCardUrls;
+
+    private final MutableLiveData<List<String>> _dealerCardUrls = new MutableLiveData<>(new ArrayList<>());
+    public LiveData<List<String>> dealerCardUrls = _dealerCardUrls;
+
+    private final MutableLiveData<List<String>> _boardCardUrls = new MutableLiveData<>(new ArrayList<>());
+    public LiveData<List<String>> boardCardUrls = _boardCardUrls;
+
+    private final MutableLiveData<Boolean> _dealerCardsFaceUp = new MutableLiveData<>(false);
+    public LiveData<Boolean> dealerCardsFaceUp = _dealerCardsFaceUp;
 
     // Current hand state
     private int buyIn = 5;
@@ -123,7 +138,7 @@ private CountDownTimer freeTimer;
     private boolean awaitingBet = true;
     private int revealedCount = 0; // 0, 3, 4, 5
 
-private List<Card> playerHole = new ArrayList<>();
+    private List<Card> playerHole = new ArrayList<>();
     private List<Card> dealerHole = new ArrayList<>();
     private List<Card> board = new ArrayList<>();
 
@@ -147,7 +162,8 @@ private List<Card> playerHole = new ArrayList<>();
     @Override
     protected void onCleared() {
         super.onCleared();
-        if (freeTimer != null) freeTimer.cancel();
+        if (freeTimer != null)
+            freeTimer.cancel();
     }
 
     public void refreshCoins() {
@@ -161,7 +177,8 @@ private List<Card> playerHole = new ArrayList<>();
         _coins.setValue(repository.getCoins());
         _freeAvailable.setValue(repository.canClaimFreeCoins());
 
-        // If we're in a hand, keep slider/raise state consistent with refreshed coin balance.
+        // If we're in a hand, keep slider/raise state consistent with refreshed coin
+        // balance.
         if (_phase.getValue() == Phase.IN_HAND) {
             updateRaiseSlider();
             updateRaiseEnabled();
@@ -174,19 +191,19 @@ private List<Card> playerHole = new ArrayList<>();
     }
 
     /**
-     * Called by UI slider; progress is 0..(raiseMax-1) and maps to raise amount 1..raiseMax.
+     * Called by UI slider; progress is 0..(raiseMax-1) and maps to raise amount
+     * 1..raiseMax.
      */
     public void setRaiseSliderProgress(int progress) {
         Integer max = _raiseMax.getValue();
-        if (max == null) max = 1;
+        if (max == null)
+            max = 1;
         int amount = Math.max(1, Math.min(max, progress + 1));
         _raiseAmount.setValue(amount);
         _raiseAmountText.setValue("Raise add: " + amount);
         updateRaiseEnabled();
         updatePotAndWinnings();
     }
-
-
 
     public void claimFreeCoins() {
         boolean granted = repository.claimFreeCoins();
@@ -203,8 +220,10 @@ private List<Card> playerHole = new ArrayList<>();
     public void startHand() {
         Integer c = _coins.getValue();
         Integer sel = _selectedBuyIn.getValue();
-        if (c == null) c = 0;
-        if (sel == null) sel = 5;
+        if (c == null)
+            c = 0;
+        if (sel == null)
+            sel = 5;
 
         if (c < sel * 2) {
             _status.setValue("You need at least " + (sel * 2) + " coins to buy in for " + sel + ".");
@@ -224,7 +243,7 @@ private List<Card> playerHole = new ArrayList<>();
         currentStreet = HandStage.PREFLOP;
         awaitingBet = true;
         revealedCount = 0;
-Deck deck = new Deck();
+        Deck deck = new Deck();
         deck.shuffle(random);
 
         playerHole = new ArrayList<>();
@@ -236,8 +255,14 @@ Deck deck = new Deck();
         playerHole.add(deck.draw());
         dealerHole.add(deck.draw());
 
-        // Community cards (flop/turn/river) - we deal all now but reveal as one string for simplicity
-        for (int i = 0; i < 5; i++) board.add(deck.draw());
+        // Community cards (flop/turn/river) - we deal all now but reveal as one string
+        // for simplicity
+        for (int i = 0; i < 5; i++)
+            board.add(deck.draw());
+
+        updateUiCards(); // New method to update card lists
+
+        _dealerCardsFaceUp.setValue(false); // Hide dealer cards initially
 
         _playerCardsText.setValue(cardListToString(playerHole));
         _dealerCardsText.setValue("🂠 🂠"); // hidden until showdown
@@ -250,180 +275,201 @@ Deck deck = new Deck();
         updateRaiseSlider();
         updateRaiseEnabled();
         _status.setValue("New hand (pre-flop). Your move: check or raise.");
-_phase.setValue(Phase.IN_HAND);
+        _phase.setValue(Phase.IN_HAND);
     }
 
     public void playerCheck() {
-    if (_phase.getValue() != Phase.IN_HAND) return;
-    if (!Boolean.TRUE.equals(_bettingEnabled.getValue())) return;
+        if (_phase.getValue() != Phase.IN_HAND)
+            return;
+        if (!Boolean.TRUE.equals(_bettingEnabled.getValue()))
+            return;
 
-    // Dealer responds to a check on this street.
-    int dealerRaise = dealerDecideRaiseAmount(/*playerRaised=*/false, /*playerAggression=*/0);
+        // Dealer responds to a check on this street.
+        int dealerRaise = dealerDecideRaiseAmount(/* playerRaised= */false, /* playerAggression= */0);
 
-    // Keep it safe: dealer cannot raise more than the player can currently afford to call.
-    Integer c = _coins.getValue();
-    if (c == null) c = repository.getCoins();
-    int remaining = c;
-    if (dealerRaise > remaining) dealerRaise = 0;
-
-    if (dealerRaise > 0) {
-        // Player auto-calls (no fold). Both contribute dealerRaise.
-        applyCoinDelta(-dealerRaise); // you pay to call immediately
-        potTotal += dealerRaise * 2;
-        playerContribution += dealerRaise;
-        _status.setValue(streetName(currentStreet) + ": You check. Dealer raises +" + dealerRaise + ". You call.");
-    } else {
-        _status.setValue(streetName(currentStreet) + ": You check. Dealer checks.");
-    }
-
-    finishBettingForStreet(/*playerRaised=*/false);
-}
-
-
-    public void playerRaise() {
-    if (_phase.getValue() != Phase.IN_HAND) return;
-    if (!Boolean.TRUE.equals(_bettingEnabled.getValue())) return;
-
-    Integer ra = _raiseAmount.getValue();
-    int raise = (ra == null ? buyIn : ra);
-
-    // Ensure player has enough coins to cover this street's raise.
-    Integer c = _coins.getValue();
-    if (c == null) c = repository.getCoins();
-    int remaining = c;
-    if (remaining < raise) {
-        _status.setValue("Not enough coins to raise right now.");
-        updateRaiseEnabled();
-        return;
-    }
-
-    // Player raises; dealer auto-calls (no fold). Both contribute 'raise'.
-    applyCoinDelta(-raise); // you pay the raise immediately
-    potTotal += raise * 2;
-    playerContribution += raise;
-
-    int dealerRaise = dealerDecideRaiseAmount(/*playerRaised=*/true, /*playerAggression=*/1);
-    if (dealerRaise > 0) {
-        // Dealer raises once; player auto-calls.
-        // (Still cap to one extra raise per street to keep bankroll reasonable.)
-        if (repository.getCoins() < dealerRaise) {
-            // Can't safely cover the extra; dealer just calls instead.
+        // Keep it safe: dealer cannot raise more than the player can currently afford
+        // to call.
+        Integer c = _coins.getValue();
+        if (c == null)
+            c = repository.getCoins();
+        int remaining = c;
+        if (dealerRaise > remaining)
             dealerRaise = 0;
-        } else {
-            applyCoinDelta(-dealerRaise); // you pay to call the dealer's raise
+
+        if (dealerRaise > 0) {
+            // Player auto-calls (no fold). Both contribute dealerRaise.
+            applyCoinDelta(-dealerRaise); // you pay to call immediately
             potTotal += dealerRaise * 2;
             playerContribution += dealerRaise;
+            _status.setValue(streetName(currentStreet) + ": You check. Dealer raises +" + dealerRaise + ". You call.");
+        } else {
+            _status.setValue(streetName(currentStreet) + ": You check. Dealer checks.");
+        }
+
+        finishBettingForStreet(/* playerRaised= */false);
+    }
+
+    public void playerRaise() {
+        if (_phase.getValue() != Phase.IN_HAND)
+            return;
+        if (!Boolean.TRUE.equals(_bettingEnabled.getValue()))
+            return;
+
+        Integer ra = _raiseAmount.getValue();
+        int raise = (ra == null ? buyIn : ra);
+
+        // Ensure player has enough coins to cover this street's raise.
+        Integer c = _coins.getValue();
+        if (c == null)
+            c = repository.getCoins();
+        int remaining = c;
+        if (remaining < raise) {
+            _status.setValue("Not enough coins to raise right now.");
+            updateRaiseEnabled();
+            return;
+        }
+
+        // Player raises; dealer auto-calls (no fold). Both contribute 'raise'.
+        applyCoinDelta(-raise); // you pay the raise immediately
+        potTotal += raise * 2;
+        playerContribution += raise;
+
+        int dealerRaise = dealerDecideRaiseAmount(/* playerRaised= */true, /* playerAggression= */1);
+        if (dealerRaise > 0) {
+            // Dealer raises once; player auto-calls.
+            // (Still cap to one extra raise per street to keep bankroll reasonable.)
+            if (repository.getCoins() < dealerRaise) {
+                // Can't safely cover the extra; dealer just calls instead.
+                dealerRaise = 0;
+            } else {
+                applyCoinDelta(-dealerRaise); // you pay to call the dealer's raise
+                potTotal += dealerRaise * 2;
+                playerContribution += dealerRaise;
+            }
+        }
+
+        if (dealerRaise > 0) {
+            _status.setValue(streetName(currentStreet) + ": You raise +" + raise + ". Dealer raises +" + dealerRaise
+                    + ". You call.");
+        } else {
+            _status.setValue(streetName(currentStreet) + ": You raise +" + raise + ". Dealer calls.");
+        }
+
+        finishBettingForStreet(/* playerRaised= */true);
+    }
+
+    private String streetName(HandStage stage) {
+        switch (stage) {
+            case PREFLOP:
+                return "Pre-flop";
+            case FLOP:
+                return "Flop";
+            case TURN:
+                return "Turn";
+            case RIVER:
+                return "River";
+            default:
+                return "";
         }
     }
 
-    if (dealerRaise > 0) {
-        _status.setValue(streetName(currentStreet) + ": You raise +" + raise + ". Dealer raises +" + dealerRaise + ". You call.");
-    } else {
-        _status.setValue(streetName(currentStreet) + ": You raise +" + raise + ". Dealer calls.");
+    private String nextRevealButtonText() {
+        if (revealedCount == 0)
+            return "Reveal Flop";
+        if (revealedCount == 3)
+            return "Reveal Turn";
+        if (revealedCount == 4)
+            return "Reveal River";
+        return "Showdown";
     }
 
-    finishBettingForStreet(/*playerRaised=*/true);
-}
+    private void updatePotAndWinnings() {
+        // We always keep the pot balanced (dealer auto-calls), so the player's "win
+        // payout"
+        // can be computed from the total pot using the buy-in multiplier.
+        int payoutIfWin = (potTotal * multiplier) / 2; // matches (playerContribution * multiplier)
+        _potTotalText.setValue(String.valueOf(payoutIfWin));
 
-
-    
-private String streetName(HandStage stage) {
-    switch (stage) {
-        case PREFLOP: return "Pre-flop";
-        case FLOP: return "Flop";
-        case TURN: return "Turn";
-        case RIVER: return "River";
-        default: return "";
-    }
-}
-
-private String nextRevealButtonText() {
-    if (revealedCount == 0) return "Reveal Flop";
-    if (revealedCount == 3) return "Reveal Turn";
-    if (revealedCount == 4) return "Reveal River";
-    return "Showdown";
-}
-
-private void updatePotAndWinnings() {
-    // We always keep the pot balanced (dealer auto-calls), so the player's "win payout"
-    // can be computed from the total pot using the buy-in multiplier.
-    int payoutIfWin = (potTotal * multiplier) / 2; // matches (playerContribution * multiplier)
-    _potTotalText.setValue(String.valueOf(payoutIfWin));
-
-    int netIfWin = Math.max(0, payoutIfWin - playerContribution);
-    _winningsText.setValue("winnings: " + netIfWin + " (Net Profit)");
-}
-
-
-private void updateRaiseSlider() {
-    // Slider only matters when actively betting on a street.
-    boolean enabled = Boolean.TRUE.equals(_bettingEnabled.getValue());
-    if (!enabled) {
-        _raiseMax.setValue(1);
-        _raiseAmount.setValue(1);
-        _raiseAmountText.setValue("Raise add: 1");
-        return;
+        int netIfWin = Math.max(0, payoutIfWin - playerContribution);
+        _winningsText.setValue("winnings: " + netIfWin + " (Net Profit)");
     }
 
-    Integer c = _coins.getValue();
-    if (c == null) c = repository.getCoins();
-    int remaining = Math.max(0, c);
+    private void updateRaiseSlider() {
+        // Slider only matters when actively betting on a street.
+        boolean enabled = Boolean.TRUE.equals(_bettingEnabled.getValue());
+        if (!enabled) {
+            _raiseMax.setValue(1);
+            _raiseAmount.setValue(1);
+            _raiseAmountText.setValue("Raise add: 1");
+            return;
+        }
 
-    // Absolute max: you can never raise more than you can currently afford.
-    int maxRaise = Math.max(1, remaining);
+        Integer c = _coins.getValue();
+        if (c == null)
+            c = repository.getCoins();
+        int remaining = Math.max(0, c);
 
-    _raiseMax.setValue(maxRaise);
+        // Absolute max: you can never raise more than you can currently afford.
+        int maxRaise = Math.max(1, remaining);
 
-    Integer current = _raiseAmount.getValue();
-    if (current == null) current = 1;
+        _raiseMax.setValue(maxRaise);
 
-    // Default the slider toward buyIn-sized raises when possible.
-    if (current <= 1 && maxRaise >= buyIn) current = buyIn;
+        Integer current = _raiseAmount.getValue();
+        if (current == null)
+            current = 1;
 
-    int clamped = Math.max(1, Math.min(maxRaise, current));
-    _raiseAmount.setValue(clamped);
-    _raiseAmountText.setValue("Raise add: " + clamped);
-}
+        // Default the slider toward buyIn-sized raises when possible.
+        if (current <= 1 && maxRaise >= buyIn)
+            current = buyIn;
 
-private void updateRaiseEnabled() {
-    boolean enabled = Boolean.TRUE.equals(_bettingEnabled.getValue());
-    if (!enabled) {
-        _raiseEnabled.setValue(false);
-        return;
-    }
-    Integer c = _coins.getValue();
-    if (c == null) c = repository.getCoins();
-    int remaining = c;
-    _raiseEnabled.setValue(remaining >= 1);
-}
-
-
-private void finishBettingForStreet(boolean playerRaised) {
-    _bettingEnabled.setValue(false);
-    updateRaiseSlider();
-    updateRaiseEnabled();
-    updatePotAndWinnings();
-
-    if (currentStreet == HandStage.RIVER) {
-        _revealEnabled.setValue(false);
-        showdownAndPayout();
-        return;
+        int clamped = Math.max(1, Math.min(maxRaise, current));
+        _raiseAmount.setValue(clamped);
+        _raiseAmountText.setValue("Raise add: " + clamped);
     }
 
-    _revealEnabled.setValue(true);
-    _revealButtonText.setValue(nextRevealButtonText());
+    private void updateRaiseEnabled() {
+        boolean enabled = Boolean.TRUE.equals(_bettingEnabled.getValue());
+        if (!enabled) {
+            _raiseEnabled.setValue(false);
+            return;
+        }
+        Integer c = _coins.getValue();
+        if (c == null)
+            c = repository.getCoins();
+        int remaining = c;
+        _raiseEnabled.setValue(remaining >= 1);
+    }
 
-    String prompt;
-    if (revealedCount == 0) prompt = " Tap to reveal the flop.";
-    else if (revealedCount == 3) prompt = " Tap to reveal the turn.";
-    else prompt = " Tap to reveal the river.";
+    private void finishBettingForStreet(boolean playerRaised) {
+        _bettingEnabled.setValue(false);
+        updateRaiseSlider();
+        updateRaiseEnabled();
+        updatePotAndWinnings();
 
-    String s = _status.getValue();
-    if (s == null) s = "";
-    _status.setValue(s + prompt);
-}
+        if (currentStreet == HandStage.RIVER) {
+            _revealEnabled.setValue(false);
+            showdownAndPayout();
+            return;
+        }
 
-private void showdownAndPayout() {
+        _revealEnabled.setValue(true);
+        _revealButtonText.setValue(nextRevealButtonText());
+
+        String prompt;
+        if (revealedCount == 0)
+            prompt = " Tap to reveal the flop.";
+        else if (revealedCount == 3)
+            prompt = " Tap to reveal the turn.";
+        else
+            prompt = " Tap to reveal the river.";
+
+        String s = _status.getValue();
+        if (s == null)
+            s = "";
+        _status.setValue(s + prompt);
+    }
+
+    private void showdownAndPayout() {
         _phase.setValue(Phase.SHOWDOWN);
 
         List<Card> playerSeven = new ArrayList<>();
@@ -437,14 +483,19 @@ private void showdownAndPayout() {
         HandEvaluator.Result p = HandEvaluator.bestOfSeven(playerSeven);
         HandEvaluator.Result d = HandEvaluator.bestOfSeven(dealerSeven);
 
+        _dealerCardsFaceUp.setValue(true); // Reveal dealer cards
+        updateUiCards();
+
         _dealerCardsText.setValue(cardListToString(dealerHole));
 
         int delta;
         String resultText;
 
-        // Coins are deducted as you bet (buy-in + calls/raises). At showdown we only ADD winnings/refunds.
+        // Coins are deducted as you bet (buy-in + calls/raises). At showdown we only
+        // ADD winnings/refunds.
         if (p.value > d.value) {
-            int payoutIfWin = (potTotal * multiplier) / 2; // equals (playerContribution * multiplier) since pot is balanced
+            int payoutIfWin = (potTotal * multiplier) / 2; // equals (playerContribution * multiplier) since pot is
+                                                           // balanced
             delta = payoutIfWin;
             resultText = "You win! (" + p.categoryName + " beats " + d.categoryName + ") +" + delta;
         } else if (p.value < d.value) {
@@ -456,7 +507,6 @@ private void showdownAndPayout() {
             resultText = "Tie. (" + p.categoryName + ") +" + delta;
         }
 
-
         applyCoinDelta(delta);
         _status.setValue(resultText + " coins. Tap Start Hand to play again.");
     }
@@ -467,12 +517,13 @@ private void showdownAndPayout() {
         repository.setCoins(next);
         _coins.setValue(next);
         submitCoinsToLeaderboard();
-            updateRaiseEnabled();
+        updateRaiseEnabled();
     }
 
     private void submitCoinsToLeaderboard() {
         String userId = FirebaseAuth.getInstance().getUid();
-        if (userId == null) return;
+        if (userId == null)
+            return;
 
         int score = repository.getCoins();
 
@@ -514,7 +565,8 @@ private void showdownAndPayout() {
         // buyIn == 500: incorporate player aggression
         if (playerRaised) {
             // Player showed aggression; require stronger hand to raise back
-            if (strength >= 0.70) return raiseAmount;
+            if (strength >= 0.70)
+                return raiseAmount;
             return 0;
         } else {
             // Player checked; dealer can press with moderate hands
@@ -526,7 +578,8 @@ private void showdownAndPayout() {
      * Very simple preflop strength heuristic [0..1].
      */
     private double preflopStrength(List<Card> hole) {
-        if (hole == null || hole.size() != 2) return 0.0;
+        if (hole == null || hole.size() != 2)
+            return 0.0;
         Card a = hole.get(0);
         Card b = hole.get(1);
 
@@ -541,15 +594,22 @@ private void showdownAndPayout() {
         // Base from high card
         s += (high - 2) / 12.0 * 0.45; // up to ~0.45
 
-        if (pair) s += 0.40;
-        if (suited) s += 0.07;
-        if (gap == 1) s += 0.05;       // connectors
-        if (gap == 0) s += 0.08;       // already counted as pair, but add a bit
-        if (high >= 13 && low >= 10) s += 0.10; // broadway-ish
+        if (pair)
+            s += 0.40;
+        if (suited)
+            s += 0.07;
+        if (gap == 1)
+            s += 0.05; // connectors
+        if (gap == 0)
+            s += 0.08; // already counted as pair, but add a bit
+        if (high >= 13 && low >= 10)
+            s += 0.10; // broadway-ish
 
         // Clamp
-        if (s < 0) s = 0;
-        if (s > 1) s = 1;
+        if (s < 0)
+            s = 0;
+        if (s > 1)
+            s = 1;
         return s;
     }
 
@@ -557,7 +617,8 @@ private void showdownAndPayout() {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < cards.size(); i++) {
             sb.append(cards.get(i).toString());
-            if (i != cards.size() - 1) sb.append("  ");
+            if (i != cards.size() - 1)
+                sb.append("  ");
         }
         return sb.toString();
     }
@@ -571,55 +632,84 @@ private void showdownAndPayout() {
             } else {
                 sb.append("??");
             }
-            if (i != 4) sb.append("  ");
+            if (i != 4)
+                sb.append("  ");
         }
         return sb.toString();
     }
 
-    public void revealNext() {
-    Phase p = _phase.getValue();
-    if (p == null || p != Phase.IN_HAND) return;
-    if (!Boolean.TRUE.equals(_revealEnabled.getValue())) return;
+    private void updateUiCards() {
+        // Player cards (always visible)
+        List<String> pUrls = new ArrayList<>();
+        for (Card c : playerHole)
+            pUrls.add(c.getImageUrl());
+        _playerCardUrls.setValue(pUrls);
 
-    // Reveal next set of community cards, then allow betting on that street.
-    if (revealedCount == 0) {
-        revealedCount = 3;
-        currentStreet = HandStage.FLOP;
-        _handStage.setValue(HandStage.FLOP);
-        _boardCardsText.setValue(boardToStringRevealed(revealedCount));
-        _status.setValue("Flop revealed. Your move: check or raise.");
-    } else if (revealedCount == 3) {
-        revealedCount = 4;
-        currentStreet = HandStage.TURN;
-        _handStage.setValue(HandStage.TURN);
-        _boardCardsText.setValue(boardToStringRevealed(revealedCount));
-        _status.setValue("Turn revealed. Your move: check or raise.");
-    } else if (revealedCount == 4) {
-        revealedCount = 5;
-        currentStreet = HandStage.RIVER;
-        _handStage.setValue(HandStage.RIVER);
-        _boardCardsText.setValue(boardToStringRevealed(revealedCount));
-        _status.setValue("River revealed. Your move: check or raise.");
-    } else {
-        return;
+        // Dealer cards (hidden unless faceUp)
+        List<String> dUrls = new ArrayList<>();
+        for (Card c : dealerHole)
+            dUrls.add(c.getImageUrl());
+        _dealerCardUrls.setValue(dUrls); // View will handle faceDown logic via separate LiveData
+
+        // Board cards (revealed based on count)
+        List<String> bUrls = new ArrayList<>();
+        for (int i = 0; i < 5; i++) {
+            if (i < revealedCount && i < board.size()) {
+                bUrls.add(board.get(i).getImageUrl());
+            } else {
+                bUrls.add(""); // Empty or null indicates not revealed/placeholder
+            }
+        }
+        _boardCardUrls.setValue(bUrls);
     }
 
-    _revealEnabled.setValue(false);
-    _revealButtonText.setValue(nextRevealButtonText());
-    _bettingEnabled.setValue(true);
-        updateRaiseSlider();
-    updateRaiseEnabled();
-}
+    public void revealNext() {
+        Phase p = _phase.getValue();
+        if (p == null || p != Phase.IN_HAND)
+            return;
+        if (!Boolean.TRUE.equals(_revealEnabled.getValue()))
+            return;
 
+        // Reveal next set of community cards, then allow betting on that street.
+        if (revealedCount == 0) {
+            revealedCount = 3;
+            currentStreet = HandStage.FLOP;
+            _handStage.setValue(HandStage.FLOP);
+            _status.setValue("Flop revealed. Your move: check or raise.");
+        } else if (revealedCount == 3) {
+            revealedCount = 4;
+            currentStreet = HandStage.TURN;
+            _handStage.setValue(HandStage.TURN);
+            _status.setValue("Turn revealed. Your move: check or raise.");
+        } else if (revealedCount == 4) {
+            revealedCount = 5;
+            currentStreet = HandStage.RIVER;
+            _handStage.setValue(HandStage.RIVER);
+            _status.setValue("River revealed. Your move: check or raise.");
+        } else {
+            return;
+        }
+
+        updateUiCards(); // Update board URLs
+        _boardCardsText.setValue(boardToStringRevealed(revealedCount)); // Legacy text update
+
+        _revealEnabled.setValue(false);
+        _revealButtonText.setValue(nextRevealButtonText());
+        _bettingEnabled.setValue(true);
+        updateRaiseSlider();
+        updateRaiseEnabled();
+    }
 
     private void startOrRefreshFreeCoinsTimer() {
         if (!isSignedIn()) {
-            if (freeTimer != null) freeTimer.cancel();
+            if (freeTimer != null)
+                freeTimer.cancel();
             _freeAvailable.setValue(false);
             _freeTimerText.setValue("Sign in required for free coins");
             return;
         }
-        if (freeTimer != null) freeTimer.cancel();
+        if (freeTimer != null)
+            freeTimer.cancel();
 
         repository.ensureInitialized();
         boolean available = repository.canClaimFreeCoins();

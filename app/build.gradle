@@ -60,6 +60,7 @@ dependencies {
     implementation libs.play.services.mlkit.barcode.scanning
     implementation libs.konfetti.xml
     implementation libs.konfetti.core
+    implementation libs.glide
     implementation 'com.google.code.gson:gson:2.10.1'
     testImplementation libs.junit
     androidTestImplementation libs.androidx.junit

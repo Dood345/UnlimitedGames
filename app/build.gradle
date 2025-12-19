@@ -15,8 +15,8 @@ android {
         applicationId "com.appsters.unlimitedgames"
         minSdk 24
         targetSdk 36
-        versionCode 3
-        versionName "1.2"
+        versionCode 5
+        versionName "1.5"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -60,6 +60,7 @@ dependencies {
     implementation libs.play.services.mlkit.barcode.scanning
     implementation libs.konfetti.xml
     implementation libs.konfetti.core
+    implementation libs.glide
     implementation 'com.google.code.gson:gson:2.10.1'
     testImplementation libs.junit
     androidTestImplementation libs.androidx.junit

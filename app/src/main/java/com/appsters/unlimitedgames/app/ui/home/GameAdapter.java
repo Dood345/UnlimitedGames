@@ -146,6 +146,10 @@ public class GameAdapter extends RecyclerView.Adapter<GameAdapter.GameViewHolder
                     color = androidx.core.content.ContextCompat.getColor(context,
                             com.appsters.unlimitedgames.R.color.purple_500);
                     break;
+                case POKER:
+                    color = androidx.core.content.ContextCompat.getColor(context,
+                            com.appsters.unlimitedgames.R.color.poker_brown);
+                    break;
                 case GAME2048:
                 default:
                     applyStyle = false; // 2048 already has a background in the image
@@ -157,13 +161,7 @@ public class GameAdapter extends RecyclerView.Adapter<GameAdapter.GameViewHolder
                 binding.gameImage.setBackground(background);
                 binding.gameImage.setPadding(padding, padding, padding, padding);
 
-                // Debugging: Don't tint the soccer ball for now to see what the image actually
-                // looks like
-                if (game.getGameType() != com.appsters.unlimitedgames.app.util.GameType.SOCCERSEPARATION) {
-                    binding.gameImage.setColorFilter(android.graphics.Color.WHITE);
-                } else {
-                    binding.gameImage.clearColorFilter();
-                }
+                binding.gameImage.clearColorFilter();
             } else {
                 binding.gameImage.setBackground(null);
                 binding.gameImage.setPadding(0, 0, 0, 0);

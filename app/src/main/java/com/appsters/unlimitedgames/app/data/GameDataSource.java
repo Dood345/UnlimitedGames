@@ -85,6 +85,7 @@ public class GameDataSource {
                 games.add(new com.appsters.unlimitedgames.games.maze.MazeGame(context));
                 games.add(new com.appsters.unlimitedgames.games.whackamole.WhackAMoleGame(context));
                 games.add(new com.appsters.unlimitedgames.games.soccerseparationgame.SoccerSeparationGame(context));
+                games.add(new com.appsters.unlimitedgames.games.poker.PokerGame(context));
 
                 for (com.appsters.unlimitedgames.games.interfaces.IGame game : games) {
                         game.clearUserData();

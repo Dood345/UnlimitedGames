@@ -20,7 +20,11 @@
     <color name="mole_green"> #FF008000 </color>
     <color name="mole_yellow"> #FFFFEB3B </color>
     <color name="mole_purple"> #FF8A2BE2 </color>
+
     <color name="button_pink"> #D58883 </color>
+
+    <!-- Poker -->
+    <color name="poker_brown">#795548</color>
 
     <!-- Sudoku Colors -->
     <color name="color_selector">#00FFFF</color>

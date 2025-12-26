@@ -157,6 +157,7 @@ class WhackAMoleGameActivity : AppCompatActivity() {
             glowDrawable.gradientType = android.graphics.drawable.GradientDrawable.RADIAL_GRADIENT
             glowDrawable.colors = intArrayOf(colorInt, android.graphics.Color.TRANSPARENT)
             glowDrawable.gradientRadius = 150f // Adjust radius as needed (approx 75% of 100dp view)
+            glowDrawable.setGradientCenter(0.5f, 0.65f) // Move center down (0.5=center, 1.0=bottom)
             
             // 3. Get the Mole Image (Foreground)
             val moleDrawable = ContextCompat.getDrawable(this, R.drawable.mole_transparent)

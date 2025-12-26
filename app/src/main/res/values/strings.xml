@@ -37,9 +37,9 @@
     <string name="delete_account">Delete Account</string>
 
     <!--  WhackAMole  -->
-    <string name="score_format">%d</string>
-    <string name="lives_format">%d</string>
-    <string name="timer_format">%.2f</string>
+    <string name="score_format">Score: %d</string>
+    <string name="lives_format">Lives: %d</string>
+    <string name="timer_format">Time: %.2f</string>
     <string name="high_score_format">High Score: %d</string>
     <string name="score">Score:</string>
     <string name="time">Time:</string>

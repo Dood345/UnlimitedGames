@@ -19,8 +19,7 @@
             android:layout_height="match_parent"
             android:background="#4D000000" />
 
-        <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-            xmlns:app="http://schemas.android.com/apk/res-auto"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:fitsSystemWindows="true"
@@ -36,58 +35,34 @@
                 android:translationZ="1dp">
 
                 <TextView
-                    android:id="@+id/score_label"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:background="@drawable/hud_background"
-                    android:fontFamily="serif-monospace"
-                    android:gravity="center"
-                    android:padding="5dp"
-                    android:text="@string/score"
-                    android:textColor="#FFFFFF" />
-
-                <TextView
                     android:id="@+id/score"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="5dp"
-                    android:layout_weight="1"
-                    android:background="@drawable/hud_background"
-                    android:fontFamily="serif-monospace"
-                    android:gravity="center"
-                    android:padding="5dp"
-                    android:text="@string/score_format"
-                    android:textColor="#FFFFFF" />
-
-                <View
-                    android:layout_width="20dp"
-                    android:layout_height="1dp" />
-
-                <TextView
-                    android:id="@+id/timer_label"
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="5dp"
                     android:layout_weight="1"
                     android:background="@drawable/hud_background"
-                    android:fontFamily="serif-monospace"
+                    android:fontFamily="@font/audiowide"
                     android:gravity="center"
                     android:padding="5dp"
-                    android:text="@string/time"
-                    android:textColor="#FFFFFF" />
+                    android:text="@string/score_format"
+                    android:textColor="#FFFFFF"
+                    android:textSize="18sp"
+                    android:textStyle="bold|italic" />
 
                 <TextView
                     android:id="@+id/timer"
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_marginStart="5dp"
                     android:layout_weight="1"
                     android:background="@drawable/hud_background"
-                    android:fontFamily="serif-monospace"
+                    android:fontFamily="@font/audiowide"
                     android:gravity="center"
                     android:padding="5dp"
                     android:text="@string/timer_format"
-                    android:textColor="#FFFFFF" />
+                    android:textColor="#FFFFFF"
+                    android:textSize="18sp"
+                    android:textStyle="bold|italic" />
             </LinearLayout>
 
             <LinearLayout
@@ -99,29 +74,18 @@
                 android:translationZ="1dp">
 
                 <TextView
-                    android:id="@+id/textView"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:background="@drawable/hud_background"
-                    android:fontFamily="serif-monospace"
-                    android:gravity="center"
-                    android:padding="5dp"
-                    android:text="@string/lives"
-                    android:textColor="#FFFFFF" />
-
-                <TextView
                     android:id="@+id/lives"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="10dp"
                     android:layout_weight="1"
                     android:background="@drawable/hud_background"
-                    android:fontFamily="serif-monospace"
+                    android:fontFamily="@font/audiowide"
                     android:gravity="center"
                     android:padding="5dp"
                     android:text="@string/lives_format"
-                    android:textColor="#FFFFFF" />
+                    android:textColor="#FFFFFF"
+                    android:textSize="18sp"
+                    android:textStyle="bold|italic" />
             </LinearLayout>
 
             <GridLayout

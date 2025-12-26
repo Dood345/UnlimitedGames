@@ -151,41 +151,24 @@ class WhackAMoleGameActivity : AppCompatActivity() {
                 MoleColor.PURPLE -> android.graphics.Color.parseColor("#E040FB") // Neon Purple
             }
 
-            // 2. Create the Radial Glow (Background)
-            val glowDrawable = android.graphics.drawable.GradientDrawable()
-            glowDrawable.shape = android.graphics.drawable.GradientDrawable.OVAL
-            glowDrawable.gradientType = android.graphics.drawable.GradientDrawable.RADIAL_GRADIENT
-            glowDrawable.colors = intArrayOf(colorInt, android.graphics.Color.TRANSPARENT)
-            
-            // Calculate radius in pixels (45dp to fit within 100dp view with fade)
-            val radiusPx = android.util.TypedValue.applyDimension(
-                android.util.TypedValue.COMPLEX_UNIT_DIP,
-                45f,
-                resources.displayMetrics
-            )
-            glowDrawable.gradientRadius = radiusPx
-            
-            glowDrawable.setGradientCenter(0.5f, 0.65f) // Move center down (0.5=center, 1.0=bottom)
+            // 2. Get the Glow Image (Background) & Tint it
+            val glowDrawable = ContextCompat.getDrawable(this, R.drawable.mole_glow)?.mutate()
+            glowDrawable?.setColorFilter(colorInt, android.graphics.PorterDuff.Mode.MULTIPLY)
             
             // 3. Get the Mole Image (Foreground)
             val moleDrawable = ContextCompat.getDrawable(this, R.drawable.mole_transparent)
             
             // 4. Layer them together
-            if (moleDrawable != null) {
-                // Determine inset to prevent mole from touching edge if desired, or just layer directly
+            if (moleDrawable != null && glowDrawable != null) {
+                // Layer the tinted glow behind the mole
                 val layers = arrayOf(glowDrawable, moleDrawable)
                 val layerDrawable = android.graphics.drawable.LayerDrawable(layers)
                 
-                // Add padding to the mole image so it sits inside the glow?? 
-                // Actually the user wants glow *under* it. Standard layering works.
-                // Let's inset the mole slightly so the glow extends past it?
-                // For now, simple stacking.
-                layerDrawable.setLayerInset(1, 20, 20, 20, 20) // Inset mole by 20px so glow pops out edges
-
+                // No insets - center glow directly on/under the mole as requested
                 moleView.background = layerDrawable
             } else {
-                // Fallback if image fails
-                 moleView.background = glowDrawable
+                // Fallback
+                 moleView.background = glowDrawable ?: moleDrawable
             }
             
             moleView.backgroundTintList = null // Clear constraints

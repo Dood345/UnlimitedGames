@@ -156,6 +156,33 @@ public class AuthViewModel extends ViewModel {
      * The authentication state will be updated to
      * {@link AuthState#UNAUTHENTICATED}.
      */
+    /**
+     * Sends a password reset email to the given email address.
+     *
+     * @param email The email address to send the reset email to.
+     */
+    public void sendPasswordResetEmail(String email) {
+        authState.setValue(AuthState.LOADING);
+        firebaseAuth.sendPasswordResetEmail(email)
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        passwordResetResult.setValue("Password reset email sent");
+                        authState.setValue(AuthState.UNAUTHENTICATED); // Go back to idle/unauthenticated state
+                    } else {
+                        String error = task.getException() != null ? task.getException().getMessage()
+                                : "Failed to send reset email";
+                        passwordResetResult.setValue("Error: " + error);
+                        authState.setValue(AuthState.UNAUTHENTICATED); // Go back to idle/unauthenticated state
+                    }
+                });
+    }
+
+    private final MutableLiveData<String> passwordResetResult = new MutableLiveData<>();
+
+    public LiveData<String> getPasswordResetResult() {
+        return passwordResetResult;
+    }
+
     public void logout() {
         gameCleanupManager.clearAllGameData();
         firebaseAuth.signOut();

@@ -99,6 +99,19 @@ public class LoginFragment extends Fragment {
             viewModel.signIn(email, password);
         });
 
+        binding.tvForgotPassword.setOnClickListener(v -> {
+            String email = binding.editTextEmail.getText().toString().trim();
+            if (email.isEmpty()) {
+                binding.editTextEmail.setError("Enter email to reset password");
+                return;
+            }
+            if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+                binding.editTextEmail.setError("Enter a valid email");
+                return;
+            }
+            viewModel.sendPasswordResetEmail(email);
+        });
+
         binding.textViewSignUp.setOnClickListener(v -> {
             navController.navigate(R.id.action_loginFragment_to_signUpFragment);
         });
@@ -119,6 +132,15 @@ public class LoginFragment extends Fragment {
                 case UNAUTHENTICATED:
                     binding.progressBar.setVisibility(View.GONE);
                     break;
+            }
+        });
+
+        viewModel.getPasswordResetResult().observe(getViewLifecycleOwner(), result -> {
+            boolean isError = result.startsWith("Error:");
+            if (isError) {
+                Toast.makeText(requireContext(), result, Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(requireContext(), result, Toast.LENGTH_SHORT).show();
             }
         });
     }

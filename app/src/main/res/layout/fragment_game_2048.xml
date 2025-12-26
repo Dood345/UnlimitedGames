@@ -20,8 +20,11 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
+            android:fontFamily="@font/bruno_ace_sc"
             android:text='@{"Score: " + viewModel.score}'
-            android:textSize="24sp"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:typeface="normal"
             app:layout_constraintEnd_toStartOf="@id/highScoreTextView"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
@@ -32,8 +35,11 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
+            android:fontFamily="@font/bruno_ace_sc"
             android:text='@{"High Score: " + viewModel.highScore}'
-            android:textSize="24sp"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:typeface="normal"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@id/scoreTextView"
             app:layout_constraintTop_toTopOf="parent"
@@ -44,30 +50,31 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
+            android:fontFamily="@font/bruno_ace_sc"
             android:text="New Game"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/scoreTextView" />
 
-        <GridLayout
+        <FrameLayout
             android:id="@+id/gameBoard"
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:layout_margin="16dp"
-            android:columnCount="4"
-            android:rowCount="4"
-            android:background="#BBADA0"
+            android:background="@drawable/bg_game_2048_board"
             app:layout_constraintDimensionRatio="1:1"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/newGameButton">
 
-        </GridLayout>
+        </FrameLayout>
 
         <TextView
             android:id="@+id/gameOverTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:fontFamily="@font/bruno_ace_sc"
             android:text="Game Over!"
             android:textSize="32sp"
             android:visibility="gone"
@@ -75,7 +82,7 @@
             app:layout_constraintEnd_toEndOf="@id/gameBoard"
             app:layout_constraintStart_toStartOf="@id/gameBoard"
             app:layout_constraintTop_toTopOf="@id/gameBoard"
-            tools:visibility="visible"/>
+            tools:visibility="visible" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

@@ -53,6 +53,7 @@
     <color name="separation_game_wrong">#FFB3B3</color>
     <color name="separation_game_highlight">@color/cyan</color>
     <color name="separation_game_text">@color/generalText</color>
+    <color name="text_color">#3C3C3C</color>
 
 
 </resources>

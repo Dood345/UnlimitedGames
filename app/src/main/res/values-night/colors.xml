@@ -39,4 +39,5 @@
     <color name="separation_game_wrong">#C62828</color>
     <color name="separation_game_highlight">#006064</color>
     <color name="separation_game_text">@color/generalText</color>
+    <color name="text_color">#E5D9D9</color>
 </resources>

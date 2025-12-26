@@ -6,7 +6,7 @@
     <data>
         <variable
             name="viewModel"
-            type="simpleGames.games.game2048.Game2048ViewModel" />
+            type="com.appsters.simpleGames.games.game2048.Game2048ViewModel" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout

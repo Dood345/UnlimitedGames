@@ -114,6 +114,7 @@ public class MainActivity extends AppCompatActivity {
                         .getCurrentUser();
                 if (user != null) {
                     friendViewModel.listenToRequestCount(user.getUid());
+                    syncHighScores(user.getUid());
                 }
                 break;
 
@@ -129,6 +130,23 @@ public class MainActivity extends AppCompatActivity {
             case ERROR:
                 break;
         }
+    }
+
+    private void syncHighScores(String userId) {
+        com.appsters.simpleGames.app.data.repository.LeaderboardRepository leaderboardRepository = new com.appsters.simpleGames.app.data.repository.LeaderboardRepository(
+                getApplication());
+        leaderboardRepository.getUserScores(userId, (isSuccess, scores, error) -> {
+            if (isSuccess && scores != null) {
+                // Fetch all registered games from the registry
+                java.util.List<com.appsters.simpleGames.games.interfaces.IGame> games = com.appsters.simpleGames.app.managers.GameRegistry
+                        .getRegisteredGames(getApplication());
+
+                // Delegate sync logic to each game
+                for (com.appsters.simpleGames.games.interfaces.IGame game : games) {
+                    game.syncHighScore(getApplicationContext(), scores);
+                }
+            }
+        });
     }
 
     /**

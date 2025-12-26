@@ -26,13 +26,7 @@ public class AuthViewModelFactory implements ViewModelProvider.Factory {
     @SuppressWarnings("unchecked")
     public <T extends ViewModel> T create(@NonNull Class<T> modelClass) {
         if (modelClass.isAssignableFrom(AuthViewModel.class)) {
-            List<IGame> games = new ArrayList<>();
-            // Initialize game adapters (passing Application context)
-            games.add(new Game2048Game(application));
-            games.add(new WhackAMoleGame(application));
-            games.add(new SudokuGame(application));
-            games.add(new MazeGame(application));
-            games.add(new com.appsters.simpleGames.games.soccerseparationgame.SoccerSeparationGame(application));
+            List<IGame> games = com.appsters.simpleGames.app.managers.GameRegistry.getRegisteredGames(application);
 
             GameCleanupManager manager = new GameCleanupManager(games);
             return (T) new AuthViewModel(manager);

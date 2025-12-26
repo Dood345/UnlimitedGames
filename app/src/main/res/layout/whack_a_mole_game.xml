@@ -10,13 +10,19 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:background="@drawable/cyberpunk_urban_scenery"
         tools:context=".games.whackamole.WhackAMoleTitleFragment">
 
-        <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-            xmlns:app="http://schemas.android.com/apk/res-auto"
+        <!-- Scrim Overlay -->
+        <View
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="@drawable/cyberpunk_urban_scenery"
+            android:background="#4D000000" />
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
             android:fitsSystemWindows="true"
             android:orientation="vertical"
             android:padding="16dp">
@@ -24,85 +30,76 @@
             <LinearLayout
                 android:id="@+id/game_info"
                 android:layout_width="match_parent"
-                android:layout_height="30dp"
+                android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:padding="2dp">
-
-                <TextView
-                    android:id="@+id/score_label"
-                    android:layout_width="50dp"
-                    android:layout_height="25dp"
-                    android:background="@drawable/button"
-                    android:gravity="center"
-                    android:text="@string/score" />
+                android:padding="2dp"
+                android:translationZ="1dp">
 
                 <TextView
                     android:id="@+id/score"
-                    android:layout_width="100dp"
-                    android:layout_height="25dp"
-                    android:layout_marginStart="5dp"
-                    android:background="@drawable/button"
-                    android:gravity="center"
-                    android:text="@string/score_format" />
-
-                <View
                     android:layout_width="0dp"
-                    android:layout_height="1dp"
-                    android:layout_weight="1" />
-
-                <TextView
-                    android:id="@+id/timer_label"
-                    android:layout_width="50dp"
-                    android:layout_height="25dp"
-                    android:layout_marginEnd="10dp"
-                    android:background="@drawable/button"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="5dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/hud_background"
+                    android:fontFamily="@font/audiowide"
                     android:gravity="center"
-                    android:text="@string/time" />
+                    android:padding="5dp"
+                    android:text="@string/score_format"
+                    android:textColor="#FFFFFF"
+                    android:textSize="18sp"
+                    android:textStyle="bold|italic" />
 
                 <TextView
                     android:id="@+id/timer"
-                    android:layout_width="25dp"
-                    android:layout_height="25dp"
-                    android:background="@drawable/button"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="5dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/hud_background"
+                    android:fontFamily="@font/audiowide"
                     android:gravity="center"
-                    android:text="@string/timer_format" />
+                    android:padding="5dp"
+                    android:text="@string/timer_format"
+                    android:textColor="#FFFFFF"
+                    android:textSize="18sp"
+                    android:textStyle="bold|italic" />
             </LinearLayout>
 
             <LinearLayout
                 android:id="@+id/game_info_2"
                 android:layout_width="match_parent"
-                android:layout_height="50dp"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:id="@+id/textView"
-                    android:layout_width="20dp"
-                    android:layout_height="40dp"
-                    android:layout_weight="1"
-                    android:background="@drawable/button"
-                    android:gravity="center"
-                    android:text="@string/lives" />
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:orientation="horizontal"
+                android:translationZ="1dp">
 
                 <TextView
                     android:id="@+id/lives"
-                    android:layout_width="20dp"
-                    android:layout_height="40dp"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:background="@drawable/button"
+                    android:background="@drawable/hud_background"
+                    android:fontFamily="@font/audiowide"
                     android:gravity="center"
-                    android:text="@string/lives_format" />
+                    android:padding="5dp"
+                    android:text="@string/lives_format"
+                    android:textColor="#FFFFFF"
+                    android:textSize="18sp"
+                    android:textStyle="bold|italic" />
             </LinearLayout>
 
             <GridLayout
                 android:id="@+id/game_board"
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
-                android:layout_marginTop="200dp"
-                android:layout_marginBottom="200dp"
+                android:layout_marginTop="50dp"
+                android:layout_marginBottom="50dp"
                 android:layout_weight="1"
-                android:background="#B3000000"
+                android:background="#00000000"
                 android:columnCount="3"
-                android:rowCount="3">
+                android:rowCount="3"
+                android:translationZ="1dp">
 
                 <ImageButton
                     android:id="@+id/mole_0"

@@ -12,6 +12,7 @@
     <color name="generalText"> #FFFFFFFF </color>
     <color name="blue"> #69A2FF </color>
     <color name="green"> #00FF00 </color>
+    <color name="mute_icon_color">#FFFFFF</color>
 
     <!-- Sudoku Colors -->
     <color name="color_selector"> #00FFFF </color>
@@ -39,4 +40,5 @@
     <color name="separation_game_wrong">#C62828</color>
     <color name="separation_game_highlight">#006064</color>
     <color name="separation_game_text">@color/generalText</color>
+    <color name="text_color">#E5D9D9</color>
 </resources>

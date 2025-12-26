@@ -7,14 +7,14 @@
         <import type="android.view.View" />
         <variable
             name="viewModel"
-            type="com.appsters.unlimitedgames.games.poker.PokerViewModel" />
+            type="com.appsters.simpleGames.games.poker.PokerViewModel" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:padding="16dp"
-        tools:context="com.appsters.unlimitedgames.games.poker.PokerFragment">
+        tools:context="simpleGames.games.poker.PokerFragment">
 
         <!-- Header: Coins and Back -->
         <TextView
@@ -340,6 +340,21 @@
             app:layout_constraintTop_toBottomOf="@id/actionsRow"
             app:layout_constraintVertical_bias="1.0"
         />
+
+        <ImageButton
+            android:id="@+id/btn_help"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginBottom="16dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="Help"
+            android:elevation="10dp"
+            android:translationZ="10dp"
+            android:src="@drawable/ic_help"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:tint="@color/mute_icon_color" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

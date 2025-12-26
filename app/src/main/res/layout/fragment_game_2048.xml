@@ -6,7 +6,7 @@
     <data>
         <variable
             name="viewModel"
-            type="com.appsters.unlimitedgames.games.game2048.Game2048ViewModel" />
+            type="com.appsters.simpleGames.games.game2048.Game2048ViewModel" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -20,8 +20,11 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
+            android:fontFamily="@font/bruno_ace_sc"
             android:text='@{"Score: " + viewModel.score}'
-            android:textSize="24sp"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:typeface="normal"
             app:layout_constraintEnd_toStartOf="@id/highScoreTextView"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
@@ -32,42 +35,76 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
+            android:fontFamily="@font/bruno_ace_sc"
             android:text='@{"High Score: " + viewModel.highScore}'
-            android:textSize="24sp"
-            app:layout_constraintEnd_toEndOf="parent"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:typeface="normal"
+            app:layout_constraintEnd_toStartOf="@id/btn_mute"
             app:layout_constraintStart_toEndOf="@id/scoreTextView"
             app:layout_constraintTop_toTopOf="parent"
             tools:text="High Score: 5678" />
+
+        <ImageButton
+            android:id="@+id/btn_help"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginBottom="16dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="Help"
+            android:elevation="10dp"
+            android:translationZ="10dp"
+            android:src="@drawable/ic_help"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:tint="@color/mute_icon_color" />
+
+        <ImageButton
+            android:id="@+id/btn_mute"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="16dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="Mute Sound"
+            android:elevation="10dp"
+            android:translationZ="10dp"
+            android:src="@drawable/ic_volume_up"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:tint="@color/mute_icon_color" />
 
         <Button
             android:id="@+id/newGameButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
+            android:fontFamily="@font/bruno_ace_sc"
             android:text="New Game"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/scoreTextView" />
 
-        <GridLayout
+        <FrameLayout
             android:id="@+id/gameBoard"
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:layout_margin="16dp"
-            android:columnCount="4"
-            android:rowCount="4"
-            android:background="#BBADA0"
+            android:background="@drawable/bg_game_2048_board"
             app:layout_constraintDimensionRatio="1:1"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/newGameButton">
 
-        </GridLayout>
+        </FrameLayout>
 
         <TextView
             android:id="@+id/gameOverTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:fontFamily="@font/bruno_ace_sc"
             android:text="Game Over!"
             android:textSize="32sp"
             android:visibility="gone"
@@ -75,7 +112,7 @@
             app:layout_constraintEnd_toEndOf="@id/gameBoard"
             app:layout_constraintStart_toStartOf="@id/gameBoard"
             app:layout_constraintTop_toTopOf="@id/gameBoard"
-            tools:visibility="visible"/>
+            tools:visibility="visible" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

@@ -1,8 +1,8 @@
-# UnlimitedGames
+# SimpleGames
 Android flash-game exploration.
 
 ## Overview
-UnlimitedGames is a modular Android application comprising multiple mini-games. It uses a centralized dashboard to navigate to different game fragments. The app manages user profiles, friendships, and global/friend leaderboards using Firebase Firestore.
+SimpleGames is a modular Android application comprising multiple mini-games. It uses a centralized dashboard to navigate to different game fragments. The app manages user profiles, friendships, and global/friend leaderboards using Firebase Firestore.
 
 ## Implemented Games
 - **2048**: Classic tile-merging puzzle.
@@ -25,10 +25,10 @@ UnlimitedGames is a modular Android application comprising multiple mini-games. 
 To add a new game to the application, follow these steps:
 
 #### 1. Create the Game Logic & UI
-Create a new package under `com.appsters.unlimitedgames.games.[yourgame]`. Implement your game logic within a `Fragment`.
+Create a new package under `simpleGames.games.[yourgame]`. Implement your game logic within a `Fragment`.
 
 #### 2. Define the Game Type
-Add a new entry to the `GameType` enum (`com.appsters.unlimitedgames.app.util.GameType`).
+Add a new entry to the `GameType` enum (`simpleGames.app.util.GameType`).
 ```java
 public enum GameType {
     // ... other games
@@ -37,7 +37,7 @@ public enum GameType {
 ```
 
 #### 3. Register the Game
-Update `com.appsters.unlimitedgames.app.data.GameDataSource` to include your game in the list.
+Update `simpleGames.app.data.GameDataSource` to include your game in the list.
 ```java
 games.add(new Game(
     "id",
@@ -50,7 +50,7 @@ games.add(new Game(
 ```
 
 #### 4. Implement Data Cleanup
-Implement the `IGame` interface (`com.appsters.unlimitedgames.games.interfaces.IGame`) in your game's main class or manager. This is crucial for clearing local state when a user logs out.
+Implement the `IGame` interface (`simpleGames.games.interfaces.IGame`) in your game's main class or manager. This is crucial for clearing local state when a user logs out.
 ```java
 public class MyGame implements IGame {
     @Override
@@ -104,5 +104,5 @@ repo.submitScore(newScore, (success, result, error) -> {
 ## Build Status
 [![Actions Status][gh-actions-badge]][gh-actions]
 
-[gh-actions]: https://github.com/Dood345/UnlimitedGames/actions
-[gh-actions-badge]: https://github.com/Dood345/UnlimitedGames/workflows/Android%20CI/badge.svg
+[gh-actions]: https://github.com/Dood345/SimpleGames/actions
+[gh-actions-badge]: https://github.com/Dood345/SimpleGames/workflows/Android%20CI/badge.svg

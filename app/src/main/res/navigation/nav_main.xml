@@ -7,7 +7,7 @@
 
     <fragment
         android:id="@+id/homeFragment"
-        android:name="com.appsters.unlimitedgames.app.ui.home.HomeFragment"
+        android:name="com.appsters.simpleGames.app.ui.home.HomeFragment"
         android:label="Home"
         tools:layout="@layout/fragment_home">
         <action
@@ -37,7 +37,7 @@
 
     <fragment
         android:id="@+id/profileFragment"
-        android:name="com.appsters.unlimitedgames.app.ui.profile.ProfileFragment"
+        android:name="com.appsters.simpleGames.app.ui.profile.ProfileFragment"
         android:label="Profile"
         tools:layout="@layout/fragment_profile">
         <action
@@ -47,25 +47,25 @@
 
     <fragment
         android:id="@+id/editProfileFragment"
-        android:name="com.appsters.unlimitedgames.app.ui.profile.EditProfileFragment"
+        android:name="com.appsters.simpleGames.app.ui.profile.EditProfileFragment"
         android:label="Edit Profile"
         tools:layout="@layout/fragment_edit_profile" />
 
     <fragment
         android:id="@+id/friendRequestsFragment"
-        android:name="com.appsters.unlimitedgames.app.ui.friends.FriendRequestFragment"
+        android:name="com.appsters.simpleGames.app.ui.friends.FriendRequestFragment"
         android:label="Requests"
         tools:layout="@layout/fragment_friend_requests" />
 
     <fragment
         android:id="@+id/findFriendsFragment"
-        android:name="com.appsters.unlimitedgames.app.ui.friends.FindFriendsFragment"
+        android:name="com.appsters.simpleGames.app.ui.friends.FindFriendsFragment"
         android:label="Find Friends"
         tools:layout="@layout/fragment_find_friends" />
 
     <fragment
         android:id="@+id/friendsFragment"
-        android:name="com.appsters.unlimitedgames.app.ui.friends.FriendFragment"
+        android:name="com.appsters.simpleGames.app.ui.friends.FriendFragment"
         android:label="Friends"
         tools:layout="@layout/fragment_friends">
 
@@ -81,31 +81,31 @@
 
     <fragment
         android:id="@+id/leaderboardFragment"
-        android:name="com.appsters.unlimitedgames.app.ui.leaderboard.LeaderboardFragment"
+        android:name="com.appsters.simpleGames.app.ui.leaderboard.LeaderboardFragment"
         android:label="Leaderboard"
         tools:layout="@layout/fragment_leaderboard" />
 
     <fragment
         android:id="@+id/game2048Fragment"
-        android:name="com.appsters.unlimitedgames.games.game2048.Game2048Fragment"
+        android:name="com.appsters.simpleGames.games.game2048.Game2048Fragment"
         android:label="2048"
         tools:layout="@layout/fragment_game_2048" />
 
     <fragment
         android:id="@+id/pokerFragment"
-        android:name="com.appsters.unlimitedgames.games.poker.PokerFragment"
+        android:name="com.appsters.simpleGames.games.poker.PokerFragment"
         android:label="Poker"
         tools:layout="@layout/fragment_poker" />
 
     <fragment
         android:id="@+id/SoccerSeparationGameFragment"
-        android:name="com.appsters.unlimitedgames.games.soccerseparationgame.SoccerSeparationGameFragment"
+        android:name="com.appsters.simpleGames.games.soccerseparationgame.SoccerSeparationGameFragment"
         android:label="Soccer Separation Game"
         tools:layout="@layout/fragment_soccer_separation_game" />
 
     <fragment
         android:id="@+id/mazeMenuFragment"
-        android:name="com.appsters.unlimitedgames.games.maze.MazeMenuFragment"
+        android:name="com.appsters.simpleGames.games.maze.MazeMenuFragment"
         android:label="Maze"
         tools:layout="@layout/fragment_maze_menu" />
 

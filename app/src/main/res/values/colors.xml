@@ -13,6 +13,7 @@
     <color name="blue"> #FF0000FF </color>
     <color name="green"> #FF008000 </color>
     <color name="cyan">#89F5F5</color>
+    <color name="mute_icon_color">#757575</color>
 
     <!--  WhackAMole  -->
     <color name="mole_red"> #FF8B0000 </color>
@@ -53,6 +54,7 @@
     <color name="separation_game_wrong">#FFB3B3</color>
     <color name="separation_game_highlight">@color/cyan</color>
     <color name="separation_game_text">@color/generalText</color>
+    <color name="text_color">#3C3C3C</color>
 
 
 </resources>

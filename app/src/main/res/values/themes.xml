@@ -1,6 +1,6 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
-    <style name="Theme.UnlimitedGames" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+    <style name="Theme.SimpleGames" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <!-- Primary brand color. -->
         <item name="colorPrimary">@color/dark_gray</item>
         <item name="colorPrimaryVariant">@color/dark_gray</item>
@@ -43,5 +43,23 @@
     </style>
     <style name="AlertDialog.ButtonNeg" parent="Widget.MaterialComponents.Button.OutlinedButton">
         <item name="android:textColor">@color/generalText</item>
+    </style>
+
+    <!-- Help Dialog Theme -->
+    <style name="HelpDialogTheme" parent="Theme.MaterialComponents.DayNight.Dialog.Alert">
+        <item name="shapeAppearanceMediumComponent">@style/ShapeAppearance.App.MediumComponent</item>
+        <item name="android:background">@color/separation_game_card</item>
+        <item name="colorSurface">@color/separation_game_card</item>
+        <item name="buttonBarPositiveButtonStyle">@style/AlertDialog.ButtonHelpRed</item>
+    </style>
+
+    <style name="ShapeAppearance.App.MediumComponent"
+        parent="ShapeAppearance.MaterialComponents.MediumComponent">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">16dp</item>
+    </style>
+
+    <style name="AlertDialog.ButtonHelpRed" parent="Widget.MaterialComponents.Button.TextButton">
+        <item name="android:textColor">@color/red</item>
     </style>
 </resources>

@@ -6,13 +6,13 @@ plugins {
 }
 
 android {
-    namespace 'com.appsters.unlimitedgames'
+    namespace 'com.appsters.simpleGames'
     compileSdk {
         version = release(36)
     }
 
     defaultConfig {
-        applicationId "com.appsters.unlimitedgames"
+        applicationId "com.appsters.simpleGames"
         minSdk 24
         targetSdk 36
         versionCode 5

@@ -18,13 +18,17 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.appsters.simpleGames.databinding.FragmentGame2048Binding;
+import java.util.List;
+import java.util.ArrayList;
 
 public class Game2048Fragment extends Fragment {
 
     private FragmentGame2048Binding binding;
     private Game2048ViewModel viewModel;
-    private TextView[][] tiles;
     private GestureDetector gestureDetector;
+    private final java.util.Map<String, TextView> activeViews = new java.util.HashMap<>();
+    private int cellSize;
+    private int gridMargin;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -53,11 +57,16 @@ public class Game2048Fragment extends Fragment {
                     @Override
                     public void onGlobalLayout() {
                         binding.gameBoard.getViewTreeObserver().removeOnGlobalLayoutListener(this);
-                        initializeBoard();
+                        calculateDimensions();
+                        drawBackgroundGrid();
+                        // Initial update without animation to populating the board
+                        if (viewModel.board.getValue() != null) {
+                            updateBoard(viewModel.board.getValue(), false);
+                        }
                     }
                 });
 
-        viewModel.board.observe(getViewLifecycleOwner(), this::updateBoard);
+        viewModel.board.observe(getViewLifecycleOwner(), board -> updateBoard(board, true));
         viewModel.gameOver.observe(getViewLifecycleOwner(), isGameOver -> {
             binding.gameOverTextView.setVisibility(isGameOver ? View.VISIBLE : View.GONE);
         });
@@ -72,47 +81,142 @@ public class Game2048Fragment extends Fragment {
         viewModel.saveGameState();
     }
 
-    private void initializeBoard() {
-        tiles = new TextView[4][4];
-        binding.gameBoard.removeAllViews();
-        binding.gameBoard.setColumnCount(4);
-        binding.gameBoard.setRowCount(4);
-
-        final int margin = (int) (8 * getResources().getDisplayMetrics().density);
-
-        for (int i = 0; i < 4; i++) {
-            for (int j = 0; j < 4; j++) {
-                TextView tile = new TextView(requireContext());
-
-                GridLayout.LayoutParams params = new GridLayout.LayoutParams(
-                        GridLayout.spec(i, 1f),
-                        GridLayout.spec(j, 1f));
-                params.width = 0;
-                params.height = 0;
-                params.setMargins(margin, margin, margin, margin);
-
-                tile.setLayoutParams(params);
-                tile.setGravity(android.view.Gravity.CENTER);
-                tile.setTextSize(24);
-                binding.gameBoard.addView(tile);
-                tiles[i][j] = tile;
-            }
-        }
-        updateBoard(viewModel.board.getValue());
+    private void calculateDimensions() {
+        int width = binding.gameBoard.getWidth();
+        // 4x4 grid with margins
+        // 5 margins total (left, right, 3 internal) if we do even spacing
+        // Or simplified: just divide by 4 and add padding inside tiles.
+        // Let's stick to the previous margin logic approx:
+        gridMargin = (int) (8 * getResources().getDisplayMetrics().density);
+        // spread margins: | M | Tile | M | Tile | M | Tile | M | Tile | M |
+        // Total width = 4 * cellSize + 5 * gridMargin
+        cellSize = (width - 5 * gridMargin) / 4;
     }
 
-    private void updateBoard(int[][] board) {
-        if (board == null || tiles == null)
-            return;
+    private void drawBackgroundGrid() {
+        // Draw static empty cells
         for (int i = 0; i < 4; i++) {
             for (int j = 0; j < 4; j++) {
-                if (tiles[i][j] != null) {
-                    TextView tile = tiles[i][j];
-                    int value = board[i][j];
-                    tile.setText(value == 0 ? "" : String.valueOf(value));
-                    tile.setBackground(getTileBackground(value));
+                View backgroundTile = new View(requireContext());
+                android.widget.FrameLayout.LayoutParams params = new android.widget.FrameLayout.LayoutParams(
+                        cellSize, cellSize);
+                params.leftMargin = gridMargin + j * (cellSize + gridMargin);
+                params.topMargin = gridMargin + i * (cellSize + gridMargin);
+                backgroundTile.setLayoutParams(params);
+
+                GradientDrawable drawable = new GradientDrawable();
+                drawable.setCornerRadius(8f);
+                drawable.setColor(Color.parseColor("#CDC1B4"));
+                backgroundTile.setBackground(drawable);
+
+                binding.gameBoard.addView(backgroundTile);
+            }
+        }
+    }
+
+    private void updateBoard(Tile[][] board, boolean animate) {
+        if (board == null || cellSize == 0)
+            return;
+
+        java.util.Set<String> newIds = new java.util.HashSet<>();
+        java.util.Set<String> processedOldIds = new java.util.HashSet<>();
+
+        for (int i = 0; i < 4; i++) {
+            for (int j = 0; j < 4; j++) {
+                Tile tile = board[i][j];
+                if (tile != null) {
+                    newIds.add(tile.getId());
+
+                    int targetLeft = gridMargin + j * (cellSize + gridMargin);
+                    int targetTop = gridMargin + i * (cellSize + gridMargin);
+
+                    if (activeViews.containsKey(tile.getId())) {
+                        TextView view = activeViews.get(tile.getId());
+                        if (animate) {
+                            view.animate()
+                                    .translationX(targetLeft)
+                                    .translationY(targetTop)
+                                    .setDuration(100)
+                                    .start();
+                        } else {
+                            view.setTranslationX(targetLeft);
+                            view.setTranslationY(targetTop);
+                        }
+                        view.setText(String.valueOf(tile.getValue()));
+                        view.setBackground(getTileBackground(tile.getValue()));
+                    } else {
+                        List<String> parents = tile.getMergedFromIds();
+                        if (animate && parents != null && !parents.isEmpty()) {
+                            for (String parentId : parents) {
+                                if (activeViews.containsKey(parentId)) {
+                                    TextView parentView = activeViews.get(parentId);
+                                    processedOldIds.add(parentId);
+                                    parentView.bringToFront();
+                                    parentView.animate()
+                                            .translationX(targetLeft)
+                                            .translationY(targetTop)
+                                            .setDuration(100)
+                                            .withEndAction(() -> binding.gameBoard.removeView(parentView))
+                                            .start();
+                                }
+                            }
+                            createTileView(tile, targetLeft, targetTop, true, 100);
+                        } else {
+                            createTileView(tile, targetLeft, targetTop, animate, 0);
+                        }
+                    }
                 }
             }
+        }
+
+        java.util.Iterator<java.util.Map.Entry<String, TextView>> it = activeViews.entrySet().iterator();
+        while (it.hasNext()) {
+            java.util.Map.Entry<String, TextView> entry = it.next();
+            String id = entry.getKey();
+            if (!newIds.contains(id)) {
+                if (processedOldIds.contains(id)) {
+                    it.remove();
+                } else {
+                    TextView view = entry.getValue();
+                    if (animate) {
+                        view.animate()
+                                .alpha(0f)
+                                .setDuration(100)
+                                .withEndAction(() -> binding.gameBoard.removeView(view))
+                                .start();
+                    } else {
+                        binding.gameBoard.removeView(view);
+                    }
+                    it.remove();
+                }
+            }
+        }
+    }
+
+    private void createTileView(Tile tile, int left, int top, boolean animate, int startDelay) {
+        TextView view = new TextView(requireContext());
+        android.widget.FrameLayout.LayoutParams params = new android.widget.FrameLayout.LayoutParams(cellSize,
+                cellSize);
+        view.setLayoutParams(params);
+        view.setGravity(android.view.Gravity.CENTER);
+        view.setTextSize(24);
+        view.setText(String.valueOf(tile.getValue()));
+        view.setBackground(getTileBackground(tile.getValue()));
+        view.setTranslationX(left);
+        view.setTranslationY(top);
+
+        binding.gameBoard.addView(view);
+        activeViews.put(tile.getId(), view);
+
+        if (animate) {
+            view.setScaleX(0f);
+            view.setScaleY(0f);
+            view.animate()
+                    .setStartDelay(startDelay)
+                    .scaleX(1f)
+                    .scaleY(1f)
+                    .setDuration(150)
+                    .start();
         }
     }
 

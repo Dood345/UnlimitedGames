@@ -49,20 +49,18 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/scoreTextView" />
 
-        <GridLayout
+        <FrameLayout
             android:id="@+id/gameBoard"
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:layout_margin="16dp"
-            android:columnCount="4"
-            android:rowCount="4"
             android:background="#BBADA0"
             app:layout_constraintDimensionRatio="1:1"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/newGameButton">
 
-        </GridLayout>
+        </FrameLayout>
 
         <TextView
             android:id="@+id/gameOverTextView"
@@ -75,7 +73,7 @@
             app:layout_constraintEnd_toEndOf="@id/gameBoard"
             app:layout_constraintStart_toStartOf="@id/gameBoard"
             app:layout_constraintTop_toTopOf="@id/gameBoard"
-            tools:visibility="visible"/>
+            tools:visibility="visible" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

@@ -20,8 +20,8 @@ import java.util.Random;
 public class Game2048ViewModel extends AndroidViewModel {
 
     private static final int SIZE = 4;
-    private final MutableLiveData<int[][]> _board = new MutableLiveData<>();
-    public final LiveData<int[][]> board = _board;
+    private final MutableLiveData<Tile[][]> _board = new MutableLiveData<>();
+    public final LiveData<Tile[][]> board = _board;
     private final MutableLiveData<Integer> _score = new MutableLiveData<>(0);
     public final LiveData<Integer> score = _score;
     private final MutableLiveData<Boolean> _gameOver = new MutableLiveData<>(false);
@@ -29,7 +29,7 @@ public class Game2048ViewModel extends AndroidViewModel {
     private final MutableLiveData<Integer> _highScore = new MutableLiveData<>(0);
     public final LiveData<Integer> highScore = _highScore;
 
-    private int[][] boardArray = new int[SIZE][SIZE];
+    private Tile[][] boardArray = new Tile[SIZE][SIZE];
     private final Random random = new Random();
     private int moveScore = 0;
     private final Cam2048Repository repository;
@@ -50,7 +50,16 @@ public class Game2048ViewModel extends AndroidViewModel {
         int savedScore = repository.getSavedScore();
 
         if (savedBoard != null && savedScore != -1) {
-            boardArray = savedBoard;
+            // Convert int[][] to Tile[][]
+            for (int i = 0; i < SIZE; i++) {
+                for (int j = 0; j < SIZE; j++) {
+                    if (savedBoard[i][j] != 0) {
+                        boardArray[i][j] = new Tile(savedBoard[i][j]);
+                    } else {
+                        boardArray[i][j] = null;
+                    }
+                }
+            }
             _score.setValue(savedScore);
             _board.setValue(boardArray);
         } else {
@@ -70,7 +79,13 @@ public class Game2048ViewModel extends AndroidViewModel {
 
             // Save game state if not over
             if (!Boolean.TRUE.equals(_gameOver.getValue())) {
-                repository.saveGameState(boardArray, currentScore);
+                int[][] intBoard = new int[SIZE][SIZE];
+                for (int i = 0; i < SIZE; i++) {
+                    for (int j = 0; j < SIZE; j++) {
+                        intBoard[i][j] = boardArray[i][j] != null ? boardArray[i][j].getValue() : 0;
+                    }
+                }
+                repository.saveGameState(intBoard, currentScore);
             }
         }
     }
@@ -78,7 +93,7 @@ public class Game2048ViewModel extends AndroidViewModel {
     public void newGame() {
         for (int i = 0; i < SIZE; i++) {
             for (int j = 0; j < SIZE; j++) {
-                boardArray[i][j] = 0;
+                boardArray[i][j] = null;
             }
         }
         _score.setValue(0);
@@ -97,8 +112,8 @@ public class Game2048ViewModel extends AndroidViewModel {
         rotate(rotations);
 
         for (int i = 0; i < SIZE; i++) {
-            int[] row = boardArray[i];
-            int[] newRow = processRow(row);
+            Tile[] row = boardArray[i];
+            Tile[] newRow = processRow(row);
             boardArray[i] = newRow;
             if (!moved && !Arrays.equals(row, newRow)) {
                 moved = true;
@@ -118,36 +133,46 @@ public class Game2048ViewModel extends AndroidViewModel {
         _board.setValue(boardArray);
     }
 
-    private int[] processRow(int[] row) {
-        List<Integer> nonZero = new ArrayList<>();
-        for (int val : row) {
-            if (val != 0) {
-                nonZero.add(val);
+    private Tile[] processRow(Tile[] row) {
+        List<Tile> nonNull = new ArrayList<>();
+        for (Tile t : row) {
+            if (t != null) {
+                nonNull.add(t);
             }
         }
 
-        List<Integer> merged = new ArrayList<>();
-        for (int i = 0; i < nonZero.size(); i++) {
-            if (i < nonZero.size() - 1 && nonZero.get(i).equals(nonZero.get(i + 1))) {
-                int mergedValue = nonZero.get(i) * 2;
-                merged.add(mergedValue);
+        List<Tile> merged = new ArrayList<>();
+        for (int i = 0; i < nonNull.size(); i++) {
+            if (i < nonNull.size() - 1 && nonNull.get(i).getValue() == nonNull.get(i + 1).getValue()) {
+                Tile t1 = nonNull.get(i);
+                Tile t2 = nonNull.get(i + 1);
+                int mergedValue = t1.getValue() * 2;
+                List<String> parents = new ArrayList<>();
+                parents.add(t1.getId());
+                parents.add(t2.getId());
+
+                merged.add(new Tile(mergedValue, parents));
                 moveScore += mergedValue; // Accumulate score for the move
                 i++; // Skip the next element
             } else {
-                merged.add(nonZero.get(i));
+                merged.add(nonNull.get(i));
             }
         }
 
-        int[] newRow = new int[SIZE];
-        for (int i = 0; i < merged.size(); i++) {
-            newRow[i] = merged.get(i);
+        Tile[] newRow = new Tile[SIZE];
+        for (int i = 0; i < SIZE; i++) {
+            if (i < merged.size()) {
+                newRow[i] = merged.get(i);
+            } else {
+                newRow[i] = null;
+            }
         }
         return newRow;
     }
 
     private void rotate(int count) {
         for (int i = 0; i < count; i++) {
-            int[][] rotated = new int[SIZE][SIZE];
+            Tile[][] rotated = new Tile[SIZE][SIZE];
             for (int r = 0; r < SIZE; r++) {
                 for (int c = 0; c < SIZE; c++) {
                     rotated[c][SIZE - 1 - r] = boardArray[r][c];
@@ -176,23 +201,31 @@ public class Game2048ViewModel extends AndroidViewModel {
         List<int[]> emptyTiles = new ArrayList<>();
         for (int i = 0; i < SIZE; i++) {
             for (int j = 0; j < SIZE; j++) {
-                if (boardArray[i][j] == 0) {
+                if (boardArray[i][j] == null) {
                     emptyTiles.add(new int[] { i, j });
                 }
             }
         }
         if (!emptyTiles.isEmpty()) {
             int[] pos = emptyTiles.get(random.nextInt(emptyTiles.size()));
-            boardArray[pos[0]][pos[1]] = random.nextDouble() < 0.9 ? 2 : 4;
+            boardArray[pos[0]][pos[1]] = new Tile(random.nextDouble() < 0.9 ? 2 : 4);
         }
     }
 
     private void checkGameOver() {
         for (int i = 0; i < SIZE; i++) {
             for (int j = 0; j < SIZE; j++) {
-                if (boardArray[i][j] == 0 ||
-                        (i < SIZE - 1 && boardArray[i][j] == boardArray[i + 1][j]) ||
-                        (j < SIZE - 1 && boardArray[i][j] == boardArray[i][j + 1])) {
+                if (boardArray[i][j] == null) {
+                    _gameOver.postValue(false);
+                    return;
+                }
+                if (i < SIZE - 1 && boardArray[i + 1][j] != null
+                        && boardArray[i][j].getValue() == boardArray[i + 1][j].getValue()) {
+                    _gameOver.postValue(false);
+                    return;
+                }
+                if (j < SIZE - 1 && boardArray[i][j + 1] != null
+                        && boardArray[i][j].getValue() == boardArray[i][j + 1].getValue()) {
                     _gameOver.postValue(false);
                     return;
                 }

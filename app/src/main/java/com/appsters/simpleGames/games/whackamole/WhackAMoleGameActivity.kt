@@ -157,7 +157,7 @@ class WhackAMoleGameActivity : AppCompatActivity() {
 
             // 2. Get the Glow Image (Background) & Tint it
             val glowDrawable = ContextCompat.getDrawable(this, R.drawable.mole_glow)?.mutate()
-            glowDrawable?.setColorFilter(colorInt, android.graphics.PorterDuff.Mode.MULTIPLY)
+            glowDrawable?.colorFilter = android.graphics.PorterDuffColorFilter(colorInt, android.graphics.PorterDuff.Mode.MULTIPLY)
             
             // 3. Get the Mole Image (Foreground)
             val moleDrawable = ContextCompat.getDrawable(this, R.drawable.mole_transparent)

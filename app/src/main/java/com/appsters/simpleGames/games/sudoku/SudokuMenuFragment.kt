@@ -104,6 +104,23 @@ class SudokuMenuFragment : Fragment() {
             val isRanked = rgMode.checkedRadioButtonId == R.id.rb_ranked
             startGame(difficulty, isRanked)
         }
+
+        com.appsters.simpleGames.app.util.SoundManager.init(requireContext())
+        val muteButton = view.findViewById<android.widget.ImageButton>(R.id.btn_mute)
+        val prefs = requireContext().getSharedPreferences("sudoku_prefs", android.content.Context.MODE_PRIVATE)
+        updateMuteButtonIcon(muteButton, prefs)
+        muteButton.setOnClickListener {
+            com.appsters.simpleGames.app.util.SoundManager.toggleMute(prefs)
+            updateMuteButtonIcon(muteButton, prefs)
+        }
+    }
+
+    private fun updateMuteButtonIcon(button: android.widget.ImageButton, prefs: android.content.SharedPreferences) {
+        if (com.appsters.simpleGames.app.util.SoundManager.isMuted(prefs)) {
+            button.setImageResource(R.drawable.ic_volume_off)
+        } else {
+            button.setImageResource(R.drawable.ic_volume_up)
+        }
     }
 
     private fun setupColorPicker(view: View) {

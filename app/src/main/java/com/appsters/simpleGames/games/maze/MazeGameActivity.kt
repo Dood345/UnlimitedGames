@@ -77,7 +77,9 @@ class MazeGameActivity : AppCompatActivity() {
         // Observe Level Complete
         viewModel.isLevelComplete.observe(this) { isComplete ->
             if (isComplete) {
-                com.appsters.simpleGames.app.util.SoundManager.playSound(com.appsters.simpleGames.R.raw.win)
+                val prefs = getSharedPreferences("maze_prefs", MODE_PRIVATE)
+                val isMuted = com.appsters.simpleGames.app.util.SoundManager.isMuted(prefs)
+                com.appsters.simpleGames.app.util.SoundManager.playSound(com.appsters.simpleGames.R.raw.win, isMuted)
                 triggerConfetti()
                 mazeView.startRewind {
                     mazeView.stopGame()
@@ -116,6 +118,13 @@ class MazeGameActivity : AppCompatActivity() {
         viewModel.currentRound.observe(this) { round ->
              tvRound.text = "Round: $round"
         }
+
+        // The following lines were part of the provided snippet but seem to be for a different input mechanism.
+        // They are commented out to maintain consistency with the existing dPad.listener.
+        // btnDown.setOnTouchListener { _, event -> handleTouch(event, MazeGameViewModel.MoveDirection.DOWN) }
+        // btnLeft.setOnTouchListener { _, event -> handleTouch(event, MazeGameViewModel.MoveDirection.LEFT) }
+        // btnLeft.setOnTouchListener { _, event -> handleTouch(event, MazeGameViewModel.MoveDirection.LEFT) }
+        // btnRight.setOnTouchListener { _, event -> handleTouch(event, MazeGameViewModel.MoveDirection.RIGHT) }
 
         mazeView.onTileChangedListener = {
             viewModel.playerX = mazeView.playerX
@@ -261,4 +270,5 @@ class MazeGameActivity : AppCompatActivity() {
             fabWallSmash.visibility = android.view.View.GONE
         }
     }
+
 }

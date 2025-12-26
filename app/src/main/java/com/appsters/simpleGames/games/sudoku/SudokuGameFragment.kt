@@ -134,7 +134,12 @@ class SudokuGameFragment : Fragment(), SudokuBoardView.OnCellSelectedListener {
         )
 
         numberButtons.forEachIndexed { index, button ->
-            button.setOnClickListener { viewModel.enterValue(index + 1) }
+            button.setOnClickListener { 
+                viewModel.enterValue(index + 1)
+                val prefs = requireContext().getSharedPreferences("sudoku_prefs", android.content.Context.MODE_PRIVATE)
+                val isMuted = com.appsters.simpleGames.app.util.SoundManager.isMuted(prefs)
+                com.appsters.simpleGames.app.util.SoundManager.playSound(com.appsters.simpleGames.R.raw.typewriter, isMuted)
+            }
             button.setOnLongClickListener {
                 viewModel.toggleImpossibleNumber(index + 1)
                 true
@@ -166,7 +171,9 @@ class SudokuGameFragment : Fragment(), SudokuBoardView.OnCellSelectedListener {
         }
 
         viewModel.gameCompletedEvent.observe(viewLifecycleOwner) { score ->
-            com.appsters.simpleGames.app.util.SoundManager.playSound(com.appsters.simpleGames.R.raw.win)
+            val prefs = requireContext().getSharedPreferences("sudoku_prefs", android.content.Context.MODE_PRIVATE)
+            val isMuted = com.appsters.simpleGames.app.util.SoundManager.isMuted(prefs)
+            com.appsters.simpleGames.app.util.SoundManager.playSound(com.appsters.simpleGames.R.raw.win, isMuted)
             showConfetti()
             android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
                 if (isAdded && context != null) {
@@ -222,6 +229,9 @@ class SudokuGameFragment : Fragment(), SudokuBoardView.OnCellSelectedListener {
             .setCancelable(false)
             .create()
 
+        val prefs = requireContext().getSharedPreferences("sudoku_prefs", android.content.Context.MODE_PRIVATE)
+        val isMuted = com.appsters.simpleGames.app.util.SoundManager.isMuted(prefs)
+        typewriterView.setMuted(isMuted)
         typewriterView.setCharacterDelay(50)
         typewriterView.animateText(score.getScoreBreakdown())
 

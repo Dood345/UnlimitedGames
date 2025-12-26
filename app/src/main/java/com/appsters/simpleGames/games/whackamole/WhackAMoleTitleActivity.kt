@@ -53,6 +53,23 @@ class WhackAMoleTitleActivity : AppCompatActivity() {
         mainViewModel.highScore.observe(this, Observer { highScore ->
             highScoreTextView.text = "High Score: $highScore"
         })
+
+        com.appsters.simpleGames.app.util.SoundManager.init(this)
+        val muteButton = findViewById<android.widget.ImageButton>(R.id.btn_mute)
+        val prefs = getSharedPreferences("WhackAMolePrefs", MODE_PRIVATE)
+        updateMuteButtonIcon(muteButton, prefs)
+        muteButton.setOnClickListener {
+            com.appsters.simpleGames.app.util.SoundManager.toggleMute(prefs)
+            updateMuteButtonIcon(muteButton, prefs)
+        }
+    }
+
+    private fun updateMuteButtonIcon(button: android.widget.ImageButton, prefs: android.content.SharedPreferences) {
+        if (com.appsters.simpleGames.app.util.SoundManager.isMuted(prefs)) {
+            button.setImageResource(R.drawable.ic_volume_off)
+        } else {
+            button.setImageResource(R.drawable.ic_volume_up)
+        }
     }
 
     /**

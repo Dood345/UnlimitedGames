@@ -123,7 +123,9 @@ class WhackAMoleGameActivity : AppCompatActivity() {
      * @param moleId The ID of the mole that was clicked (0-8).
      */
     private fun onMoleWhacked(moleId: Int) {
-        com.appsters.simpleGames.app.util.SoundManager.playSound(R.raw.mole_hit)
+        val prefs = getSharedPreferences("WhackAMolePrefs", MODE_PRIVATE)
+        val isMuted = com.appsters.simpleGames.app.util.SoundManager.isMuted(prefs)
+        com.appsters.simpleGames.app.util.SoundManager.playSound(R.raw.mole_hit, isMuted)
         viewModel.hitMole(moleId)
     }
 
@@ -218,4 +220,6 @@ class WhackAMoleGameActivity : AppCompatActivity() {
     fun restartGame() {
         viewModel.resetGame()
     }
+
+
 }

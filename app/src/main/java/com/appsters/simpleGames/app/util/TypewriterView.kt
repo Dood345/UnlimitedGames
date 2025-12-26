@@ -14,13 +14,17 @@ class TypewriterView @JvmOverloads constructor(
     private var textToAnimate: CharSequence = ""
     private var currentIndex = 0
     private var characterDelay: Long = 50 // Default delay in milliseconds
+    private var isMuted: Boolean = false
 
     private val handler = Handler(Looper.getMainLooper())
 
     private val characterAdder = object : Runnable {
         override fun run() {
             text = textToAnimate.subSequence(0, currentIndex++)
-            com.appsters.simpleGames.app.util.SoundManager.playSound(com.appsters.simpleGames.R.raw.typewriter)
+            // Play sound every other character (e.g., when currentIndex is odd)
+            if (currentIndex % 2 != 0) {
+                com.appsters.simpleGames.app.util.SoundManager.playSound(com.appsters.simpleGames.R.raw.typewriter, isMuted)
+            }
             if (currentIndex <= textToAnimate.length) {
                 handler.postDelayed(this, characterDelay)
             }
@@ -38,5 +42,9 @@ class TypewriterView @JvmOverloads constructor(
 
     fun setCharacterDelay(millis: Long) {
         characterDelay = millis
+    }
+
+    fun setMuted(muted: Boolean) {
+        isMuted = muted
     }
 }

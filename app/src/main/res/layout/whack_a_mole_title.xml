@@ -13,6 +13,7 @@
         android:background="@drawable/cyberpunk_urban_scenery"
         tools:context=".games.whackamole.WhackAMoleTitleFragment">
 
+
         <!-- Scrim to darken background -->
         <View
             android:layout_width="match_parent"
@@ -84,9 +85,20 @@
                 android:layout_marginTop="20dp"
                 android:backgroundTint="@color/button_pink"
                 android:fontFamily="@font/audiowide"
-                android:padding="10dp"
                 android:text="@string/clear"
                 android:textSize="14sp" />
+
+            <ImageButton
+                android:id="@+id/btn_mute"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:layout_marginTop="20dp"
+                android:background="@drawable/hud_background"
+                android:contentDescription="Mute Sound"
+                android:padding="12dp"
+                android:scaleType="fitCenter"
+                android:src="@drawable/ic_volume_up"
+                app:tint="@color/mute_icon_color" />
 
         </LinearLayout>
 

@@ -50,6 +50,15 @@ class MazeMenuFragment : Fragment() {
         
         updateMenuState()
 
+        com.appsters.simpleGames.app.util.SoundManager.init(requireContext())
+        val muteButton = view.findViewById<android.widget.ImageButton>(R.id.btn_mute)
+        val prefs = requireContext().getSharedPreferences("maze_prefs", android.content.Context.MODE_PRIVATE)
+        updateMuteButtonIcon(muteButton, prefs)
+        muteButton.setOnClickListener {
+            com.appsters.simpleGames.app.util.SoundManager.toggleMute(prefs)
+            updateMuteButtonIcon(muteButton, prefs)
+        }
+
         view.findViewById<Button>(R.id.btn_start_maze).setOnClickListener {
             val intent = Intent(requireContext(), MazeGameActivity::class.java)
             intent.putExtra("EXTRA_CONTINUE_RUN", true)
@@ -61,6 +70,15 @@ class MazeMenuFragment : Fragment() {
             RunManager.startNewRun()
             val intent = Intent(requireContext(), MazeGameActivity::class.java)
             startActivity(intent)
+        }
+
+    }
+
+    private fun updateMuteButtonIcon(button: android.widget.ImageButton, prefs: android.content.SharedPreferences) {
+        if (com.appsters.simpleGames.app.util.SoundManager.isMuted(prefs)) {
+            button.setImageResource(R.drawable.ic_volume_off)
+        } else {
+            button.setImageResource(R.drawable.ic_volume_up)
         }
     }
 }

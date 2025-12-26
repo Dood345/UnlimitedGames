@@ -29,6 +29,7 @@ public class Game2048Fragment extends Fragment {
     private final java.util.Map<String, TextView> activeViews = new java.util.HashMap<>();
     private int cellSize;
     private int gridMargin;
+    private android.content.SharedPreferences prefs;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -36,6 +37,7 @@ public class Game2048Fragment extends Fragment {
         viewModel = new ViewModelProvider(this).get(Game2048ViewModel.class);
         gestureDetector = new GestureDetector(requireContext(), new SwipeListener(),
                 new android.os.Handler(android.os.Looper.getMainLooper()));
+        prefs = requireContext().getSharedPreferences("Game2048Prefs", android.content.Context.MODE_PRIVATE);
     }
 
     @Nullable
@@ -70,9 +72,23 @@ public class Game2048Fragment extends Fragment {
         viewModel.board.observe(getViewLifecycleOwner(), board -> updateBoard(board, true));
         viewModel.gameOver.observe(getViewLifecycleOwner(), isGameOver -> {
             binding.gameOverTextView.setVisibility(isGameOver ? View.VISIBLE : View.GONE);
+            if (viewModel.board.getValue() == null) {
+                viewModel.newGame();
+            }
         });
 
-        binding.newGameButton.setOnClickListener(v -> viewModel.newGame());
+        view.findViewById(com.appsters.simpleGames.R.id.newGameButton)
+                .setOnClickListener(v -> viewModel.newGame());
+
+        android.widget.ImageButton muteButton = view.findViewById(com.appsters.simpleGames.R.id.btn_mute);
+        updateMuteButtonIcon(muteButton, prefs);
+        muteButton.setOnClickListener(v -> {
+            com.appsters.simpleGames.app.util.SoundManager.toggleMute(prefs);
+            updateMuteButtonIcon(muteButton, prefs);
+        });
+
+        // Create initial board view
+        initializeBoard();
         binding.gameBoard.setOnTouchListener((v, event) -> gestureDetector.onTouchEvent(event));
     }
 
@@ -194,6 +210,24 @@ public class Game2048Fragment extends Fragment {
         }
     }
 
+    private void initializeBoard() {
+        binding.gameBoard.removeAllViews();
+        activeViews.clear();
+        drawBackgroundGrid();
+
+        if (viewModel.board.getValue() != null) {
+            updateBoard(viewModel.board.getValue(), false);
+        }
+    }
+
+    private void updateMuteButtonIcon(android.widget.ImageButton button, android.content.SharedPreferences prefs) {
+        if (com.appsters.simpleGames.app.util.SoundManager.isMuted(prefs)) {
+            button.setImageResource(com.appsters.simpleGames.R.drawable.ic_volume_off);
+        } else {
+            button.setImageResource(com.appsters.simpleGames.R.drawable.ic_volume_up);
+        }
+    }
+
     private void createTileView(Tile tile, int left, int top, boolean animate, int startDelay) {
         TextView view = new TextView(requireContext());
         android.widget.FrameLayout.LayoutParams params = new android.widget.FrameLayout.LayoutParams(cellSize,
@@ -278,7 +312,9 @@ public class Game2048Fragment extends Fragment {
                     } else {
                         viewModel.move(0); // Left
                     }
-                    com.appsters.simpleGames.app.util.SoundManager.playSound(com.appsters.simpleGames.R.raw.slide);
+                    boolean isMuted = com.appsters.simpleGames.app.util.SoundManager.isMuted(prefs);
+                    com.appsters.simpleGames.app.util.SoundManager.playSound(com.appsters.simpleGames.R.raw.slide,
+                            isMuted);
                     return true;
                 }
             } else {
@@ -290,7 +326,9 @@ public class Game2048Fragment extends Fragment {
                         // An upward swipe has a negative diffY.
                         viewModel.move(1); // Up
                     }
-                    com.appsters.simpleGames.app.util.SoundManager.playSound(com.appsters.simpleGames.R.raw.slide);
+                    boolean isMuted = com.appsters.simpleGames.app.util.SoundManager.isMuted(prefs);
+                    com.appsters.simpleGames.app.util.SoundManager.playSound(com.appsters.simpleGames.R.raw.slide,
+                            isMuted);
                     return true;
                 }
             }

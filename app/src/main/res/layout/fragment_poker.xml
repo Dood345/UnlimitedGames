@@ -7,14 +7,14 @@
         <import type="android.view.View" />
         <variable
             name="viewModel"
-            type="com.appsters.unlimitedgames.games.poker.PokerViewModel" />
+            type="simpleGames.games.poker.PokerViewModel" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:padding="16dp"
-        tools:context="com.appsters.unlimitedgames.games.poker.PokerFragment">
+        tools:context="simpleGames.games.poker.PokerFragment">
 
         <!-- Header: Coins and Back -->
         <TextView

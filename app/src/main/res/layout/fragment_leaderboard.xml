@@ -6,7 +6,7 @@
     <data>
         <variable
             name="viewModel"
-            type="com.appsters.unlimitedgames.app.ui.leaderboard.LeaderboardViewModel" />
+            type="simpleGames.app.ui.leaderboard.LeaderboardViewModel" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout

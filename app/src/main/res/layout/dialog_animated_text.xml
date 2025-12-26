@@ -7,7 +7,7 @@
     android:padding="24dp">
 
     <!-- Use the custom TypewriterView with a monospace font for alignment -->
-    <com.appsters.unlimitedgames.app.util.TypewriterView
+    <simpleGames.app.util.TypewriterView
         android:id="@+id/typewriter_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

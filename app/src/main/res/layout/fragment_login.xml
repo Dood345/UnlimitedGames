@@ -6,7 +6,7 @@
     <data>
         <variable
             name="viewModel"
-            type="com.appsters.unlimitedgames.app.ui.auth.AuthViewModel" />
+            type="simpleGames.app.ui.auth.AuthViewModel" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout

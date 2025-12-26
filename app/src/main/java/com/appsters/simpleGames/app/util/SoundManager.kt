@@ -33,7 +33,7 @@ object SoundManager {
         // Preload sounds with specific volumes
         loadSound(context, R.raw.mole_hit, 0.92f) // -0.69dB
         loadSound(context, R.raw.slide, 0.89f)    // -1dB
-        loadSound(context, R.raw.typewriter, 0.89f) // -1dB
+        loadSound(context, R.raw.typewriter, 0.77f) // -2.2dB
         loadSound(context, R.raw.win, 0.79f)      // -2dB
 
         isInitialized = true

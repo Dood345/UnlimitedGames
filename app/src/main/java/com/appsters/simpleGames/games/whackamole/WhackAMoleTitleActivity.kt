@@ -62,6 +62,14 @@ class WhackAMoleTitleActivity : AppCompatActivity() {
             com.appsters.simpleGames.app.util.SoundManager.toggleMute(prefs)
             updateMuteButtonIcon(muteButton, prefs)
         }
+
+        findViewById<android.widget.ImageButton>(R.id.btn_help).setOnClickListener {
+            com.google.android.material.dialog.MaterialAlertDialogBuilder(this, R.style.HelpDialogTheme)
+                .setTitle("How to Play")
+                .setMessage("Instructions: Tap moles to score! Avoid empty holes.\n\nTip: Be quick, they disappear fast!")
+                .setPositiveButton("Got it", null)
+                .show()
+        }
     }
 
     private fun updateMuteButtonIcon(button: android.widget.ImageButton, prefs: android.content.SharedPreferences) {

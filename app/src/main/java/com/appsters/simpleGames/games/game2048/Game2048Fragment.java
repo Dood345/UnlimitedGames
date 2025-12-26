@@ -87,6 +87,16 @@ public class Game2048Fragment extends Fragment {
             updateMuteButtonIcon(muteButton, prefs);
         });
 
+        view.findViewById(com.appsters.simpleGames.R.id.btn_help).setOnClickListener(v -> {
+            new com.google.android.material.dialog.MaterialAlertDialogBuilder(requireContext(),
+                    com.appsters.simpleGames.R.style.HelpDialogTheme)
+                    .setTitle("How to Play")
+                    .setMessage(
+                            "Instructions: Swipe to merge matching numbers (2+2=4). Reach 2048!\n\nTip: Try keeping your highest tile in a corner!")
+                    .setPositiveButton("Got it", null)
+                    .show();
+        });
+
         // Create initial board view
         initializeBoard();
         binding.gameBoard.setOnTouchListener((v, event) -> gestureDetector.onTouchEvent(event));

@@ -58,6 +58,15 @@ public class SoccerSeparationGameFragment extends Fragment {
         choiceButtons[2] = v.findViewById(R.id.btn_choice_3);
         choiceButtons[3] = v.findViewById(R.id.btn_choice_4);
 
+        v.findViewById(R.id.btn_help).setOnClickListener(view -> {
+            new com.google.android.material.dialog.MaterialAlertDialogBuilder(requireContext(), R.style.HelpDialogTheme)
+                    .setTitle("How to Play")
+                    .setMessage(
+                            "Instructions: Connect players via teammates.\n\nTip: Think about shared clubs and national teams!")
+                    .setPositiveButton("Got it", null)
+                    .show();
+        });
+
         vm = new ViewModelProvider(this).get(SoccerSeparationGameViewModel.class);
 
         observeVM();

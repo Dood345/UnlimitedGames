@@ -24,7 +24,7 @@ public class PokerFragment extends Fragment {
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
-                             @Nullable Bundle savedInstanceState) {
+            @Nullable Bundle savedInstanceState) {
         binding = FragmentPokerBinding.inflate(inflater, container, false);
         return binding.getRoot();
     }
@@ -47,20 +47,27 @@ public class PokerFragment extends Fragment {
         binding.raiseButton.setOnClickListener(v -> viewModel.playerRaise());
         binding.revealNextButton.setOnClickListener(v -> viewModel.revealNext());
 
-        //Backs out of game
+        // Backs out of game
         binding.backToGamesButton.setOnClickListener(v -> {
-            NavController navController =
-                    NavHostFragment.findNavController(PokerFragment.this);
+            NavController navController = NavHostFragment.findNavController(PokerFragment.this);
             navController.navigateUp();
         });
 
         // Raise slider: progress 0..(raiseMax-1) maps to raise amount 1..raiseMax
         binding.raiseAmountSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            @Override public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                if (fromUser) viewModel.setRaiseSliderProgress(progress);
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                if (fromUser)
+                    viewModel.setRaiseSliderProgress(progress);
             }
-            @Override public void onStartTrackingTouch(SeekBar seekBar) { }
-            @Override public void onStopTrackingTouch(SeekBar seekBar) { }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+            }
         });
 
         // Keep slider max/value in sync with ViewModel
@@ -82,19 +89,30 @@ public class PokerFragment extends Fragment {
                 binding.raiseAmountSeekBar.setProgress(a - 1);
             }
 
-
         });
 
-// Highlight selected buy-in button
-viewModel.selectedBuyIn.observe(getViewLifecycleOwner(), sel -> {
-    int selectedColor = ContextCompat.getColor(requireContext(), android.R.color.holo_blue_light);
-    int normalColor = ContextCompat.getColor(requireContext(), android.R.color.darker_gray);
+        // Highlight selected buy-in button
+        viewModel.selectedBuyIn.observe(getViewLifecycleOwner(), sel -> {
+            int selectedColor = ContextCompat.getColor(requireContext(), android.R.color.holo_blue_light);
+            int normalColor = ContextCompat.getColor(requireContext(), android.R.color.darker_gray);
 
-    binding.buyIn5Button.setBackgroundTintList(ColorStateList.valueOf((sel != null && sel == 5) ? selectedColor : normalColor));
-    binding.buyIn50Button.setBackgroundTintList(ColorStateList.valueOf((sel != null && sel == 50) ? selectedColor : normalColor));
-    binding.buyIn500Button.setBackgroundTintList(ColorStateList.valueOf((sel != null && sel == 500) ? selectedColor : normalColor));
-});
+            binding.buyIn5Button.setBackgroundTintList(
+                    ColorStateList.valueOf((sel != null && sel == 5) ? selectedColor : normalColor));
+            binding.buyIn50Button.setBackgroundTintList(
+                    ColorStateList.valueOf((sel != null && sel == 50) ? selectedColor : normalColor));
+            binding.buyIn500Button.setBackgroundTintList(
+                    ColorStateList.valueOf((sel != null && sel == 500) ? selectedColor : normalColor));
+        });
 
+        binding.btnHelp.setOnClickListener(v -> {
+            new com.google.android.material.dialog.MaterialAlertDialogBuilder(requireContext(),
+                    com.appsters.simpleGames.R.style.HelpDialogTheme)
+                    .setTitle("How to Play")
+                    .setMessage(
+                            "Instructions: Create the best poker hand from 5 cards.\n\nTip: Pairs and flushes are good starting points!")
+                    .setPositiveButton("Got it", null)
+                    .show();
+        });
 
     }
 

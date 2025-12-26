@@ -59,6 +59,14 @@ class MazeMenuFragment : Fragment() {
             updateMuteButtonIcon(muteButton, prefs)
         }
 
+        view.findViewById<android.widget.ImageButton>(R.id.btn_help).setOnClickListener {
+            com.google.android.material.dialog.MaterialAlertDialogBuilder(requireContext(), R.style.HelpDialogTheme)
+                .setTitle("How to Play")
+                .setMessage("Instructions: Navigate to the end to begin again. Try to avoid the walls\n\nTip: Cyan = Exp, Gold = Money, Green = Stamina, Purple = Vision.")
+                .setPositiveButton("Got it", null)
+                .show()
+        }
+
         view.findViewById<Button>(R.id.btn_start_maze).setOnClickListener {
             val intent = Intent(requireContext(), MazeGameActivity::class.java)
             intent.putExtra("EXTRA_CONTINUE_RUN", true)

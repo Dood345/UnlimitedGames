@@ -113,6 +113,14 @@ class SudokuMenuFragment : Fragment() {
             com.appsters.simpleGames.app.util.SoundManager.toggleMute(prefs)
             updateMuteButtonIcon(muteButton, prefs)
         }
+
+        view.findViewById<android.widget.ImageButton>(R.id.btn_help).setOnClickListener {
+            com.google.android.material.dialog.MaterialAlertDialogBuilder(requireContext(), R.style.HelpDialogTheme)
+                .setTitle("How to Play")
+                .setMessage("Instructions: Fill grid with 1-9. No repeats in rows or columns or boxes.\n\nTip: Tap and hold on numbers to mark impossibilities!")
+                .setPositiveButton("Got it", null)
+                .show()
+        }
     }
 
     private fun updateMuteButtonIcon(button: android.widget.ImageButton, prefs: android.content.SharedPreferences) {

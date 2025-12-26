@@ -141,14 +141,45 @@ class WhackAMoleGameActivity : AppCompatActivity() {
 
         if (mole.isVisible) {
             moleView.visibility = View.VISIBLE
-            val colorResId = when (mole.color) {
-                MoleColor.RED -> R.color.mole_red
-                MoleColor.BLUE -> R.color.mole_blue
-                MoleColor.GREEN -> R.color.mole_green
-                MoleColor.YELLOW -> R.color.mole_yellow
-                MoleColor.PURPLE -> R.color.mole_purple
+
+            // 1. Get the Neon Color
+            val colorInt = when (mole.color) {
+                MoleColor.RED -> android.graphics.Color.parseColor("#FF3333") // Bright Red
+                MoleColor.BLUE -> android.graphics.Color.parseColor("#00FFFF") // Cyan/Neon Blue
+                MoleColor.GREEN -> android.graphics.Color.parseColor("#39FF14") // Neon Green
+                MoleColor.YELLOW -> android.graphics.Color.parseColor("#FFFF00") // Bright Yellow
+                MoleColor.PURPLE -> android.graphics.Color.parseColor("#E040FB") // Neon Purple
             }
-            moleView.backgroundTintList = ContextCompat.getColorStateList(this, colorResId)
+
+            // 2. Create the Radial Glow (Background)
+            val glowDrawable = android.graphics.drawable.GradientDrawable()
+            glowDrawable.shape = android.graphics.drawable.GradientDrawable.OVAL
+            glowDrawable.gradientType = android.graphics.drawable.GradientDrawable.RADIAL_GRADIENT
+            glowDrawable.colors = intArrayOf(colorInt, android.graphics.Color.TRANSPARENT)
+            glowDrawable.gradientRadius = 150f // Adjust radius as needed (approx 75% of 100dp view)
+            
+            // 3. Get the Mole Image (Foreground)
+            val moleDrawable = ContextCompat.getDrawable(this, R.drawable.mole_transparent)
+            
+            // 4. Layer them together
+            if (moleDrawable != null) {
+                // Determine inset to prevent mole from touching edge if desired, or just layer directly
+                val layers = arrayOf(glowDrawable, moleDrawable)
+                val layerDrawable = android.graphics.drawable.LayerDrawable(layers)
+                
+                // Add padding to the mole image so it sits inside the glow?? 
+                // Actually the user wants glow *under* it. Standard layering works.
+                // Let's inset the mole slightly so the glow extends past it?
+                // For now, simple stacking.
+                layerDrawable.setLayerInset(1, 20, 20, 20, 20) // Inset mole by 20px so glow pops out edges
+
+                moleView.background = layerDrawable
+            } else {
+                // Fallback if image fails
+                 moleView.background = glowDrawable
+            }
+            
+            moleView.backgroundTintList = null // Clear constraints
         } else {
             moleView.visibility = View.INVISIBLE
         }

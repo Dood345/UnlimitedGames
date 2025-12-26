@@ -186,20 +186,24 @@ public class SoccerSeparationGameFragment extends Fragment {
         }
 
         Integer finalScore = vm.getScore().getValue();
+        Integer correctAnswers = vm.getCorrectAnswersCount().getValue();
         List<SeparationQuestion> list = vm.getQuestions().getValue();
         int totalQuestions = (list != null) ? list.size() : 10;
         int score = (finalScore != null ? finalScore : 0);
+        int correct = (correctAnswers != null ? correctAnswers : 0);
+        int bonus = score - correct;
 
         tvResult.setVisibility(View.VISIBLE);
 
         // Create a more appealing multi-line game over message
         String gameOverMessage = "🎉 Game Over! 🎉\n\n" +
-                "Your Score\n" +
-                score + " / " + totalQuestions + "\n\n";
+                "Correct Answers: " + correct + " / " + totalQuestions + "\n" +
+                "Combo Bonus: +" + bonus + "\n\n\n" +
+                "Total Score: " + score + "\n\n\n";
 
         // Add encouraging message based on performance
-        double percentage = (double) score / totalQuestions * 100;
-        if (percentage == 100) {
+        double percentage = (double) correct / totalQuestions * 100;
+        if (percentage >= 100) { // Using correct count for performace percentage
             gameOverMessage += "Perfect! Outstanding! ⭐";
         } else if (percentage >= 80) {
             gameOverMessage += "Excellent work! 🏆";

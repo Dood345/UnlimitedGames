@@ -20,6 +20,8 @@ public class SoccerSeparationGameViewModel extends androidx.lifecycle.AndroidVie
     // Streak tracking
     private int consecutiveCorrectCount = 0;
 
+    private final MutableLiveData<Integer> correctAnswersCount = new MutableLiveData<>(0);
+
     private final MutableLiveData<Boolean> loading = new MutableLiveData<>(true);
     private final MutableLiveData<Boolean> gameOver = new MutableLiveData<>(false);
 
@@ -50,6 +52,10 @@ public class SoccerSeparationGameViewModel extends androidx.lifecycle.AndroidVie
         return score;
     }
 
+    public LiveData<Integer> getCorrectAnswersCount() {
+        return correctAnswersCount;
+    }
+
     public LiveData<Boolean> getLoading() {
         return loading;
     }
@@ -70,6 +76,7 @@ public class SoccerSeparationGameViewModel extends androidx.lifecycle.AndroidVie
         gameOver.setValue(false);
         lastAnswerCorrect.setValue(null);
         consecutiveCorrectCount = 0; // Reset streak
+        correctAnswersCount.setValue(0);
 
         repository.loadQuestions((list, err) -> {
             if (err != null) {
@@ -120,6 +127,9 @@ public class SoccerSeparationGameViewModel extends androidx.lifecycle.AndroidVie
 
         if (isCorrect) {
             consecutiveCorrectCount++;
+            Integer currentCorrect = correctAnswersCount.getValue();
+            correctAnswersCount.setValue(currentCorrect != null ? currentCorrect + 1 : 1);
+
             int pointsToAdd = 1 + (consecutiveCorrectCount / 3); // Bonus for every 3 in a row
 
             Integer currentScore = score.getValue();

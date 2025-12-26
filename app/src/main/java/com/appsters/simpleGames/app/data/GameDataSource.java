@@ -51,7 +51,7 @@ public class GameDataSource {
                                                 "Whack-a-Mole",
                                                 "",
                                                 0,
-                                                R.drawable.mole_transparent));
+                                                R.drawable.mole_man));
                 games.add(
                                 new Game(
                                                 "6",

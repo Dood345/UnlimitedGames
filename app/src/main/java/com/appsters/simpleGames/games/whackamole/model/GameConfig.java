@@ -13,37 +13,43 @@ public final class GameConfig {
     private final long gameDurationMillis;
 
     /**
-     * Default game configuration, providing a standard set of rules for a balanced game.
+     * Default game configuration, providing a standard set of rules for a balanced
+     * game.
      * <ul>
-     *   <li>maxMisses: 5</li>
-     *   <li>numMoles: 9</li>
-     *   <li>initialInterval: 2000ms</li>
-     *   <li>minInterval: 500ms</li>
-     *   <li>intervalDecrement: 100ms</li>
-     *   <li>gameDurationMillis: 30000ms</li>
+     * <li>maxMisses: 5</li>
+     * <li>numMoles: 9</li>
+     * <li>initialInterval: 2000ms</li>
+     * <li>minInterval: 500ms</li>
+     * <li>intervalDecrement: 100ms</li>
+     * <li>gameDurationMillis: 30000ms</li>
      * </ul>
      */
     public static final GameConfig DEFAULT = new GameConfig(
-            5,     // maxMisses
-            9,     // numMoles
-            2000,  // initialInterval in ms
-            500,   // minInterval in ms
-            100,    // intervalDecrement per spawn
+            5, // maxMisses
+            9, // numMoles
+            2000, // initialInterval in ms
+            500, // minInterval in ms
+            50, // intervalDecrement per spawn
             30000 // gameDurationMillis in ms
     );
 
     /**
      * Constructs a new game configuration.
      *
-     * @param maxMisses         The number of allowed misses before the game ends.
-     * @param numMoles          The total number of moles (or holes) available in the game grid.
-     * @param initialInterval   The initial time in milliseconds between mole appearances.
-     * @param minInterval       The minimum time in milliseconds between mole appearances, representing the max difficulty.
-     * @param intervalDecrement The amount of time in milliseconds to reduce the interval by after each successful hit, speeding up the game.
+     * @param maxMisses          The number of allowed misses before the game ends.
+     * @param numMoles           The total number of moles (or holes) available in
+     *                           the game grid.
+     * @param initialInterval    The initial time in milliseconds between mole
+     *                           appearances.
+     * @param minInterval        The minimum time in milliseconds between mole
+     *                           appearances, representing the max difficulty.
+     * @param intervalDecrement  The amount of time in milliseconds to reduce the
+     *                           interval by after each successful hit, speeding up
+     *                           the game.
      * @param gameDurationMillis The total duration of the game in milliseconds.
      */
     public GameConfig(int maxMisses, int numMoles, long initialInterval, long minInterval,
-                      long intervalDecrement, long gameDurationMillis) {
+            long intervalDecrement, long gameDurationMillis) {
         this.maxMisses = maxMisses;
         this.numMoles = numMoles;
         this.initialInterval = initialInterval;

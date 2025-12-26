@@ -423,18 +423,22 @@ class MazeViewModel(application: android.app.Application) : androidx.lifecycle.A
         if (scoreSubmitted) return
         scoreSubmitted = true
 
-        val userId = FirebaseAuth.getInstance().uid ?: return
-        userRepository.getUser(userId) { task ->
-            if (task.isSuccessful) {
-                val user = task.result
-                if (user != null) {
-                    val username = user.username
-                    val scoreObject = Score(null, userId, username, GameType.MAZE, score, user.privacy)
-                    leaderboardRepository.submitScore(scoreObject) { _, _, _ ->
-                        // Optionally handle success or failure
+        try {
+            val userId = FirebaseAuth.getInstance().uid ?: return
+            userRepository.getUser(userId) { task ->
+                if (task.isSuccessful) {
+                    val user = task.result
+                    if (user != null) {
+                        val username = user.username
+                        val scoreObject = Score(null, userId, username, GameType.MAZE, score, user.privacy)
+                        leaderboardRepository.submitScore(scoreObject) { _, _, _ ->
+                            // Optionally handle success or failure
+                        }
                     }
                 }
             }
+        } catch (e: Exception) {
+            android.util.Log.e("MazeViewModel", "Error submitting score", e)
         }
     }
 }

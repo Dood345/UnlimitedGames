@@ -31,6 +31,7 @@ class MazeGameActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        com.appsters.simpleGames.app.util.SoundManager.init(this)
         setContentView(R.layout.activity_maze_game)
 
         mazeView = findViewById(R.id.maze_view)
@@ -76,6 +77,7 @@ class MazeGameActivity : AppCompatActivity() {
         // Observe Level Complete
         viewModel.isLevelComplete.observe(this) { isComplete ->
             if (isComplete) {
+                com.appsters.simpleGames.app.util.SoundManager.playSound(com.appsters.simpleGames.R.raw.win)
                 triggerConfetti()
                 mazeView.startRewind {
                     mazeView.stopGame()

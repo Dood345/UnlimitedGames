@@ -198,20 +198,24 @@ class SudokuViewModel(application: android.app.Application, private val reposito
     }
 
     private fun submitScoreToLeaderboard(score: Int) {
-        val userId = FirebaseAuth.getInstance().uid ?: return
-        userRepository.getUser(userId) { task ->
-            if (task.isSuccessful) {
-                val user = task.result
-                if (user != null) {
-                    val username = user.username
-                    val scoreObject = com.appsters.simpleGames.app.data.model.Score(
-                        null, userId, username, GameType.SUDOKU, score, user.privacy
-                    )
-                    leaderboardRepository.submitScore(scoreObject) { _, _, _ ->
-                        // Optionally handle success or failure
+        try {
+            val userId = FirebaseAuth.getInstance().uid ?: return
+            userRepository.getUser(userId) { task ->
+                if (task.isSuccessful) {
+                    val user = task.result
+                    if (user != null) {
+                        val username = user.username
+                        val scoreObject = com.appsters.simpleGames.app.data.model.Score(
+                            null, userId, username, GameType.SUDOKU, score, user.privacy
+                        )
+                        leaderboardRepository.submitScore(scoreObject) { _, _, _ ->
+                            // Optionally handle success or failure
+                        }
                     }
                 }
             }
+        } catch (e: Exception) {
+            android.util.Log.e("SudokuViewModel", "Error submitting score", e)
         }
     }
 

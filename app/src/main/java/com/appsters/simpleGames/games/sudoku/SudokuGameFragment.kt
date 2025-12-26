@@ -72,6 +72,7 @@ class SudokuGameFragment : Fragment(), SudokuBoardView.OnCellSelectedListener {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        com.appsters.simpleGames.app.util.SoundManager.init(requireContext())
         arguments?.let {
             difficulty = SudokuMenuFragment.Difficulty.valueOf(it.getString(ARG_DIFFICULTY) ?: "EASY")
             val colorRes = it.getInt(ARG_COLOR, R.color.sudoku_board_text_color)
@@ -165,9 +166,12 @@ class SudokuGameFragment : Fragment(), SudokuBoardView.OnCellSelectedListener {
         }
 
         viewModel.gameCompletedEvent.observe(viewLifecycleOwner) { score ->
+            com.appsters.simpleGames.app.util.SoundManager.playSound(com.appsters.simpleGames.R.raw.win)
             showConfetti()
             android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
-                showAnimatedCompletionDialog(score)
+                if (isAdded && context != null) {
+                    showAnimatedCompletionDialog(score)
+                }
             }, 1000)
         }
     }

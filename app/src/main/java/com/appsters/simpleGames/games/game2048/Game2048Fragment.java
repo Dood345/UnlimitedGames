@@ -47,6 +47,7 @@ public class Game2048Fragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        com.appsters.simpleGames.app.util.SoundManager.init(requireContext());
 
         binding.gameBoard.getViewTreeObserver()
                 .addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
@@ -173,6 +174,7 @@ public class Game2048Fragment extends Fragment {
                     } else {
                         viewModel.move(0); // Left
                     }
+                    com.appsters.simpleGames.app.util.SoundManager.playSound(com.appsters.simpleGames.R.raw.slide);
                     return true;
                 }
             } else {
@@ -184,6 +186,7 @@ public class Game2048Fragment extends Fragment {
                         // An upward swipe has a negative diffY.
                         viewModel.move(1); // Up
                     }
+                    com.appsters.simpleGames.app.util.SoundManager.playSound(com.appsters.simpleGames.R.raw.slide);
                     return true;
                 }
             }

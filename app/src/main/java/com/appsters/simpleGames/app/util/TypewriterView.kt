@@ -20,6 +20,7 @@ class TypewriterView @JvmOverloads constructor(
     private val characterAdder = object : Runnable {
         override fun run() {
             text = textToAnimate.subSequence(0, currentIndex++)
+            com.appsters.simpleGames.app.util.SoundManager.playSound(com.appsters.simpleGames.R.raw.typewriter)
             if (currentIndex <= textToAnimate.length) {
                 handler.postDelayed(this, characterDelay)
             }
@@ -29,6 +30,7 @@ class TypewriterView @JvmOverloads constructor(
     fun animateText(text: CharSequence) {
         textToAnimate = text
         currentIndex = 0
+        com.appsters.simpleGames.app.util.SoundManager.init(context)
         setText("") // Clear the text view before starting
         handler.removeCallbacks(characterAdder)
         handler.postDelayed(characterAdder, characterDelay)

@@ -59,6 +59,7 @@ class WhackAMoleGameActivity : AppCompatActivity() {
      */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        com.appsters.simpleGames.app.util.SoundManager.init(this)
         setContentView(R.layout.whack_a_mole_game)
 
         scoreTextView = findViewById(R.id.score)
@@ -122,6 +123,7 @@ class WhackAMoleGameActivity : AppCompatActivity() {
      * @param moleId The ID of the mole that was clicked (0-8).
      */
     private fun onMoleWhacked(moleId: Int) {
+        com.appsters.simpleGames.app.util.SoundManager.playSound(R.raw.mole_hit)
         viewModel.hitMole(moleId)
     }
 

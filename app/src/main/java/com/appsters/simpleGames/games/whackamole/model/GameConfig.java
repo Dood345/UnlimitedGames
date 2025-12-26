@@ -29,7 +29,7 @@ public final class GameConfig {
             9, // numMoles
             2000, // initialInterval in ms
             500, // minInterval in ms
-            50, // intervalDecrement per spawn
+            49, // intervalDecrement per spawn
             30000 // gameDurationMillis in ms
     );
 

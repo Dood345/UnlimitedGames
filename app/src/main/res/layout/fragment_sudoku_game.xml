@@ -20,7 +20,7 @@
             android:text="00:00"
             android:textSize="24sp" />
 
-        <simpleGames.games.sudoku.view.SudokuBoardView
+        <com.appsters.simpleGames.games.sudoku.view.SudokuBoardView
             android:id="@+id/sudoku_board_view"
             android:layout_width="match_parent"
             android:layout_height="0dp"

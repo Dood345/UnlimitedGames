@@ -6,7 +6,7 @@
     <data>
         <variable
             name="viewModel"
-            type="com.appsters.unlimitedgames.app.ui.auth.AuthViewModel" />
+            type="com.appsters.simpleGames.app.ui.auth.AuthViewModel" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -20,10 +20,10 @@
             android:id="@+id/tv_app_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Unlimited Games"
+            android:text="Simple Games"
             android:textSize="32sp"
             android:textStyle="bold"
-            android:textColor="?attr/colorPrimary"
+            android:textColor="@color/text_color"
             android:layout_marginBottom="32dp"
             app:layout_constraintBottom_toTopOf="@+id/text_input_layout_email"
             app:layout_constraintEnd_toEndOf="parent"
@@ -93,12 +93,27 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:text="@string/sign_up_prompt"
-            android:textColor="?attr/colorPrimary"
+            android:textColor="@color/text_color"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toTopOf="@+id/tv_forgot_password"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/button_login" />
+
+        <!-- Forgot Password -->
+        <TextView
+            android:id="@+id/tv_forgot_password"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="Forgot Password?"
+            android:textColor="@color/red"
+            android:textSize="14sp"
             android:textStyle="bold"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/button_login" />
+            app:layout_constraintTop_toBottomOf="@+id/text_view_sign_up" />
 
         <!-- Loading Progress -->
         <ProgressBar

@@ -7,14 +7,14 @@
         <import type="android.view.View" />
         <variable
             name="viewModel"
-            type="com.appsters.unlimitedgames.games.poker.PokerViewModel" />
+            type="com.appsters.simpleGames.games.poker.PokerViewModel" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:padding="16dp"
-        tools:context="com.appsters.unlimitedgames.games.poker.PokerFragment">
+        tools:context="simpleGames.games.poker.PokerFragment">
 
         <!-- Header: Coins and Back -->
         <TextView
@@ -140,7 +140,7 @@
                 android:layout_marginEnd="4dp"
                 app:imageUrl="@{viewModel.dealerCardUrls.size() > 0 ? viewModel.dealerCardUrls.get(0) : ``}"
                 app:isFaceUp="@{viewModel.dealerCardsFaceUp}"
-                tools:src="@drawable/card_placeholder" />
+                tools:src="@drawable/card_back" />
 
             <ImageView
                 android:layout_width="60dp"
@@ -148,7 +148,7 @@
                 android:layout_marginStart="4dp"
                 app:imageUrl="@{viewModel.dealerCardUrls.size() > 1 ? viewModel.dealerCardUrls.get(1) : ``}"
                 app:isFaceUp="@{viewModel.dealerCardsFaceUp}"
-                tools:src="@drawable/card_placeholder" />
+                tools:src="@drawable/card_back" />
         </LinearLayout>
 
 
@@ -179,31 +179,31 @@
                 android:layout_height="75dp"
                 android:layout_margin="2dp"
                 app:imageUrl="@{viewModel.boardCardUrls.size() > 0 ? viewModel.boardCardUrls.get(0) : ``}"
-                tools:src="@drawable/card_placeholder" />
+                tools:src="@drawable/card_back" />
             <ImageView
                 android:layout_width="50dp"
                 android:layout_height="75dp"
                 android:layout_margin="2dp"
                 app:imageUrl="@{viewModel.boardCardUrls.size() > 1 ? viewModel.boardCardUrls.get(1) : ``}"
-                tools:src="@drawable/card_placeholder" />
+                tools:src="@drawable/card_back" />
             <ImageView
                 android:layout_width="50dp"
                 android:layout_height="75dp"
                 android:layout_margin="2dp"
                 app:imageUrl="@{viewModel.boardCardUrls.size() > 2 ? viewModel.boardCardUrls.get(2) : ``}"
-                tools:src="@drawable/card_placeholder" />
+                tools:src="@drawable/card_back" />
             <ImageView
                 android:layout_width="50dp"
                 android:layout_height="75dp"
                 android:layout_margin="2dp"
                 app:imageUrl="@{viewModel.boardCardUrls.size() > 3 ? viewModel.boardCardUrls.get(3) : ``}"
-                tools:src="@drawable/card_placeholder" />
+                tools:src="@drawable/card_back" />
             <ImageView
                 android:layout_width="50dp"
                 android:layout_height="75dp"
                 android:layout_margin="2dp"
                 app:imageUrl="@{viewModel.boardCardUrls.size() > 4 ? viewModel.boardCardUrls.get(4) : ``}"
-                tools:src="@drawable/card_placeholder" />
+                tools:src="@drawable/card_back" />
         </LinearLayout>
 
         <Button
@@ -270,14 +270,14 @@
                 android:layout_height="105dp"
                 android:layout_marginEnd="4dp"
                 app:imageUrl="@{viewModel.playerCardUrls.size() > 0 ? viewModel.playerCardUrls.get(0) : ``}"
-                tools:src="@drawable/card_placeholder" />
+                tools:src="@drawable/card_back" />
 
             <ImageView
                 android:layout_width="70dp"
                 android:layout_height="105dp"
                 android:layout_marginStart="4dp"
                 app:imageUrl="@{viewModel.playerCardUrls.size() > 1 ? viewModel.playerCardUrls.get(1) : ``}"
-                tools:src="@drawable/card_placeholder" />
+                tools:src="@drawable/card_back" />
         </LinearLayout>
 
 
@@ -340,6 +340,21 @@
             app:layout_constraintTop_toBottomOf="@id/actionsRow"
             app:layout_constraintVertical_bias="1.0"
         />
+
+        <ImageButton
+            android:id="@+id/btn_help"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginBottom="16dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="Help"
+            android:elevation="10dp"
+            android:translationZ="10dp"
+            android:src="@drawable/ic_help"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:tint="@color/mute_icon_color" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

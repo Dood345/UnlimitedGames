@@ -13,12 +13,11 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:usesCleartextTraffic="true"
-        android:theme="@style/Theme.UnlimitedGames">
+        android:theme="@style/Theme.SimpleGames">
         <activity
             android:name=".app.MainActivity"
             android:exported="true"
-            android:label="@string/app_name"
-            android:theme="@style/Theme.UnlimitedGames">
+            android:theme="@style/Theme.SimpleGames">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -27,17 +26,17 @@
         </activity>
         <activity
             android:name=".games.whackamole.WhackAMoleTitleActivity"
-            android:theme="@style/Theme.UnlimitedGames" />
+            android:theme="@style/Theme.SimpleGames" />
         <activity
             android:name=".games.whackamole.WhackAMoleGameActivity"
-            android:theme="@style/Theme.UnlimitedGames" />
+            android:theme="@style/Theme.SimpleGames" />
         <activity
             android:name=".games.sudoku.SudokuActivity"
             android:screenOrientation="portrait"
             android:exported="false" />
         <activity
             android:name=".games.maze.MazeGameActivity"
-            android:theme="@style/Theme.UnlimitedGames" />
+            android:theme="@style/Theme.SimpleGames" />
 
         <meta-data
             android:name="preloaded_fonts"

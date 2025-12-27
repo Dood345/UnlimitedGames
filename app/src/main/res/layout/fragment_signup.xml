@@ -6,7 +6,7 @@
     <data>
         <variable
             name="viewModel"
-            type="com.appsters.unlimitedgames.app.ui.auth.AuthViewModel" />
+            type="com.appsters.simpleGames.app.ui.auth.AuthViewModel" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -23,7 +23,7 @@
             android:text="Create Account"
             android:textSize="32sp"
             android:textStyle="bold"
-            android:textColor="?attr/colorPrimary"
+            android:textColor="@color/text_color"
             android:layout_marginBottom="32dp"
             app:layout_constraintBottom_toTopOf="@+id/text_input_layout_username"
             app:layout_constraintEnd_toEndOf="parent"
@@ -117,7 +117,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:text="@string/login_prompt"
-            android:textColor="?attr/colorPrimary"
+            android:textColor="@color/text_color"
             android:textStyle="bold"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"

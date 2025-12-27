@@ -10,7 +10,15 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:background="@drawable/cyberpunk_urban_scenery"
         tools:context=".games.whackamole.WhackAMoleTitleFragment">
+
+
+        <!-- Scrim to darken background -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="#4D000000" />
 
         <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
             xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -18,7 +26,6 @@
             android:id="@+id/main"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="@drawable/cyberpunk_urban_scenery"
             android:fitsSystemWindows="true"
             android:gravity="center"
             android:orientation="vertical"
@@ -26,10 +33,13 @@
 
             <TextView
                 android:id="@+id/title"
-                android:layout_width="420dp"
-                android:layout_height="53dp"
-                android:background="@drawable/button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:background="@drawable/hud_background"
+                android:fontFamily="@font/audiowide"
                 android:gravity="center"
+                android:padding="10dp"
                 android:text="@string/title"
                 android:textAlignment="center"
                 android:textColor="@color/white"
@@ -45,33 +55,75 @@
 
             <TextView
                 android:id="@+id/high_score"
-                android:layout_width="250dp"
-                android:layout_height="39dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
                 android:layout_marginTop="10dp"
-                android:background="@drawable/button"
+                android:background="@drawable/hud_background"
+                android:fontFamily="@font/audiowide"
                 android:gravity="center"
+                android:padding="10dp"
                 android:text=""
                 android:textColor="@color/white"
                 android:textSize="24sp" />
 
             <Button
                 android:id="@+id/start_button"
-                android:layout_width="160dp"
-                android:layout_height="45dp"
+                android:layout_width="200dp"
+                android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
                 android:backgroundTint="@color/button_pink"
-                android:text="@string/start" />
+                android:fontFamily="@font/audiowide"
+                android:padding="10dp"
+                android:text="@string/start"
+                android:textSize="18sp" />
 
             <Button
                 android:id="@+id/clear_score_button"
-                android:layout_width="160dp"
-                android:layout_height="60dp"
-
+                android:layout_width="200dp"
+                android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
                 android:backgroundTint="@color/button_pink"
-                android:text="@string/clear" />
+                android:fontFamily="@font/audiowide"
+                android:text="@string/clear"
+                android:textSize="14sp" />
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:gravity="center"
+                android:orientation="horizontal">
+
+                <ImageButton
+                    android:id="@+id/btn_mute"
+                    android:layout_width="60dp"
+                    android:layout_height="60dp"
+                    android:background="@drawable/hud_background"
+                    android:contentDescription="Mute Sound"
+                    android:padding="12dp"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/ic_volume_up"
+                    app:tint="@color/mute_icon_color" />
+
+            </LinearLayout>
 
         </LinearLayout>
+
+        <ImageButton
+            android:id="@+id/btn_help"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginBottom="16dp"
+            android:background="@drawable/hud_background"
+            android:contentDescription="Help"
+            android:padding="12dp"
+            android:scaleType="fitCenter"
+            android:src="@drawable/ic_help"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:tint="@color/mute_icon_color" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

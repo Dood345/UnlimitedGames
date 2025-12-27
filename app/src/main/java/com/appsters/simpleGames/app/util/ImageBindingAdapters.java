@@ -32,8 +32,8 @@ public class ImageBindingAdapters {
         // Load from URL with caching
         Glide.with(view.getContext())
                 .load(url)
-                .placeholder(R.drawable.card_placeholder)
-                .error(R.drawable.card_placeholder)
+                .placeholder(R.drawable.card_back)
+                .error(R.drawable.card_back)
                 .diskCacheStrategy(DiskCacheStrategy.ALL)
                 .into(view);
     }

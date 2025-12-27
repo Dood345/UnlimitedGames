@@ -140,7 +140,7 @@
                 android:layout_marginEnd="4dp"
                 app:imageUrl="@{viewModel.dealerCardUrls.size() > 0 ? viewModel.dealerCardUrls.get(0) : ``}"
                 app:isFaceUp="@{viewModel.dealerCardsFaceUp}"
-                tools:src="@drawable/card_placeholder" />
+                tools:src="@drawable/card_back" />
 
             <ImageView
                 android:layout_width="60dp"
@@ -148,7 +148,7 @@
                 android:layout_marginStart="4dp"
                 app:imageUrl="@{viewModel.dealerCardUrls.size() > 1 ? viewModel.dealerCardUrls.get(1) : ``}"
                 app:isFaceUp="@{viewModel.dealerCardsFaceUp}"
-                tools:src="@drawable/card_placeholder" />
+                tools:src="@drawable/card_back" />
         </LinearLayout>
 
 
@@ -179,31 +179,31 @@
                 android:layout_height="75dp"
                 android:layout_margin="2dp"
                 app:imageUrl="@{viewModel.boardCardUrls.size() > 0 ? viewModel.boardCardUrls.get(0) : ``}"
-                tools:src="@drawable/card_placeholder" />
+                tools:src="@drawable/card_back" />
             <ImageView
                 android:layout_width="50dp"
                 android:layout_height="75dp"
                 android:layout_margin="2dp"
                 app:imageUrl="@{viewModel.boardCardUrls.size() > 1 ? viewModel.boardCardUrls.get(1) : ``}"
-                tools:src="@drawable/card_placeholder" />
+                tools:src="@drawable/card_back" />
             <ImageView
                 android:layout_width="50dp"
                 android:layout_height="75dp"
                 android:layout_margin="2dp"
                 app:imageUrl="@{viewModel.boardCardUrls.size() > 2 ? viewModel.boardCardUrls.get(2) : ``}"
-                tools:src="@drawable/card_placeholder" />
+                tools:src="@drawable/card_back" />
             <ImageView
                 android:layout_width="50dp"
                 android:layout_height="75dp"
                 android:layout_margin="2dp"
                 app:imageUrl="@{viewModel.boardCardUrls.size() > 3 ? viewModel.boardCardUrls.get(3) : ``}"
-                tools:src="@drawable/card_placeholder" />
+                tools:src="@drawable/card_back" />
             <ImageView
                 android:layout_width="50dp"
                 android:layout_height="75dp"
                 android:layout_margin="2dp"
                 app:imageUrl="@{viewModel.boardCardUrls.size() > 4 ? viewModel.boardCardUrls.get(4) : ``}"
-                tools:src="@drawable/card_placeholder" />
+                tools:src="@drawable/card_back" />
         </LinearLayout>
 
         <Button
@@ -270,14 +270,14 @@
                 android:layout_height="105dp"
                 android:layout_marginEnd="4dp"
                 app:imageUrl="@{viewModel.playerCardUrls.size() > 0 ? viewModel.playerCardUrls.get(0) : ``}"
-                tools:src="@drawable/card_placeholder" />
+                tools:src="@drawable/card_back" />
 
             <ImageView
                 android:layout_width="70dp"
                 android:layout_height="105dp"
                 android:layout_marginStart="4dp"
                 app:imageUrl="@{viewModel.playerCardUrls.size() > 1 ? viewModel.playerCardUrls.get(1) : ``}"
-                tools:src="@drawable/card_placeholder" />
+                tools:src="@drawable/card_back" />
         </LinearLayout>
 
 
